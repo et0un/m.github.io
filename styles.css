@@ -1,0 +1,351 @@
+:root{
+  --bg:#070707;
+  --bg-2:#0a0a0a;
+  --panel:#0e0e0e;
+  --panel-2:#111;
+  --line:#292929;
+  --line-soft:#1c1c1c;
+  --text:#f4f4f4;
+  --muted:#a8a8a8;
+  --muted-2:#777;
+  --orange:#ff4b1f;
+  --blue:#163e5c;
+  --purple:#482064;
+  --green:#12472d;
+  --header-h:72px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#070707;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+
+/* ---------- homepage ---------- */
+.home-page{background:radial-gradient(circle at 50% 10%,#151515 0,#080808 36%,#050505 100%)}
+.nav{position:fixed;z-index:20;top:0;width:100%;padding:24px 5%;background:linear-gradient(#070707ee,transparent)}
+.nav nav,.lecture-topbar nav{display:flex;justify-content:center;gap:clamp(24px,5vw,72px)}
+.nav a,.lecture-topbar a{color:#ddd;text-decoration:none;text-transform:uppercase;font-size:12px;letter-spacing:.08em;transition:color .2s}
+.nav a:hover,.lecture-topbar a:hover{color:#fff}
+.hero{height:min(760px,100svh);min-height:620px;position:relative;display:flex;align-items:center;justify-content:flex-end;flex-direction:column;padding:8vh 5% 11vh;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,transparent 30%,#050505 78%);pointer-events:none}
+#logoCanvas{position:absolute;inset:4% 0 14%;width:100%;height:82%}
+.hero h1{z-index:2;margin:0;text-align:center;font-size:clamp(42px,7.5vw,104px);line-height:.9;letter-spacing:-.055em;font-weight:850;color:#fff}
+.section{width:min(1180px,90vw);margin:0 auto;padding:clamp(42px,7vw,88px) 0}
+.section-title{display:flex;align-items:center;gap:28px;margin-bottom:30px}
+.section-title h2{font-size:clamp(25px,3vw,40px);margin:0;white-space:nowrap;letter-spacing:-.02em}
+.section-title span{height:1px;background:#555;flex:1}
+.prose{max-width:1040px;color:#c8c8c8;font-size:clamp(16px,1.6vw,20px);line-height:1.65}
+.prose p{margin:0 0 1.2em}
+.link-scroll{position:relative}
+.link-track{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.resource{min-height:105px;border:1px solid var(--line);border-radius:12px;padding:18px 22px;display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:18px;align-items:center;color:white;text-decoration:none;background:linear-gradient(120deg,#111,#0b0b0b);transition:.25s}
+.resource:hover{transform:translateY(-3px);border-color:#555}
+.resource b{width:44px;height:44px;display:grid;place-items:center;font-size:27px;line-height:1;text-align:center}
+.resource span{display:flex;align-items:center;min-height:44px;line-height:1.28}
+.scroll-next{display:none}
+.topics{display:flex;flex-direction:column;gap:7px}
+.topic{min-height:92px;display:grid;grid-template-columns:120px minmax(200px,1fr) minmax(230px,.7fr) 32px;align-items:center;border:1px solid #202020;border-radius:10px;overflow:hidden;background:linear-gradient(100deg,#0d0d0d,#111)}
+.thumb,.sidebar-thumb{position:relative;overflow:hidden;background:
+  radial-gradient(circle at var(--x,62%) var(--y,38%),#8a8a8a 0 5%,transparent 6%),
+  conic-gradient(from var(--r,30deg) at 50% 50%,#111,#4c4c4c,#101010,#777,#111)}
+.thumb{height:100%;min-height:92px}
+.thumb:before,.sidebar-thumb:before{content:"";position:absolute;inset:10%;border:1px solid #8c8c8c55;transform:rotate(var(--rot,18deg));border-radius:35% 65% 50% 50% / 55% 40% 60% 45%}
+.thumb:after,.sidebar-thumb:after{content:"";position:absolute;width:54%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8f8f8f,#1b1b1b 50%,#050505 72%);left:24%;top:20%;box-shadow:18px 12px 0 -14px #aaa}
+.topic-title{padding:16px 22px;font-size:17px;line-height:1.3}
+.tags{display:flex;gap:9px;flex-wrap:wrap;padding:12px}
+.tag{display:inline-flex;align-items:center;padding:6px 11px;border-radius:7px;font-size:12px;background:#333;line-height:1;white-space:nowrap}
+.actual{background:#6b260f;color:#ffd3c5}
+.theory{background:var(--blue);color:#bfe5ff}
+.practice,.soft{background:var(--purple);color:#ead6ff}
+.home{background:var(--green);color:#c7ffdb}
+.coursework{background:#6a3131;color:#ffd9d9}
+.go{font-size:25px;color:#ddd}
+.topic:hover{border-color:#484848}
+
+/* ---------- lecture page ---------- */
+.lecture-page{background:#070707;min-height:100vh}
+.lecture-topbar{height:var(--header-h);position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(7,7,7,.94);backdrop-filter:blur(14px);border-bottom:1px solid #171717}
+.lecture-topbar a.active{color:#fff;position:relative}
+.lecture-topbar a.active:after{content:"";position:absolute;left:0;right:0;bottom:-11px;height:2px;background:var(--orange)}
+.lecture-shell{display:grid;grid-template-columns:330px minmax(0,1fr);min-height:calc(100vh - var(--header-h));max-width:1500px;margin:0 auto}
+.lecture-sidebar{position:sticky;top:var(--header-h);height:calc(100vh - var(--header-h));overflow:auto;border-right:1px solid #202020;background:#090909;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.sidebar-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:26px 24px 16px;background:linear-gradient(#090909 75%,transparent);font-size:15px;font-weight:750;letter-spacing:.03em}
+.sidebar-close{display:none;border:0;background:none;color:#fff;font-size:28px;line-height:1;cursor:pointer}
+.lecture-topic-list{padding:0 0 28px}
+.sidebar-topic{display:grid;grid-template-columns:38px 54px 1fr;align-items:center;min-height:62px;text-decoration:none;border-left:2px solid transparent;border-bottom:1px solid #171717;color:#b9b9b9;transition:.18s;background:#090909}
+.sidebar-topic:hover{background:#101010;color:#fff}
+.sidebar-topic.is-active{background:#151515;border-left-color:var(--orange);color:#fff}
+.sidebar-number{text-align:center;font-size:12px;color:#888;font-variant-numeric:tabular-nums}
+.sidebar-thumb{width:48px;height:48px;border-radius:2px}
+.sidebar-copy{padding:10px 12px;min-width:0}
+.sidebar-title{display:block;font-size:13px;line-height:1.3;margin:0}
+.sidebar-tags{display:flex;flex-wrap:wrap;gap:4px}
+.sidebar-tags .tag{font-size:9px;padding:4px 6px;border-radius:4px}
+.lecture-main{min-width:0;padding:42px clamp(28px,5vw,76px) 72px}
+.lecture-article{width:min(860px,100%);margin:0 auto}
+.lecture-kicker{color:#8d8d8d;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.lecture-article h1{font-size:clamp(44px,5.2vw,76px);line-height:.98;letter-spacing:-.045em;margin:0 0 18px;color:#fff}
+.lecture-article>.tags{padding:0;margin:0 0 22px}
+.lecture-article .lead{font-size:clamp(18px,1.7vw,22px);line-height:1.62;color:#bdbdbd;margin:0 0 34px;max-width:800px}
+.lecture-article h2{display:flex;align-items:center;gap:18px;font-size:clamp(26px,2.6vw,38px);line-height:1.1;letter-spacing:-.025em;margin:48px 0 18px;color:#fff}
+.lecture-article h2:after{content:"";height:1px;background:#404040;flex:1}
+.lecture-article h3{font-size:22px;margin:34px 0 12px}
+.lecture-article p,.lecture-article li{font-size:17px;line-height:1.72;color:#bdbdbd}
+.lecture-article p{margin:0 0 18px}
+.lecture-article ul,.lecture-article ol{padding-left:24px;margin:14px 0 24px}
+.lecture-article strong{color:#f0f0f0}
+.lecture-article blockquote{margin:30px 0;padding:4px 0 4px 20px;border-left:2px solid #bdbdbd;color:#d8d8d8;font-size:17px;font-style:italic;line-height:1.65}
+.embedded-media{margin:28px 0 34px}
+.embedded-media img{display:block;width:100%;height:auto;border:1px solid #282828;border-radius:4px;background:#0d0d0d}
+.embedded-media figcaption{margin-top:9px;color:#777;font-size:12px;line-height:1.45}
+.media-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:28px 0 34px}
+.media-pair figure{margin:0}
+.video-frame{aspect-ratio:16/9;width:100%;border:1px solid #292929;border-radius:4px;overflow:hidden;background:#0c0c0c}
+.video-frame iframe{width:100%;height:100%;border:0;display:block}
+.video-placeholder{height:100%;display:grid;place-items:center;position:relative;background:linear-gradient(135deg,#111,#202020 45%,#080808)}
+.video-placeholder:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 18px,#ffffff08 19px 20px)}
+.play-button{position:relative;z-index:1;width:66px;height:66px;border-radius:50%;border:1px solid #777;background:#202020cc;color:#fff;font-size:24px;display:grid;place-items:center;padding-left:4px}
+.video-label{position:absolute;left:18px;bottom:16px;color:#aaa;font-size:12px;z-index:1}
+.lecture-pagination{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:52px;padding-top:28px;border-top:1px solid #2a2a2a}
+.lecture-pagination a{min-height:56px;border:1px solid #333;border-radius:8px;padding:15px 18px;text-decoration:none;color:#ddd;display:flex;align-items:center;gap:10px;transition:.2s}
+.lecture-pagination a:last-child{justify-content:flex-end}
+.lecture-pagination a:hover{border-color:#666;background:#0d0d0d;color:#fff}
+.lecture-pagination a[hidden]{display:none}
+.topics-toggle{display:none}
+.sidebar-backdrop{display:none}
+.placeholder-note{border:1px dashed #353535;border-radius:8px;padding:22px;color:#999;background:#0a0a0a;margin:28px 0}
+
+@media(max-width:960px){
+  :root{--header-h:62px}
+  .lecture-topbar{justify-content:flex-start;overflow-x:auto;padding:0 18px}
+  .lecture-topbar nav{justify-content:flex-start;gap:26px;white-space:nowrap}
+  .lecture-shell{display:block}
+  .lecture-main{padding:34px 5vw 64px}
+  .lecture-sidebar{position:fixed;left:0;top:0;z-index:80;width:min(360px,88vw);height:100dvh;transform:translateX(-102%);transition:transform .25s ease;border-right:1px solid #333;box-shadow:24px 0 60px #000a}
+  .lecture-sidebar.is-open{transform:translateX(0)}
+  .sidebar-head{padding-top:22px}
+  .sidebar-close{display:block}
+  .topics-toggle{display:flex;position:sticky;top:var(--header-h);z-index:35;width:100%;align-items:center;justify-content:space-between;border:0;border-bottom:1px solid #202020;background:#0b0b0bee;color:#fff;padding:12px 18px;font-size:13px;letter-spacing:.04em}
+  .topics-toggle span{color:#777}
+  .sidebar-backdrop{position:fixed;inset:0;z-index:70;background:#0009;backdrop-filter:blur(2px)}
+  .sidebar-backdrop.is-open{display:block}
+}
+@media(max-width:760px){
+  .nav{padding:18px 4%}
+  .hero{min-height:570px;height:86svh;padding-bottom:9vh}
+  .hero h1{font-size:clamp(38px,11vw,64px)}
+  #logoCanvas{inset:7% -15% 17%;width:130%;height:76%}
+  .section{width:92vw;padding:40px 0}
+  .section-title{gap:14px}
+  .section-title h2{font-size:25px}
+  .link-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-right:48px;scrollbar-width:none}
+  .link-track::-webkit-scrollbar{display:none}
+  .resource{min-width:78vw;scroll-snap-align:start}
+  .scroll-next{display:block;position:absolute;right:-4px;top:50%;transform:translateY(-50%);border:1px solid #444;background:#151515;color:white;border-radius:50%;width:44px;height:44px;font-size:22px}
+  .topic{grid-template-columns:82px 1fr 28px;min-height:105px}
+  .thumb{min-height:105px}
+  .topic-title{padding:13px 14px 5px;font-size:15px}
+  .topic .tags{grid-column:2;padding:4px 14px 13px}
+  .go{grid-column:3;grid-row:1/3}
+  .tag{font-size:11px;padding:5px 8px}
+  .lecture-main{padding:28px 18px 52px}
+  .lecture-article h1{font-size:clamp(38px,11vw,58px)}
+  .lecture-article h2{font-size:26px;margin-top:42px}
+  .lecture-article p,.lecture-article li{font-size:16px;line-height:1.68}
+  .lecture-article .lead{font-size:17px}
+  .media-pair{grid-template-columns:1fr}
+  .lecture-pagination{grid-template-columns:1fr;gap:10px}
+}
+@media(max-width:520px){
+  .nav nav{gap:22px}
+  .nav a{font-size:11px}
+  .hero{min-height:520px}
+  .resource{min-width:84vw}
+  .topic{grid-template-columns:72px 1fr 24px}
+  .topic-title{font-size:14px}
+  .lecture-topbar a{font-size:10px}
+  .lecture-topbar nav{gap:22px}
+  .lecture-article h1{font-size:38px}
+  .lecture-article h2:after{display:none}
+  .lecture-article h2{display:block}
+}
+
+
+/* ---------- v3 spacing + proportions ---------- */
+.hero{
+  height:min(660px,92svh);
+  min-height:540px;
+  padding:6vh 5% 7vh;
+}
+#logoCanvas{inset:4% 0 13%;height:83%}
+.hero h1{font-size:clamp(42px,7vw,96px)}
+.section{width:min(1280px,90vw);padding:clamp(34px,4.5vw,58px) 0}
+.section.about{padding-top:46px;padding-bottom:30px}
+#links{padding-top:30px;padding-bottom:48px}
+#topics{padding-top:38px}
+.section-title{margin-bottom:24px}
+.prose{max-width:1120px}
+
+/* Larger reading column on lecture pages. */
+.lecture-shell{grid-template-columns:300px minmax(0,1fr);max-width:1700px}
+.lecture-main{padding:42px clamp(34px,4vw,66px) 72px}
+.lecture-article{width:min(1080px,100%);margin:0}
+.lecture-article .lead{max-width:940px}
+.lecture-article p,.lecture-article li{max-width:940px}
+.lecture-article blockquote{max-width:920px}
+
+/* ---------- useful-links detail pages ---------- */
+.resource-page{background:#070707;min-height:100vh}
+.resource-shell{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:calc(100vh - var(--header-h));max-width:1700px;margin:0 auto}
+.resource-sidebar{position:sticky;top:var(--header-h);height:calc(100vh - var(--header-h));border-right:1px solid #202020;background:#090909;padding:22px 0}
+.resource-sidebar h2{font-size:15px;letter-spacing:.03em;margin:0;padding:6px 24px 18px}
+.resource-nav{display:flex;flex-direction:column}
+.resource-nav a{display:grid;grid-template-columns:38px 1fr;align-items:center;gap:12px;min-height:64px;padding:10px 20px;text-decoration:none;color:#aaa;border-left:2px solid transparent;border-top:1px solid #151515;transition:.18s}
+.resource-nav a:last-child{border-bottom:1px solid #151515}
+.resource-nav a:hover{background:#101010;color:#fff}
+.resource-nav a.is-active{background:#151515;border-left-color:var(--orange);color:#fff}
+.resource-nav .resource-emoji{font-size:22px;text-align:center}
+.resource-nav .resource-name{font-size:13px;line-height:1.3}
+.resource-main{min-width:0;padding:48px clamp(34px,4vw,66px) 72px}
+.resource-article{width:min(1080px,100%);margin:0}
+.resource-kicker{color:#8d8d8d;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.resource-article h1{font-size:clamp(44px,5vw,72px);line-height:1;letter-spacing:-.045em;margin:0 0 28px;color:#fff}
+.resource-article h2{display:flex;align-items:center;gap:18px;font-size:clamp(25px,2.5vw,36px);margin:44px 0 16px;letter-spacing:-.025em}
+.resource-article h2:after{content:"";height:1px;background:#404040;flex:1}
+.resource-article p,.resource-article li{max-width:940px;font-size:17px;line-height:1.72;color:#bdbdbd}
+.resource-article p{margin:0 0 18px}
+.resource-article ul,.resource-article ol{padding-left:24px;margin:14px 0 24px}
+.resource-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:24px 0 34px;max-width:940px}
+.resource-detail-card{border:1px solid #292929;border-radius:10px;padding:20px;background:#0d0d0d}
+.resource-detail-card strong{display:block;font-size:16px;margin-bottom:8px}
+.resource-detail-card span{color:#8f8f8f;font-size:14px;line-height:1.5}
+
+@media(max-width:960px){
+  .lecture-article{margin:0 auto}
+  .resource-shell{display:block}
+  .resource-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid #202020;padding:14px 18px}
+  .resource-sidebar h2{padding:4px 0 12px}
+  .resource-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .resource-nav a{border:1px solid #242424!important;border-radius:8px;padding:10px 12px;min-height:58px}
+  .resource-nav a.is-active{border-color:#5a2a1c!important}
+  .resource-main{padding:36px 5vw 64px}
+  .resource-article{margin:0 auto}
+}
+@media(max-width:760px){
+  .hero{min-height:500px;height:78svh;padding-bottom:6vh}
+  #logoCanvas{inset:8% -8% 18%;width:116%;height:74%}
+  .section{padding:32px 0}
+  .section.about{padding-top:36px;padding-bottom:22px}
+  #links{padding-top:22px;padding-bottom:34px}
+  #topics{padding-top:26px}
+  .lecture-main{padding:28px 18px 52px}
+  .resource-main{padding:30px 18px 54px}
+  .resource-card-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .resource-nav{grid-template-columns:1fr}
+  .resource-article h1{font-size:38px}
+  .resource-article h2:after{display:none}
+}
+
+/* ---------- v15 hero: separate logo, canvas glows, soft directional rim light ---------- */
+.motion-hero{
+  position:relative;
+  width:100%;
+  height:clamp(470px,33.35vw,680px);
+  min-height:470px;
+  overflow:hidden;
+  isolation:isolate;
+  background:#08090b url("assets/images/hero-ambient-clean.webp?v=15") 50% 50% / cover no-repeat;
+}
+
+.motion-hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+  background:linear-gradient(to bottom,rgba(3,4,6,.025),rgba(3,4,6,0) 45%,rgba(3,4,6,.035));
+}
+
+/* Low-resolution canvas with large, soft, moving light fields. */
+.motion-hero__ambient{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  opacity:.86;
+}
+
+/* The approved logo is now a separate transparent image so we can size and place it precisely. */
+.motion-hero__mark{
+  position:absolute;
+  left:50%;
+  top:58%;
+  z-index:3;
+  width:min(17.3vw,286px);
+  aspect-ratio:391 / 420;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.motion-logo-base,
+.motion-logo-light{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+.motion-logo-base{
+  object-fit:contain;
+  z-index:1;
+}
+.motion-logo-light{
+  z-index:2;
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+
+@media(max-width:760px){
+  .motion-hero{
+    height:520px;
+    min-height:520px;
+    background-size:auto 100%;
+    background-position:50% 50%;
+  }
+  .motion-hero__mark{
+    width:min(52vw,236px);
+    top:58%;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .motion-hero__ambient{display:none}
+  .motion-logo-light{display:none}
+}
+
+/* Resource pages: links and plain text. */
+.resource-lead{font-size:19px!important;line-height:1.65!important;color:#c9c9c9!important;margin-bottom:28px!important}
+.plain-resource-text>p{max-width:900px}
+.plain-resource-text a{color:#f3f3f3;text-decoration-color:#666;text-underline-offset:4px}
+.plain-resource-text a:hover{color:#fff;text-decoration-color:#fff}
+a.resource-detail-card{display:block;color:inherit;text-decoration:none;position:relative;padding-right:52px;transition:border-color .18s,background .18s,transform .18s}
+a.resource-detail-card:after{content:"↗";position:absolute;right:19px;top:18px;color:#777;font-size:17px;transition:transform .18s,color .18s}
+a.resource-detail-card.internal-card:after{content:"→"}
+a.resource-detail-card:hover{border-color:#555;background:#121212;transform:translateY(-2px)}
+a.resource-detail-card:hover:after{transform:translate(2px,-2px);color:#fff}
+a.resource-detail-card.internal-card:hover:after{transform:translateX(3px)}
+.exam-links-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.contact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.telegram-card strong:before{content:"✈ ";color:#5ebcff}
+.back-inline{color:#a7a7a7;text-decoration:none}
+.back-inline:hover{color:#fff}
+
+@media(max-width:760px){
+  .resource-lead{font-size:17px!important}
+  .exam-links-grid,.contact-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+}
