@@ -6,13 +6,13 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Редактор — Моушн-дизайн</title>
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="editor.css">
+  <link rel="stylesheet" href="editor.css?v=2">
 </head>
 <body class="editor-page" data-course-name="Моушн-дизайн" style="--editor-accent:#ff6a3d;--editor-accent-rgb:255,106,61">
   <div class="editor-auth" id="loginGate">
     <form class="editor-login-card" id="loginForm" autocomplete="off">
       <div class="eyebrow">Моушн-дизайн</div>
-      <h1>Редактор лекций</h1>
+      <h1>Редактор курса</h1>
       <p>Введите данные для входа. Эта страница не связана с публичной навигацией сайта.</p>
       <label class="editor-field"><span>Логин</span><input name="username" autocomplete="username" required></label>
       <label class="editor-field"><span>Пароль</span><input name="password" type="password" autocomplete="current-password" required></label>
@@ -24,60 +24,103 @@
 
   <div class="editor-app" id="studio" hidden>
     <header class="editor-header">
-      <div><small>Моушн-дизайн</small><strong>Редактор лекций</strong></div>
+      <div class="editor-header-brand"><small>Моушн-дизайн</small><strong>Редактор курса</strong></div>
+      <nav class="editor-mode-tabs" aria-label="Режим редактора">
+        <button class="editor-tab is-active" type="button" data-editor-mode="lecture">Лекции</button>
+        <button class="editor-tab" type="button" data-editor-mode="home">Главная страница</button>
+      </nav>
       <div class="editor-header-actions"><span class="editor-status" id="editorStatus"></span><a class="editor-secondary" href="../index.html" style="text-decoration:none">На сайт</a><button class="editor-secondary" id="logoutButton">Выйти</button></div>
     </header>
 
     <div class="editor-shell">
       <aside class="editor-panel">
-        <section class="editor-section">
-          <h2>Лекция</h2>
-          <label class="editor-field"><span>Выбрать существующую</span><select id="topicSelect"></select></label>
-          <div class="editor-actions"><button class="editor-secondary" id="newLecture">Новая</button><button class="editor-secondary" id="loadPublished">Загрузить опубликованную</button></div>
-        </section>
+        <div id="lectureControls">
+          <section class="editor-section">
+            <h2>Лекция</h2>
+            <label class="editor-field"><span>Выбрать существующую</span><select id="topicSelect"></select></label>
+            <div class="editor-actions"><button class="editor-secondary" id="newLecture">Новая</button><button class="editor-secondary" id="loadPublished">Загрузить опубликованную</button></div>
+          </section>
 
-        <section class="editor-section">
-          <h2>Параметры</h2>
-          <label class="editor-field"><span>Slug / имя файла без .html</span><input id="slugInput" placeholder="camera-animation"></label>
-          <label class="editor-field"><span>Название темы</span><input id="titleInput" placeholder="Название лекции"></label>
-          <label class="editor-field"><span>Теги через запятую</span><input id="tagsInput" placeholder="Теория, Практика"></label>
-          <div class="editor-actions"><button class="editor-primary" id="saveTopic">Обновить в списке</button><button class="editor-danger" id="deleteTopic">Удалить тему</button></div>
-        </section>
+          <section class="editor-section">
+            <h2>Параметры</h2>
+            <label class="editor-field"><span>Slug / имя файла без .html</span><input id="slugInput" placeholder="camera-animation"></label>
+            <label class="editor-field"><span>Название темы</span><input id="titleInput" placeholder="Название лекции"></label>
+            <label class="editor-field"><span>Теги через запятую</span><input id="tagsInput" placeholder="Теория, Практика"></label>
+            <div class="editor-actions"><button class="editor-primary" id="saveTopic">Обновить в списке</button><button class="editor-danger" id="deleteTopic">Удалить тему</button></div>
+          </section>
 
-        <section class="editor-section">
-          <h2>Форматирование</h2>
-          <div class="editor-actions">
-            <button class="editor-tool" data-format="bold"><b>Ж</b></button>
-            <button class="editor-tool" data-format="italic"><i>К</i></button>
-            <button class="editor-tool" data-format="h2">Заголовок</button>
-            <button class="editor-tool" data-format="p">Абзац</button>
-            <button class="editor-tool" data-format="blockquote">Цитата</button>
-            <button class="editor-tool" data-format="ul">• Список</button>
-            <button class="editor-tool" data-format="ol">1. Список</button>
-            <button class="editor-tool is-accent" id="addLead">Вступление</button>
-            <button class="editor-tool is-accent" id="addLink">Ссылка</button>
-            <button class="editor-tool is-accent" id="addImage">Фото</button>
-            <button class="editor-tool is-accent" id="addVideo">Видео</button>
-          </div>
-          <p class="editor-help">Пишите прямо в предпросмотре справа. Выделяйте текст и нажимайте кнопки форматирования. Ctrl/Cmd+Z работает как обычно.</p>
-        </section>
+          <section class="editor-section">
+            <h2>Форматирование</h2>
+            <div class="editor-actions">
+              <button class="editor-tool" data-format="bold"><b>Ж</b></button>
+              <button class="editor-tool" data-format="italic"><i>К</i></button>
+              <button class="editor-tool" data-format="h2">Заголовок</button>
+              <button class="editor-tool" data-format="p">Абзац</button>
+              <button class="editor-tool" data-format="blockquote">Цитата</button>
+              <button class="editor-tool" data-format="ul">• Список</button>
+              <button class="editor-tool" data-format="ol">1. Список</button>
+              <button class="editor-tool is-accent" id="addLead">Вступление</button>
+              <button class="editor-tool is-accent" id="addLink">Ссылка</button>
+              <button class="editor-tool is-accent" id="addImage">Фото с компьютера</button>
+              <button class="editor-tool is-accent" id="addImageUrl">Фото по URL</button>
+              <button class="editor-tool is-accent" id="addVideo">Видео</button>
+            </div>
+            <input id="imageFileInput" type="file" accept="image/*" hidden>
+            <p class="editor-help">Фото можно выбрать с компьютера или просто перетащить в текст лекции. При экспорте путь к файлу автоматически станет <code>../assets/images/имя-файла</code>.</p>
+            <div class="editor-assets" id="assetList"></div>
+          </section>
 
-        <section class="editor-section">
-          <h2>Экспорт</h2>
-          <div class="editor-actions"><button class="editor-primary" id="downloadLecture">Скачать HTML лекции</button><button class="editor-primary" id="downloadTopics">Скачать topics.js</button></div>
-          <div class="editor-actions" style="margin-top:8px"><button class="editor-secondary" id="copyContent">Копировать HTML текста</button><button class="editor-secondary" id="copyTopic">Копировать запись темы</button></div>
-          <p class="editor-help">GitHub Pages не может записывать файлы обратно в репозиторий. После редактирования скачайте файлы и замените ими соответствующие файлы на GitHub.</p>
-        </section>
+          <section class="editor-section">
+            <h2>Экспорт лекции</h2>
+            <div class="editor-actions"><button class="editor-primary" id="downloadPackage">Скачать пакет ZIP</button><button class="editor-secondary" id="downloadLecture">Только HTML</button><button class="editor-secondary" id="downloadTopics">Только topics.js</button></div>
+            <div class="editor-actions" style="margin-top:8px"><button class="editor-secondary" id="copyContent">Копировать HTML текста</button><button class="editor-secondary" id="copyTopic">Копировать запись темы</button></div>
+            <p class="editor-help">ZIP содержит готовую лекцию, обновлённый topics.js и все картинки, которые вы добавили с компьютера. Распакуйте его и загрузите файлы в соответствующие папки GitHub.</p>
+          </section>
 
-        <section class="editor-section">
-          <h2>Запись для topics.js</h2>
-          <textarea class="editor-codebox" id="codeBox" readonly></textarea>
-        </section>
+          <section class="editor-section">
+            <h2>Запись для topics.js</h2>
+            <textarea class="editor-codebox" id="codeBox" readonly></textarea>
+          </section>
+        </div>
+
+        <div id="homeControls" hidden>
+          <section class="editor-section">
+            <h2>Главная страница</h2>
+            <div class="editor-actions"><button class="editor-secondary" id="loadHomePublished">Загрузить опубликованную</button></div>
+            <p class="editor-help">Здесь можно менять текст «О курсе» и карточки полезных ссылок. Шапка и анимация остаются нетронутыми.</p>
+          </section>
+
+          <section class="editor-section">
+            <h2>О курсе</h2>
+            <label class="editor-field"><span>Заголовок блока</span><input id="homeAboutTitle" value="О КУРСЕ"></label>
+            <div class="editor-actions">
+              <button class="editor-tool" data-home-format="bold"><b>Ж</b></button>
+              <button class="editor-tool" data-home-format="italic"><i>К</i></button>
+              <button class="editor-tool" data-home-format="p">Абзац</button>
+              <button class="editor-tool" data-home-format="ul">• Список</button>
+              <button class="editor-tool" data-home-format="ol">1. Список</button>
+              <button class="editor-tool is-accent" id="homeAddLink">Ссылка</button>
+            </div>
+          </section>
+
+          <section class="editor-section">
+            <h2>Полезные ссылки</h2>
+            <label class="editor-field"><span>Заголовок блока</span><input id="homeLinksTitle" value="ПОЛЕЗНЫЕ ССЫЛКИ"></label>
+            <div class="home-link-fields" id="homeLinkFields"></div>
+            <button class="editor-secondary" id="homeAddCard" type="button">+ Добавить карточку</button>
+          </section>
+
+          <section class="editor-section">
+            <h2>Экспорт главной</h2>
+            <div class="editor-actions"><button class="editor-primary" id="downloadHome">Скачать index.html</button><button class="editor-secondary" id="copyHomeAbout">Копировать HTML «О курсе»</button></div>
+            <p class="editor-help">Скачанный index.html можно загрузить в корень репозитория поверх старого файла.</p>
+          </section>
+        </div>
       </aside>
 
       <main class="editor-preview-shell">
-        <div class="editor-preview-inner">
-          <div class="editor-preview-label">Живой предпросмотр</div>
+        <div class="editor-preview-inner" id="lecturePreview">
+          <div class="editor-preview-label">Живой предпросмотр лекции</div>
           <article class="lecture-article studio-article">
             <div class="lecture-kicker">ПРЕДПРОСМОТР</div>
             <h1 id="previewTitle">Название темы</h1>
@@ -85,11 +128,23 @@
             <div class="editor-content" id="editableContent" contenteditable="true" spellcheck="true"></div>
           </article>
         </div>
+
+        <div class="editor-preview-inner home-preview" id="homePreview" hidden>
+          <div class="editor-preview-label">Живой предпросмотр главной</div>
+          <section class="section about">
+            <div class="section-title"><h2 id="homePreviewAboutTitle">О КУРСЕ</h2><span></span></div>
+            <div class="prose home-prose-editor" id="homeAboutEditable" contenteditable="true" spellcheck="true"></div>
+          </section>
+          <section class="section">
+            <div class="section-title"><h2 id="homePreviewLinksTitle">ПОЛЕЗНЫЕ ССЫЛКИ</h2><span></span></div>
+            <div class="home-links-preview" id="homeLinksPreview"></div>
+          </section>
+        </div>
       </main>
     </div>
   </div>
 
   <script src="../topics.js"></script>
-  <script src="editor.js"></script>
+  <script src="editor.js?v=2"></script>
 </body>
 </html>
