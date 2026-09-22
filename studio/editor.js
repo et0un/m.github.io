@@ -15,6 +15,11 @@
     return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
+  // Must be initialized before restoring an existing session.
+  // Otherwise initEditor() is called while `initialized` is still in the TDZ
+  // and the visible editor opens without any working controls.
+  let initialized = false;
+
   function showStudio() {
     loginGate.hidden = true;
     studio.hidden = false;
@@ -46,7 +51,6 @@
     location.reload();
   });
 
-  let initialized = false;
   function initEditor() {
     if (initialized) return;
     initialized = true;
