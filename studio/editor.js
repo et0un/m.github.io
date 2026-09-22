@@ -481,27 +481,112 @@
       addLocalImage(file, { alt: '', caption: '' });
     });
 
-    function toEmbedUrl(value) {
-      try {
-        const u = new URL(value);
-        if (u.hostname.includes('youtu.be')) return `https://www.youtube-nocookie.com/embed/${u.pathname.replace('/', '')}`;
-        if (u.hostname.includes('youtube.com')) {
-          if (u.pathname.startsWith('/embed/')) return value;
-          if (u.pathname.startsWith('/shorts/')) return `https://www.youtube-nocookie.com/embed/${u.pathname.split('/')[2]}`;
-          const id = u.searchParams.get('v');
-          if (id) return `https://www.youtube-nocookie.com/embed/${id}`;
+    function extractVideoSource(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+
+      // Можно вставить не только URL, но и целиком iframe-код из YouTube/Vimeo.
+      if (/<iframe\b/i.test(raw)) {
+        try {
+          const doc = new DOMParser().parseFromString(raw, 'text/html');
+          const src = doc.querySelector('iframe')?.getAttribute('src');
+          if (src) return src.replaceAll('&amp;', '&');
+        } catch (_) {}
+        const match = raw.match(/src\s*=\s*["']([^"']+)["']/i);
+        if (match?.[1]) return match[1].replaceAll('&amp;', '&');
+      }
+      return raw.replaceAll('&amp;', '&');
+    }
+
+    function youtubeStartSeconds(value) {
+      if (!value) return 0;
+      if (/^\d+$/.test(value)) return Number(value);
+      const h = Number(value.match(/(\d+)h/)?.[1] || 0);
+      const m = Number(value.match(/(\d+)m/)?.[1] || 0);
+      const s = Number(value.match(/(\d+)s/)?.[1] || 0);
+      return h * 3600 + m * 60 + s;
+    }
+
+    function normaliseVideoEmbed(value) {
+      const source = extractVideoSource(value);
+      if (!source) return null;
+
+      let u;
+      try { u = new URL(source, location.href); }
+      catch (_) { return null; }
+
+      const host = u.hostname.toLowerCase().replace(/^www\./, '');
+      const parts = u.pathname.split('/').filter(Boolean);
+
+      // YouTube: watch, youtu.be, Shorts, Live и уже готовый embed.
+      if (host === 'youtu.be' || host.endsWith('.youtu.be')) {
+        const id = parts[0];
+        if (!id) return null;
+        const out = new URL(`https://www.youtube-nocookie.com/embed/${id}`);
+        const start = youtubeStartSeconds(u.searchParams.get('t') || u.searchParams.get('start'));
+        if (start) out.searchParams.set('start', start);
+        return { url: out.href, provider: 'YouTube' };
+      }
+      if (host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtube-nocookie.com' || host.endsWith('.youtube-nocookie.com')) {
+        let id = '';
+        if (parts[0] === 'embed') id = parts[1] || '';
+        else if (parts[0] === 'shorts' || parts[0] === 'live') id = parts[1] || '';
+        else id = u.searchParams.get('v') || '';
+        if (!id) return null;
+        const out = new URL(`https://www.youtube-nocookie.com/embed/${id}`);
+        const start = youtubeStartSeconds(u.searchParams.get('t') || u.searchParams.get('start'));
+        if (start) out.searchParams.set('start', start);
+        return { url: out.href, provider: 'YouTube' };
+      }
+
+      // Vimeo: обычная страница vimeo.com/123..., private/unlisted и player.vimeo.com/video/...
+      if (host === 'player.vimeo.com' && parts[0] === 'video' && parts[1]) {
+        return { url: u.href, provider: 'Vimeo' };
+      }
+      if (host === 'vimeo.com' || host.endsWith('.vimeo.com')) {
+        const idIndex = parts.findIndex(part => /^\d+$/.test(part));
+        if (idIndex >= 0) {
+          const id = parts[idIndex];
+          const out = new URL(`https://player.vimeo.com/video/${id}`);
+          const hashFromPath = parts[idIndex + 1] && !/^\d+$/.test(parts[idIndex + 1]) ? parts[idIndex + 1] : '';
+          const hash = u.searchParams.get('h') || hashFromPath;
+          if (hash) out.searchParams.set('h', hash);
+          return { url: out.href, provider: 'Vimeo' };
         }
-      } catch (_) {}
-      return value;
+      }
+
+      // Сохраняем совместимость с готовыми embed-ссылками Rutube/VK.
+      if (host.endsWith('rutube.ru')) {
+        if (parts[0] === 'play' && parts[1] === 'embed') return { url: u.href, provider: 'Rutube' };
+        if (parts[0] === 'video' && parts[1]) return { url: `https://rutube.ru/play/embed/${parts[1]}`, provider: 'Rutube' };
+      }
+      if ((host === 'vk.com' || host === 'vkvideo.ru' || host.endsWith('.vk.com')) && u.pathname.includes('video_ext.php')) {
+        return { url: u.href, provider: 'VK Video' };
+      }
+
+      // Если пользователь вставил iframe неизвестного сервиса — используем его src как готовый embed.
+      if (/<iframe\b/i.test(String(value || '')) && /^https?:$/.test(u.protocol)) {
+        return { url: u.href, provider: 'Видео' };
+      }
+      return null;
     }
 
     document.getElementById('addVideo').addEventListener('click', () => {
-      const src = prompt('YouTube-ссылка или embed URL Rutube / VK Video:');
+      const src = prompt('Вставьте обычную ссылку YouTube/Vimeo или iframe-код. Также поддерживаются embed-ссылки Rutube/VK Video:');
       if (!src) return;
-      const title = prompt('Название видео:', 'Видео') || 'Видео';
-      const embed = toEmbedUrl(src);
-      insertAtCaret(`<figure class="embedded-media"><div class="video-frame"><iframe src="${escapeHtml(embed)}" title="${escapeHtml(title)}" loading="lazy" allowfullscreen></iframe></div></figure><p><br></p>`);
+      const video = normaliseVideoEmbed(src);
+      if (!video) {
+        setStatus('Не удалось распознать видео. Вставьте обычную ссылку YouTube/Vimeo или iframe-код.');
+        alert('Не удалось распознать ссылку. Для YouTube/Vimeo можно вставить обычный URL ролика или целиком iframe-код из кнопки «Поделиться / Встроить».');
+        return;
+      }
+      const title = prompt('Название видео:', video.provider) || video.provider;
+      const allow = video.provider === 'Vimeo'
+        ? 'autoplay; fullscreen; picture-in-picture; clipboard-write'
+        : 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      insertAtCaret(`<figure class="embedded-media" data-video-provider="${escapeHtml(video.provider)}"><div class="video-frame"><iframe src="${escapeHtml(video.url)}" title="${escapeHtml(title)}" loading="lazy" allow="${escapeHtml(allow)}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></figure><p><br></p>`);
       editable.dispatchEvent(new Event('input'));
+      setStatus(`${video.provider}: видео добавлено`);
     });
 
     document.getElementById('saveTopic').addEventListener('click', () => {
