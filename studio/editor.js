@@ -78,10 +78,28 @@
     const homeLinkFields = document.getElementById('homeLinkFields');
     const homeLinksPreview = document.getElementById('homeLinksPreview');
 
+    const resourceControls = document.getElementById('resourceControls');
+    const resourcePreview = document.getElementById('resourcePreview');
+    const resourceSelect = document.getElementById('resourceSelect');
+    const resourcePath = document.getElementById('resourcePath');
+    const resourceTitle = document.getElementById('resourceTitle');
+    const resourcePreviewTitle = document.getElementById('resourcePreviewTitle');
+    const resourceEditable = document.getElementById('resourceEditable');
+
+    const githubOwner = document.getElementById('githubOwner');
+    const githubRepo = document.getElementById('githubRepo');
+    const githubBranch = document.getElementById('githubBranch');
+    const githubToken = document.getElementById('githubToken');
+    const githubState = document.getElementById('githubState');
+
     let activeMode = 'lecture';
     let publishedHomeSource = '';
     let homeLoaded = false;
     let homeLinks = [];
+    let publishedResourceSource = '';
+    let resourceLoadedPath = '';
+    let resourceDraftTimer = null;
+    let homeDraftTimer = null;
     const assetFiles = new Map();
     const assetUrls = new Map();
 
@@ -108,14 +126,123 @@
       setStatus.timer = setTimeout(() => { if (status.textContent === message) status.textContent = ''; }, 3500);
     };
 
+
+    // ---------------- direct GitHub publishing ----------------
+    const githubStorageKey = `studio-github:${courseName}`;
+    const githubTokenKey = `studio-github-token:${courseName}`;
+
+    function detectGitHubPagesRepo() {
+      const host = location.hostname || '';
+      if (!host.endsWith('.github.io')) return {};
+      const owner = host.slice(0, -'.github.io'.length);
+      const parts = location.pathname.split('/').filter(Boolean);
+      const repo = parts[0] && parts[0] !== 'studio' ? parts[0] : `${owner}.github.io`;
+      return { owner, repo, branch: 'main' };
+    }
+
+    function loadGithubSettings() {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(githubStorageKey) || '{}'); } catch (_) {}
+      const detected = detectGitHubPagesRepo();
+      githubOwner.value = saved.owner || detected.owner || '';
+      githubRepo.value = saved.repo || detected.repo || '';
+      githubBranch.value = saved.branch || detected.branch || 'main';
+      githubToken.value = sessionStorage.getItem(githubTokenKey) || '';
+    }
+
+    function githubConfig(requireToken = true) {
+      const cfg = {
+        owner: githubOwner.value.trim(),
+        repo: githubRepo.value.trim(),
+        branch: githubBranch.value.trim() || 'main',
+        token: githubToken.value.trim()
+      };
+      localStorage.setItem(githubStorageKey, JSON.stringify({ owner: cfg.owner, repo: cfg.repo, branch: cfg.branch }));
+      if (cfg.token) sessionStorage.setItem(githubTokenKey, cfg.token);
+      if (!cfg.owner || !cfg.repo || (requireToken && !cfg.token)) throw new Error('Заполните GitHub owner, repo и token');
+      return cfg;
+    }
+
+    function githubApiPath(path) {
+      return path.split('/').map(encodeURIComponent).join('/');
+    }
+
+    async function githubFetch(url, options = {}) {
+      const cfg = githubConfig(true);
+      const headers = {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`,
+        ...options.headers
+      };
+      const response = await fetch(url, { ...options, headers });
+      if (!response.ok) {
+        let detail = '';
+        try { detail = (await response.json()).message || ''; } catch (_) {}
+        throw new Error(`${response.status}${detail ? ' · ' + detail : ''}`);
+      }
+      return response;
+    }
+
+    function bytesToBase64(bytes) {
+      let binary = '';
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      return btoa(binary);
+    }
+
+    async function githubPublishBytes(path, bytes, message) {
+      const cfg = githubConfig(true);
+      const api = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${githubApiPath(path)}`;
+      let sha;
+      const current = await fetch(`${api}?ref=${encodeURIComponent(cfg.branch)}`, {
+        cache: 'no-store',
+        headers: { 'Accept':'application/vnd.github+json', 'Authorization':`Bearer ${cfg.token}` }
+      });
+      if (current.ok) {
+        const data = await current.json(); sha = data.sha;
+      } else if (current.status !== 404) {
+        let detail = ''; try { detail = (await current.json()).message || ''; } catch (_) {}
+        throw new Error(`${current.status}${detail ? ' · ' + detail : ''}`);
+      }
+      const payload = { message, content: bytesToBase64(bytes), branch: cfg.branch };
+      if (sha) payload.sha = sha;
+      const response = await githubFetch(api, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      return response.json();
+    }
+
+    async function githubPublishText(path, text, message) {
+      return githubPublishBytes(path, enc.encode(text), message);
+    }
+
+    async function checkGithubConnection() {
+      try {
+        const cfg = githubConfig(true);
+        githubState.textContent = 'Проверяю доступ…';
+        await githubFetch(`https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}`);
+        githubState.textContent = `✓ Подключено: ${cfg.owner}/${cfg.repo} · ${cfg.branch}. Токен останется только в этой вкладке.`;
+        setStatus('GitHub подключён');
+      } catch (error) {
+        githubState.textContent = `Не удалось подключиться: ${error.message}`;
+        setStatus('Ошибка подключения GitHub');
+      }
+    }
+
+    document.getElementById('githubConnect')?.addEventListener('click', checkGithubConnection);
+    [githubOwner, githubRepo, githubBranch].forEach(input => input?.addEventListener('change', () => { try { githubConfig(false); } catch (_) {} }));
+    githubToken?.addEventListener('change', () => { if (githubToken.value.trim()) sessionStorage.setItem(githubTokenKey, githubToken.value.trim()); });
+    loadGithubSettings();
+
     function switchMode(mode) {
       activeMode = mode;
       document.querySelectorAll('[data-editor-mode]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.editorMode === mode));
       lectureControls.hidden = mode !== 'lecture';
       homeControls.hidden = mode !== 'home';
+      resourceControls.hidden = mode !== 'resource';
       lecturePreview.hidden = mode !== 'lecture';
       homePreview.hidden = mode !== 'home';
+      resourcePreview.hidden = mode !== 'resource';
       if (mode === 'home' && !homeLoaded) loadPublishedHome();
+      if (mode === 'resource' && !resourceLoadedPath) loadPublishedResource();
     }
     document.querySelectorAll('[data-editor-mode]').forEach(button => button.addEventListener('click', () => switchMode(button.dataset.editorMode)));
 
@@ -496,6 +623,33 @@
       setStatus(`Пакет скачан · изображений: ${assetFiles.size}`);
     });
 
+
+    function upsertCurrentTopic() {
+      const record = currentRecord();
+      if (!record.slug || !record.title) throw new Error('Нужны slug и название');
+      const index = editorTopics.findIndex(t => t.slug === record.slug);
+      if (index >= 0) editorTopics[index] = record;
+      else editorTopics.push(record);
+      renderTopicSelect(record.slug);
+      return record;
+    }
+
+    document.getElementById('publishLecture')?.addEventListener('click', async () => {
+      try {
+        const record = upsertCurrentTopic();
+        setStatus('Публикую лекцию…');
+        await githubPublishText(`lectures/${record.slug}.html`, lectureHtml(), `Обновить лекцию: ${record.title}`);
+        await githubPublishText('topics.js', topicsJsText(), `Обновить список тем · ${courseName}`);
+        let uploaded = 0;
+        for (const [name, file] of assetFiles) {
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          await githubPublishBytes(`assets/images/${name}`, bytes, `Добавить изображение ${name}`);
+          uploaded++;
+        }
+        setStatus(`✓ Лекция опубликована${uploaded ? ` · картинок: ${uploaded}` : ''}`);
+      } catch (error) { setStatus(`GitHub: ${error.message}`); }
+    });
+
     document.getElementById('copyTopic').addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(topicObjectText()); setStatus('Запись скопирована'); }
       catch (_) { codeBox.select(); document.execCommand('copy'); setStatus('Запись скопирована'); }
@@ -542,12 +696,14 @@
         const i = Number(row.dataset.linkIndex);
         homeLinks[i][event.target.dataset.role] = event.target.value;
         renderHomeLinksPreview();
+        scheduleHomeDraftSave();
       }));
       homeLinkFields.querySelectorAll('.home-link-remove').forEach(btn => btn.addEventListener('click', event => {
         const i = Number(event.target.closest('.home-link-row').dataset.linkIndex);
         homeLinks.splice(i, 1);
         renderHomeLinksFields();
         renderHomeLinksPreview();
+        scheduleHomeDraftSave();
       }));
     }
 
@@ -559,8 +715,9 @@
       homePreviewAboutTitle.textContent = homeAboutTitle.value.trim() || 'О КУРСЕ';
       homePreviewLinksTitle.textContent = homeLinksTitle.value.trim() || 'ПОЛЕЗНЫЕ ССЫЛКИ';
     }
-    homeAboutTitle.addEventListener('input', renderHomeTitles);
-    homeLinksTitle.addEventListener('input', renderHomeTitles);
+    homeAboutTitle.addEventListener('input', () => { renderHomeTitles(); scheduleHomeDraftSave(); });
+    homeLinksTitle.addEventListener('input', () => { renderHomeTitles(); scheduleHomeDraftSave(); });
+    homeAboutEditable.addEventListener('input', scheduleHomeDraftSave);
 
     document.querySelectorAll('[data-home-format]').forEach(button => button.addEventListener('click', () => {
       homeAboutEditable.focus();
@@ -585,8 +742,28 @@
 
     document.getElementById('homeAddCard').addEventListener('click', () => {
       homeLinks.push({ icon: '↗', label: 'Новая ссылка', href: '#' });
-      renderHomeLinksFields(); renderHomeLinksPreview();
+      renderHomeLinksFields(); renderHomeLinksPreview(); scheduleHomeDraftSave();
     });
+
+    const homeDraftKey = `studio-home-draft:${courseName}`;
+    function scheduleHomeDraftSave() {
+      clearTimeout(homeDraftTimer);
+      homeDraftTimer = setTimeout(() => {
+        try {
+          localStorage.setItem(homeDraftKey, JSON.stringify({
+            aboutTitle: homeAboutTitle.value,
+            aboutHtml: homeAboutEditable.innerHTML,
+            linksTitle: homeLinksTitle.value,
+            links: homeLinks,
+            updated: Date.now()
+          }));
+          status.textContent = 'Черновик главной сохранён';
+        } catch (_) {}
+      }, 650);
+    }
+    function loadHomeDraft() {
+      try { return JSON.parse(localStorage.getItem(homeDraftKey)); } catch (_) { return null; }
+    }
 
     async function loadPublishedHome() {
       try {
@@ -640,9 +817,153 @@
       setStatus('index.html скачан');
     });
 
+
+    document.getElementById('publishHome')?.addEventListener('click', async () => {
+      try {
+        if (!publishedHomeSource) await loadPublishedHome();
+        const html = buildHomeHtml();
+        if (!html) return setStatus('Не удалось подготовить index.html');
+        setStatus('Публикую главную…');
+        await githubPublishText('index.html', html, `Обновить главную · ${courseName}`);
+        publishedHomeSource = html;
+        setStatus('✓ Главная опубликована на GitHub');
+      } catch (error) { setStatus(`GitHub: ${error.message}`); }
+    });
+
     document.getElementById('copyHomeAbout').addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(homeAboutEditable.innerHTML.trim()); setStatus('HTML «О курсе» скопирован'); }
       catch (_) { setStatus('Не удалось скопировать'); }
+    });
+
+
+    // ---------------- resource-page editor ----------------
+    const resourceDraftKey = path => `studio-resource-draft:${courseName}:${path || 'resource'}`;
+
+    function resourceRelativeFetchPath(path) {
+      return '../' + path.replace(/^\/+/, '');
+    }
+
+    function scheduleResourceDraftSave() {
+      clearTimeout(resourceDraftTimer);
+      resourceDraftTimer = setTimeout(() => {
+        const path = resourcePath.value.trim();
+        if (!path) return;
+        try {
+          localStorage.setItem(resourceDraftKey(path), JSON.stringify({ title:resourceTitle.value, html:resourceEditable.innerHTML, updated:Date.now() }));
+          status.textContent = 'Черновик страницы сохранён';
+        } catch (_) {}
+      }, 650);
+    }
+
+    resourceSelect?.addEventListener('change', () => {
+      resourcePath.value = resourceSelect.value;
+      loadPublishedResource();
+    });
+    resourcePath?.addEventListener('change', () => { resourceLoadedPath = ''; });
+    resourceTitle?.addEventListener('input', () => { resourcePreviewTitle.textContent = resourceTitle.value.trim() || 'Страница'; scheduleResourceDraftSave(); });
+    resourceEditable?.addEventListener('input', scheduleResourceDraftSave);
+    resourceEditable?.addEventListener('click', event => { if (event.target.closest('a')) event.preventDefault(); });
+
+    async function loadPublishedResource() {
+      const path = resourcePath.value.trim() || resourceSelect.value;
+      if (!path) return setStatus('Укажите путь страницы');
+      try {
+        const response = await fetch(`${resourceRelativeFetchPath(path)}?studio=${Date.now()}`, { cache:'no-store' });
+        if (!response.ok) throw new Error('not found');
+        publishedResourceSource = await response.text();
+        const doc = new DOMParser().parseFromString(publishedResourceSource, 'text/html');
+        const article = doc.querySelector('.resource-article');
+        if (!article) throw new Error('article missing');
+        const h1 = article.querySelector('h1');
+        resourceTitle.value = h1?.textContent?.trim() || 'Страница';
+        resourcePreviewTitle.textContent = resourceTitle.value;
+        const bodyNodes = [];
+        let afterTitle = false;
+        [...article.children].forEach(node => {
+          if (node === h1) { afterTitle = true; return; }
+          if (afterTitle) bodyNodes.push(node.outerHTML);
+        });
+        resourceEditable.innerHTML = bodyNodes.join('\n') || '<p>Начните писать…</p>';
+        resourceLoadedPath = path;
+        setStatus('Страница загружена');
+      } catch (error) { setStatus('Не удалось загрузить страницу'); }
+    }
+    document.getElementById('loadResourcePublished')?.addEventListener('click', loadPublishedResource);
+
+    document.querySelectorAll('[data-resource-format]').forEach(button => button.addEventListener('click', () => {
+      resourceEditable.focus();
+      const cmd = button.dataset.resourceFormat;
+      if (cmd === 'h2') document.execCommand('formatBlock', false, 'h2');
+      else if (cmd === 'p') document.execCommand('formatBlock', false, 'p');
+      else if (cmd === 'blockquote') document.execCommand('formatBlock', false, 'blockquote');
+      else if (cmd === 'ul') document.execCommand('insertUnorderedList');
+      else if (cmd === 'ol') document.execCommand('insertOrderedList');
+      else document.execCommand(cmd, false, null);
+      resourceEditable.dispatchEvent(new Event('input'));
+    }));
+
+    document.getElementById('resourceEditLink')?.addEventListener('click', () => {
+      resourceEditable.focus();
+      const sel = getSelection();
+      let anchor = null;
+      if (sel?.anchorNode) anchor = (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement)?.closest?.('a');
+      if (anchor && resourceEditable.contains(anchor)) {
+        const url = prompt('Адрес ссылки:', anchor.getAttribute('href') || '');
+        if (url !== null) anchor.setAttribute('href', url || '#');
+      } else {
+        const url = prompt('Адрес ссылки:');
+        if (!url) return;
+        if (sel && !sel.isCollapsed && resourceEditable.contains(sel.anchorNode)) document.execCommand('createLink', false, url);
+        else {
+          const label = prompt('Текст ссылки:', 'Ссылка') || 'Ссылка';
+          insertAtCaret(`<a href="${escapeHtml(url)}">${escapeHtml(label)}</a>`, resourceEditable);
+        }
+      }
+      resourceEditable.dispatchEvent(new Event('input'));
+    });
+
+    function buildResourceHtml() {
+      if (!publishedResourceSource) return '';
+      const doc = new DOMParser().parseFromString(publishedResourceSource, 'text/html');
+      const article = doc.querySelector('.resource-article');
+      if (!article) return '';
+      const h1 = article.querySelector('h1');
+      if (h1) h1.textContent = resourceTitle.value.trim() || 'Страница';
+      let remove = false;
+      [...article.children].forEach(node => {
+        if (node === h1) { remove = true; return; }
+        if (remove) node.remove();
+      });
+      const tmp = doc.createElement('div');
+      tmp.innerHTML = resourceEditable.innerHTML.trim();
+      [...tmp.childNodes].forEach(node => article.appendChild(node));
+      const title = doc.querySelector('title');
+      if (title) title.textContent = `${resourceTitle.value.trim() || 'Страница'} — ${courseName}`;
+      const meta = doc.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', `${resourceTitle.value.trim() || 'Страница'} — курс «${courseName}»`);
+      return '<!doctype html>\n' + doc.documentElement.outerHTML + '\n';
+    }
+
+    document.getElementById('downloadResource')?.addEventListener('click', async () => {
+      if (!publishedResourceSource) await loadPublishedResource();
+      const html = buildResourceHtml();
+      if (!html) return setStatus('Не удалось подготовить страницу');
+      download((resourcePath.value.trim().split('/').pop() || 'resource.html'), html);
+      setStatus('HTML страницы скачан');
+    });
+
+    document.getElementById('publishResource')?.addEventListener('click', async () => {
+      try {
+        if (!publishedResourceSource) await loadPublishedResource();
+        const path = resourcePath.value.trim();
+        const html = buildResourceHtml();
+        if (!path || !html) return setStatus('Не удалось подготовить страницу');
+        setStatus('Публикую страницу…');
+        await githubPublishText(path, html, `Обновить страницу: ${resourceTitle.value.trim() || path}`);
+        publishedResourceSource = html;
+        resourceLoadedPath = path;
+        setStatus('✓ Страница опубликована на GitHub');
+      } catch (error) { setStatus(`GitHub: ${error.message}`); }
     });
 
     renderTopicSelect();
