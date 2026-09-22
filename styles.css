@@ -33,13 +33,7 @@ a{color:inherit}
 .section-title{display:flex;align-items:center;gap:28px;margin-bottom:30px}
 .section-title h2{font-size:clamp(25px,3vw,40px);margin:0;white-space:nowrap;letter-spacing:-.02em}
 .section-title span{height:1px;background:#555;flex:1}
-.prose{
-  width:100%;
-  max-width:none;
-  color:#c8c8c8;
-  font-size:clamp(16px,1.6vw,20px);
-  line-height:1.65;
-}
+.prose{max-width:1040px;color:#c8c8c8;font-size:clamp(16px,1.6vw,20px);line-height:1.65}
 .prose p{margin:0 0 1.2em}
 .link-scroll{position:relative}
 .link-track{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -354,4 +348,16 @@ a.resource-detail-card.internal-card:hover:after{transform:translateX(3px)}
   .exam-links-grid,.contact-grid{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){
+}
+
+/* ---------- homepage: wide course description ---------- */
+.home-page .section.about .prose {
+  width: 100%;
+  max-width: none;
+}
+
+@media (min-width: 761px) {
+  .home-page .section.about .prose {
+    width: calc(100% - 20px);
+  }
 }
