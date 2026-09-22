@@ -350,14 +350,12 @@ a.resource-detail-card.internal-card:hover:after{transform:translateX(3px)}
 @media(prefers-reduced-motion:reduce){
 }
 
+
 /* ---------- homepage: wide course description ---------- */
 .home-page .section.about .prose {
   width: 100%;
   max-width: none;
 }
-
 @media (min-width: 761px) {
-  .home-page .section.about .prose {
-    width: calc(100% - 20px);
-  }
+  .home-page .section.about .prose { width: calc(100% - 20px); }
 }

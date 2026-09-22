@@ -73,6 +73,7 @@
     const homePreview = document.getElementById('homePreview');
     const assetList = document.getElementById('assetList');
     const imageFileInput = document.getElementById('imageFileInput');
+    const removeMedia = document.getElementById('removeMedia');
 
     const homeAboutTitle = document.getElementById('homeAboutTitle');
     const homeLinksTitle = document.getElementById('homeLinksTitle');
@@ -106,6 +107,7 @@
     let homeDraftTimer = null;
     const assetFiles = new Map();
     const assetUrls = new Map();
+    let selectedMedia = null;
 
     const escapeHtml = (s) => String(s ?? '')
       .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -294,6 +296,7 @@
       tagsInput.value = '';
       editable.innerHTML = '<p class="lead">Краткое вступление к лекции.</p><h2>Первый раздел</h2><p>Начните писать текст…</p>';
       clearAssets();
+      selectMediaBlock(null);
       renderMeta();
       setStatus('Новая лекция');
     }
@@ -315,6 +318,7 @@
         editable.innerHTML = '<p class="lead">Нажмите «Загрузить опубликованную», чтобы получить текущий текст с сайта.</p>';
       }
       clearAssets();
+      selectMediaBlock(null);
       renderMeta();
     });
 
@@ -340,6 +344,7 @@
         });
         editable.innerHTML = nodes.join('\n') || '<p class="lead">Пустая лекция.</p>';
         clearAssets();
+        selectMediaBlock(null);
         renderMeta();
         setStatus('Опубликованная лекция загружена');
       } catch (e) {
@@ -481,6 +486,45 @@
       addLocalImage(file, { alt: '', caption: '' });
     });
 
+    function selectMediaBlock(figure) {
+      if (selectedMedia && selectedMedia !== figure) selectedMedia.classList.remove('is-selected-media');
+      selectedMedia = figure && editable.contains(figure) ? figure : null;
+      if (selectedMedia) selectedMedia.classList.add('is-selected-media');
+      if (removeMedia) removeMedia.disabled = !selectedMedia;
+    }
+
+    editable.addEventListener('click', event => {
+      const figure = event.target.closest?.('figure.embedded-media');
+      if (figure && editable.contains(figure)) {
+        event.preventDefault();
+        selectMediaBlock(figure);
+      } else if (!event.target.closest?.('.editor-tool')) {
+        selectMediaBlock(null);
+      }
+    });
+
+    removeMedia?.addEventListener('click', () => {
+      if (!selectedMedia || !editable.contains(selectedMedia)) {
+        selectMediaBlock(null);
+        return setStatus('Сначала нажмите на фото или видео в предпросмотре');
+      }
+      const wasVideo = !!selectedMedia.querySelector('iframe');
+      const img = selectedMedia.querySelector('img[data-studio-asset]');
+      if (img?.dataset.studioAsset) {
+        const name = img.dataset.studioAsset;
+        const url = assetUrls.get(name);
+        if (url) URL.revokeObjectURL(url);
+        assetUrls.delete(name);
+        assetFiles.delete(name);
+        renderAssetList();
+      }
+      selectedMedia.remove();
+      selectMediaBlock(null);
+      editable.dispatchEvent(new Event('input'));
+      editable.focus();
+      setStatus(wasVideo ? 'Видео удалено' : 'Изображение удалено');
+    });
+
     function extractVideoSource(value) {
       const raw = String(value || '').trim();
       if (!raw) return '';
@@ -617,6 +661,8 @@
         img.removeAttribute('data-studio-asset');
       });
       clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+      clone.querySelectorAll('.is-selected-media').forEach(el => el.classList.remove('is-selected-media'));
+      clone.querySelectorAll('[data-studio-control]').forEach(el => el.remove());
       return clone.innerHTML.trim();
     }
 

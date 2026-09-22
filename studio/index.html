@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Редактор — Моушн-дизайн</title>
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="editor.css?v=4">
+  <link rel="stylesheet" href="editor.css?v=7">
 </head>
 <body class="editor-page" data-course-name="Моушн-дизайн" style="--editor-accent:#ff6a3d;--editor-accent-rgb:255,106,61">
   <div class="editor-auth" id="loginGate">
@@ -81,9 +81,10 @@
               <button class="editor-tool is-accent" id="addImage">Фото с компьютера</button>
               <button class="editor-tool is-accent" id="addImageUrl">Фото по URL</button>
               <button class="editor-tool is-accent" id="addVideo">Видео YouTube / Vimeo</button>
+              <button class="editor-tool editor-media-remove" id="removeMedia" type="button" disabled>Удалить медиа</button>
             </div>
             <input id="imageFileInput" type="file" accept="image/*" hidden>
-            <p class="editor-help">Фото можно выбрать с компьютера или просто перетащить в текст лекции. При экспорте путь к файлу автоматически станет <code>../assets/images/имя-файла</code>.</p>
+            <p class="editor-help">Фото можно выбрать с компьютера или просто перетащить в текст лекции. Чтобы удалить фото или видео, нажмите на него в предпросмотре и затем «Удалить медиа». При экспорте путь к файлу автоматически станет <code>../assets/images/имя-файла</code>.</p>
             <div class="editor-assets" id="assetList"></div>
           </section>
 
@@ -211,6 +212,6 @@
   </div>
 
   <script src="../topics.js"></script>
-  <script src="editor.js?v=6"></script>
+  <script src="editor.js?v=7"></script>
 </body>
 </html>

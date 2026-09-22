@@ -143,3 +143,22 @@ button{cursor:pointer}
   .editor-publish-grid{grid-template-columns:1fr}
   .editor-publish-grid .wide{grid-column:auto}
 }
+
+
+/* ---------- studio media selection / deletion ---------- */
+.editor-content figure.embedded-media{
+  position:relative;
+  cursor:pointer;
+  border-radius:6px;
+  transition:outline-color .16s ease,box-shadow .16s ease;
+}
+.editor-content figure.embedded-media.is-selected-media{
+  outline:2px solid rgba(var(--editor-accent-rgb),.72);
+  outline-offset:5px;
+  box-shadow:0 0 0 1px rgba(var(--editor-accent-rgb),.16),0 0 28px rgba(var(--editor-accent-rgb),.10);
+}
+/* In Studio an iframe must not swallow the click; the published lecture is unaffected. */
+.editor-content .video-frame iframe{pointer-events:none}
+.editor-media-remove{border-color:#6f3434!important;color:#ffb3b3!important}
+.editor-media-remove:not(:disabled){background:#2a1111!important;border-color:#a84747!important;color:#ffd2d2!important}
+.editor-media-remove:disabled{opacity:.36;cursor:not-allowed}
