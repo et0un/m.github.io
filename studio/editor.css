@@ -162,3 +162,72 @@ button{cursor:pointer}
 .editor-media-remove{border-color:#6f3434!important;color:#ffb3b3!important}
 .editor-media-remove:not(:disabled){background:#2a1111!important;border-color:#a84747!important;color:#ffd2d2!important}
 .editor-media-remove:disabled{opacity:.36;cursor:not-allowed}
+
+/* v8 studio: structured cards/menus editor */
+.resource-card-editor-list{display:grid;gap:10px;margin-bottom:10px}
+.resource-card-edit-row{border:1px solid #242424;border-radius:9px;padding:10px;background:#0b0b0b}
+.resource-card-edit-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.resource-card-edit-row input,.resource-card-edit-row textarea{width:100%;border:1px solid #303030;background:#090909;color:#fff;border-radius:7px;padding:8px 9px;outline:none;font:inherit;font-size:11px}
+.resource-card-edit-row textarea{min-height:58px;resize:vertical;margin-top:7px;line-height:1.4}
+.resource-card-edit-row .resource-card-href{margin-top:7px;color:#aaa;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.resource-card-edit-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;color:#858585;font-size:10px}
+.resource-card-edit-meta label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.resource-card-edit-meta input{width:auto;margin:0}
+.resource-card-remove{border:0;background:none;color:#777;padding:5px;font-size:17px;cursor:pointer}
+.resource-card-remove:hover{color:#fff}
+.resource-card-empty{border:1px dashed #2d2d2d;border-radius:9px;padding:12px;color:#777;font-size:11px;line-height:1.5}
+.resource-editor-content .resource-card-grid{outline:1px dashed transparent;outline-offset:6px}
+.resource-editor-content .resource-card-grid:hover{outline-color:rgba(var(--editor-accent-rgb),.32)}
+
+
+/* v9: resource editor mirrors lecture typography, including browser-generated DIV paragraphs */
+.resource-editor-preview .resource-article h1{
+  font-size:clamp(44px,5.2vw,76px);
+  line-height:.98;
+  letter-spacing:-.045em;
+  margin:0 0 18px;
+}
+.resource-editor-content > p,
+.resource-editor-content > div:not(.resource-card-grid),
+.resource-editor-content li{
+  max-width:940px;
+  font-size:17px;
+  line-height:1.72;
+  color:#bdbdbd;
+}
+.resource-editor-content > p,
+.resource-editor-content > div:not(.resource-card-grid){margin:0 0 18px}
+.resource-editor-content h2{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  font-size:clamp(26px,2.6vw,38px);
+  line-height:1.1;
+  letter-spacing:-.025em;
+  margin:48px 0 18px;
+}
+.resource-editor-content h2:after{content:"";height:1px;background:#404040;flex:1}
+.resource-editor-content h3{font-size:22px;line-height:1.25;margin:34px 0 12px}
+.resource-editor-content ul,.resource-editor-content ol{max-width:940px;padding-left:24px;margin:14px 0 24px}
+.resource-editor-content blockquote{max-width:920px;margin:30px 0;padding:4px 0 4px 20px;border-left:2px solid #bdbdbd;color:#d8d8d8;font-size:17px;font-style:italic;line-height:1.65}
+
+
+/* v5 typography controls */
+.text-format-tools{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:8px;padding:9px;border:1px solid #252525;border-radius:8px;background:#0b0b0b}
+.text-format-tools label,.card-text-controls label{display:flex;align-items:center;gap:7px;color:#aaa;font-size:11px}
+.text-format-tools select,.card-text-controls select{border:1px solid #303030;background:#090909;color:#eee;border-radius:6px;padding:6px 8px;font:inherit;font-size:11px}
+.text-format-tools .text-align-label{margin-left:5px;color:#777;font-size:10px}
+.card-text-controls{display:flex;flex-wrap:wrap;gap:7px 12px;margin:8px 0;color:#aaa;font-size:10px}
+.home-card-text-controls{grid-column:1/-1;margin-top:2px}
+.resource-card-edit-row .card-text-controls select{padding:5px 6px}
+
+
+/* v6: the resource-page editor preview mirrors the wider published reading area. */
+.editor-preview-inner.resource-editor-preview{width:100%;max-width:none}
+.resource-editor-preview .resource-article{width:100%;max-width:none;margin:0}
+.resource-editor-content>p,
+.resource-editor-content>ul,
+.resource-editor-content>ol,
+.resource-editor-content>blockquote,
+.resource-editor-content>div:not(.resource-card-grid){max-width:none!important}
+.resource-editor-content .resource-card-grid{width:100%;max-width:none}

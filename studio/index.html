@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Редактор — Моушн-дизайн</title>
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="editor.css?v=7">
+  <link rel="stylesheet" href="editor.css?v=10">
 </head>
 <body class="editor-page" data-course-name="Моушн-дизайн" style="--editor-accent:#ff6a3d;--editor-accent-rgb:255,106,61">
   <div class="editor-auth" id="loginGate">
@@ -81,6 +81,13 @@
               <button class="editor-tool is-accent" id="addImage">Фото с компьютера</button>
               <button class="editor-tool is-accent" id="addImageUrl">Фото по URL</button>
               <button class="editor-tool is-accent" id="addVideo">Видео YouTube / Vimeo</button>
+<div class="text-format-tools" aria-label="Размер и выравнивание текста">
+              <label>Размер <select data-font-size-for="lecture" aria-label="Размер шрифта"><option value="14">14 px</option><option value="16" selected>16 px</option><option value="18">18 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label>
+              <span class="text-align-label">Выравнивание</span>
+              <button class="editor-tool" type="button" data-text-align-for="lecture" data-align="left" aria-label="По левому краю" title="По левому краю">≡←</button>
+              <button class="editor-tool" type="button" data-text-align-for="lecture" data-align="center" aria-label="По центру" title="По центру">≡</button>
+              <button class="editor-tool" type="button" data-text-align-for="lecture" data-align="right" aria-label="По правому краю" title="По правому краю">→≡</button>
+            </div>
               <button class="editor-tool editor-media-remove" id="removeMedia" type="button" disabled>Удалить медиа</button>
             </div>
             <input id="imageFileInput" type="file" accept="image/*" hidden>
@@ -117,6 +124,13 @@
               <button class="editor-tool" data-home-format="p">Абзац</button>
               <button class="editor-tool" data-home-format="ul">• Список</button>
               <button class="editor-tool" data-home-format="ol">1. Список</button>
+              <div class="text-format-tools" aria-label="Размер и выравнивание текста">
+                            <label>Размер <select data-font-size-for="home" aria-label="Размер шрифта"><option value="14">14 px</option><option value="16" selected>16 px</option><option value="18">18 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label>
+                            <span class="text-align-label">Выравнивание</span>
+                            <button class="editor-tool" type="button" data-text-align-for="home" data-align="left" aria-label="По левому краю" title="По левому краю">≡←</button>
+                            <button class="editor-tool" type="button" data-text-align-for="home" data-align="center" aria-label="По центру" title="По центру">≡</button>
+                            <button class="editor-tool" type="button" data-text-align-for="home" data-align="right" aria-label="По правому краю" title="По правому краю">→≡</button>
+                          </div>
               <button class="editor-tool is-accent" id="homeAddLink">Ссылка</button>
             </div>
           </section>
@@ -163,9 +177,26 @@
               <button class="editor-tool" data-resource-format="blockquote">Цитата</button>
               <button class="editor-tool" data-resource-format="ul">• Список</button>
               <button class="editor-tool" data-resource-format="ol">1. Список</button>
+              <div class="text-format-tools" aria-label="Размер и выравнивание текста">
+                            <label>Размер <select data-font-size-for="resource" aria-label="Размер шрифта"><option value="14">14 px</option><option value="16" selected>16 px</option><option value="18">18 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label>
+                            <span class="text-align-label">Выравнивание</span>
+                            <button class="editor-tool" type="button" data-text-align-for="resource" data-align="left" aria-label="По левому краю" title="По левому краю">≡←</button>
+                            <button class="editor-tool" type="button" data-text-align-for="resource" data-align="center" aria-label="По центру" title="По центру">≡</button>
+                            <button class="editor-tool" type="button" data-text-align-for="resource" data-align="right" aria-label="По правому краю" title="По правому краю">→≡</button>
+                          </div>
               <button class="editor-tool is-accent" id="resourceEditLink">Ссылка</button>
             </div>
             <p class="editor-help">Текст внутри карточек тоже можно менять прямо в предпросмотре. Чтобы поменять адрес карточки или текстовой ссылки, поставьте курсор внутрь неё и нажмите «Ссылка».</p>
+          </section>
+
+          <section class="editor-section" id="resourceCardsSection">
+            <h2>Карточки / меню</h2>
+            <div class="resource-card-editor-list" id="resourceCardFields"></div>
+            <div class="editor-actions">
+              <button class="editor-secondary" id="resourceAddCard" type="button">+ Добавить карточку</button>
+              <button class="editor-secondary" id="resourceRefreshCards" type="button">Обновить из предпросмотра</button>
+            </div>
+            <p class="editor-help">Здесь можно добавлять, удалять и перестраивать карточки вроде программ, требований, этапов работы и контактов. Для кликабельной карточки укажите ссылку; оставьте поле пустым, если переход не нужен.</p>
           </section>
 
           <section class="editor-section">
@@ -212,6 +243,6 @@
   </div>
 
   <script src="../topics.js"></script>
-  <script src="editor.js?v=7"></script>
+  <script src="editor.js?v=10"></script>
 </body>
 </html>
