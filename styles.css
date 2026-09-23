@@ -110,6 +110,7 @@ a{color:inherit}
 .lecture-pagination a:last-child{justify-content:flex-end}
 .lecture-pagination a:hover{border-color:#666;background:#0d0d0d;color:#fff}
 .lecture-pagination a[hidden]{display:none}
+.lecture-pagination #prevLecture[hidden] + #nextLecture{grid-column:2}
 .topics-toggle{display:none}
 .sidebar-backdrop{display:none}
 .placeholder-note{border:1px dashed #353535;border-radius:8px;padding:22px;color:#999;background:#0a0a0a;margin:28px 0}
@@ -154,6 +155,7 @@ a{color:inherit}
   .lecture-article .lead{font-size:17px}
   .media-pair{grid-template-columns:1fr}
   .lecture-pagination{grid-template-columns:1fr;gap:10px}
+  .lecture-pagination #prevLecture[hidden] + #nextLecture{grid-column:1}
 }
 @media(max-width:520px){
   .nav nav{gap:22px}
@@ -358,4 +360,123 @@ a.resource-detail-card.internal-card:hover:after{transform:translateX(3px)}
 }
 @media (min-width: 761px) {
   .home-page .section.about .prose { width: calc(100% - 20px); }
+}
+
+
+/* ---------- typography sync: resource pages use the same rhythm as lectures ---------- */
+.resource-page .resource-article{
+  width:min(1080px,100%);
+  margin:0;
+}
+.resource-page .resource-article h1{
+  font-size:clamp(44px,5.2vw,76px);
+  line-height:.98;
+  letter-spacing:-.045em;
+  margin:0 0 18px;
+  color:#fff;
+}
+.resource-page .resource-article .resource-lead{
+  max-width:940px!important;
+  font-size:clamp(18px,1.7vw,22px)!important;
+  line-height:1.62!important;
+  color:#bdbdbd!important;
+  margin:0 0 34px!important;
+}
+.resource-page .resource-article h2{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  font-size:clamp(26px,2.6vw,38px);
+  line-height:1.1;
+  letter-spacing:-.025em;
+  margin:48px 0 18px;
+  color:#fff;
+}
+.resource-page .resource-article h2:after{
+  content:"";
+  height:1px;
+  background:#404040;
+  flex:1;
+}
+.resource-page .resource-article h3{
+  font-size:22px;
+  line-height:1.25;
+  margin:34px 0 12px;
+  color:#fff;
+}
+.resource-page .resource-article p,
+.resource-page .resource-article li,
+.resource-page .resource-article > div:not(.resource-kicker):not(.resource-card-grid){
+  max-width:940px;
+  font-size:17px;
+  line-height:1.72;
+  color:#bdbdbd;
+}
+.resource-page .resource-article p,
+.resource-page .resource-article > div:not(.resource-kicker):not(.resource-card-grid){
+  margin:0 0 18px;
+}
+.resource-page .resource-article ul,
+.resource-page .resource-article ol{
+  max-width:940px;
+  padding-left:24px;
+  margin:14px 0 24px;
+}
+.resource-page .resource-article li + li{margin-top:5px}
+.resource-page .resource-article strong{color:#f0f0f0}
+.resource-page .resource-article blockquote{
+  max-width:920px;
+  margin:30px 0;
+  padding:4px 0 4px 20px;
+  border-left:2px solid #bdbdbd;
+  color:#d8d8d8;
+  font-size:17px;
+  font-style:italic;
+  line-height:1.65;
+}
+.resource-page .resource-article a:not(.resource-detail-card){
+  color:#f0f0f0;
+  text-decoration-color:#666;
+  text-underline-offset:4px;
+}
+.resource-page .resource-article a:not(.resource-detail-card):hover{color:#fff;text-decoration-color:#fff}
+.resource-page .resource-card-grid{margin-top:24px}
+
+@media(max-width:520px){
+  .resource-page .resource-article h1{font-size:38px}
+  .resource-page .resource-article h2:after{display:none}
+  .resource-page .resource-article p,
+  .resource-page .resource-article li,
+  .resource-page .resource-article > div:not(.resource-kicker):not(.resource-card-grid){font-size:16px;line-height:1.68}
+}
+
+
+/* Keep editable card typography visible on published pages. */
+.resource-detail-card strong{font-size:inherit;text-align:inherit}
+.resource-detail-card span{font-size:inherit;text-align:inherit}
+
+/* v6: resource pages use the full reading width; headings and paragraphs share one left edge. */
+.resource-page .resource-article{width:100%;max-width:none;margin:0}
+.resource-page .resource-article .resource-lead,
+.resource-page .resource-article p,
+.resource-page .resource-article li,
+.resource-page .resource-article > div:not(.resource-kicker):not(.resource-card-grid),
+.resource-page .resource-article ul,
+.resource-page .resource-article ol,
+.resource-page .resource-article blockquote{max-width:none!important}
+.resource-page .resource-article .resource-card-grid{width:100%;max-width:none}
+
+
+/* v7: let lecture copy use the full article width so its right edge follows the media. */
+.lecture-article p,
+.lecture-article li,
+.lecture-article ul,
+.lecture-article ol,
+.lecture-article blockquote,
+.lecture-article .lead{max-width:none}
+
+/* Align the first content labels with the headings in the adjacent sidebars. */
+@media(min-width:961px){
+  .lecture-main{padding-top:26px}
+  .resource-main{padding-top:28px}
 }
