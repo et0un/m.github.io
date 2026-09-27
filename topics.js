@@ -3,7 +3,6 @@ window.COURSE_TOPICS = [
     "slug": "01-history",
     "title": "История анимации",
     "tags": [
-      "Актуально",
       "Теория"
     ]
   },
@@ -77,114 +76,6 @@ window.COURSE_TOPICS = [
     "tags": [
       "Теория",
       "Практика"
-    ]
-  },
-  {
-    "slug": "11-3d-ae",
-    "title": "3D в After Effects",
-    "tags": [
-      "Практика",
-      "Софт"
-    ]
-  },
-  {
-    "slug": "12-transitions",
-    "title": "Выразительные переходы",
-    "tags": [
-      "Практика"
-    ]
-  },
-  {
-    "slug": "13-plugins",
-    "title": "Работа с плагинами",
-    "tags": [
-      "Софт"
-    ]
-  },
-  {
-    "slug": "14-logo-animation",
-    "title": "Анимация логотипов",
-    "tags": [
-      "Практика"
-    ]
-  },
-  {
-    "slug": "15-interface-animation",
-    "title": "Анимация интерфейсов",
-    "tags": [
-      "Практика"
-    ]
-  },
-  {
-    "slug": "16-kinetic-typography",
-    "title": "Кинетическая типографика",
-    "tags": [
-      "Практика"
-    ]
-  },
-  {
-    "slug": "17-sound-design",
-    "title": "Саунд-дизайн для моушн-дизайна",
-    "tags": [
-      "Теория",
-      "Практика"
-    ]
-  },
-  {
-    "slug": "18-render-export",
-    "title": "Рендер и экспорт",
-    "tags": [
-      "Софт"
-    ]
-  },
-  {
-    "slug": "19-portfolio",
-    "title": "Подготовка портфолио",
-    "tags": [
-      "Практика"
-    ]
-  },
-  {
-    "slug": "20-project-review",
-    "title": "Разбор проектов",
-    "tags": [
-      "Практика"
-    ]
-  },
-  {
-    "slug": "21-freelance",
-    "title": "Фриланс и работа с заказчиками",
-    "tags": [
-      "Теория"
-    ]
-  },
-  {
-    "slug": "22-trends",
-    "title": "Тренды и вдохновение",
-    "tags": [
-      "Теория"
-    ]
-  },
-  {
-    "slug": "23-extra-techniques",
-    "title": "Дополнительные техники",
-    "tags": [
-      "Практика"
-    ]
-  },
-  {
-    "slug": "24-final-project",
-    "title": "Финальный проект",
-    "tags": [
-      "Практика",
-      "Д/з"
-    ]
-  },
-  {
-    "slug": "25-course-summary",
-    "title": "Итоги курса",
-    "tags": [
-      "Теория"
     ]
   }
 ];
