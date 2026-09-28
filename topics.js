@@ -18,7 +18,6 @@ window.COURSE_TOPICS = [
     "slug": "03-disney-principles",
     "title": "12 принципов анимации студии Уолта Диснея",
     "tags": [
-      "Актуально",
       "Теория"
     ]
   },
