@@ -25,7 +25,8 @@ window.COURSE_TOPICS = [
     "slug": "04-after-effects-basics",
     "title": "Основы работы в After Effects: настройки, композиция, слои",
     "tags": [
-      "Софт"
+      "Софт",
+      "Практика"
     ]
   },
   {
