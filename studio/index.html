@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Редактор — Моушн-дизайн</title>
-  <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="editor.css?v=10">
+  <link rel="stylesheet" href="../styles.css?v=20">
+  <link rel="stylesheet" href="editor.css?v=20">
 </head>
 <body class="editor-page" data-course-name="Моушн-дизайн" style="--editor-accent:#ff6a3d;--editor-accent-rgb:255,106,61">
   <div class="editor-auth" id="loginGate">
@@ -51,6 +51,13 @@
             <p class="editor-github-state" id="githubState">Токен хранится только в этой вкладке браузера. Нужен доступ Contents: Read and write к этому репозиторию.</p>
           </div>
         </details>
+        <section class="editor-section">
+          <h2>Шрифт всего сайта</h2>
+          <label class="editor-field"><span>Семейство из Google Fonts</span><input id="siteFont" list="siteFonts" value="Inter" placeholder="Например, Noto Sans"></label>
+          <datalist id="siteFonts"><option value="Inter"><option value="Roboto"><option value="Open Sans"><option value="Noto Sans"><option value="Noto Serif"><option value="Montserrat"><option value="Source Sans 3"><option value="PT Sans"><option value="PT Serif"></datalist>
+          <div class="editor-actions"><button class="editor-primary" id="publishSiteFont" type="button">Применить ко всему сайту</button><button class="editor-secondary" id="downloadSiteFont" type="button">Скачать настройки</button></div>
+          <p class="editor-help">Предпросмотр меняется сразу. Для всего сайта опубликуйте настройки или загрузите скачанный файл в корень репозитория. Выбирайте семейство с кириллицей на <a href="https://fonts.google.com/?subset=cyrillic" target="_blank" rel="noopener noreferrer">Google Fonts</a>.</p>
+        </section>
         <div id="lectureControls">
           <section class="editor-section">
             <h2>Лекция</h2>
@@ -67,43 +74,25 @@
           </section>
 
           <section class="editor-section">
-            <h2>Форматирование</h2>
-            <div class="editor-actions">
-              <button class="editor-tool" data-format="bold"><b>Ж</b></button>
-              <button class="editor-tool" data-format="italic"><i>К</i></button>
-              <button class="editor-tool" data-format="h2">Заголовок</button>
-              <button class="editor-tool" data-format="p">Абзац</button>
-              <button class="editor-tool" data-format="blockquote">Цитата</button>
-              <button class="editor-tool" data-format="ul">• Список</button>
-              <button class="editor-tool" data-format="ol">1. Список</button>
-              <button class="editor-tool is-accent" id="addLead">Вступление</button>
-              <button class="editor-tool is-accent" id="addLink">Ссылка</button>
-              <button class="editor-tool is-accent" id="addImage">Фото с компьютера</button>
-              <button class="editor-tool is-accent" id="addImageUrl">Фото по URL</button>
-              <button class="editor-tool is-accent" id="addVideo">Видео YouTube / Vimeo</button>
-<div class="text-format-tools" aria-label="Размер и выравнивание текста">
-              <label>Размер <select data-font-size-for="lecture" aria-label="Размер шрифта"><option value="14">14 px</option><option value="16" selected>16 px</option><option value="18">18 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label>
-              <span class="text-align-label">Выравнивание</span>
-              <button class="editor-tool" type="button" data-text-align-for="lecture" data-align="left" aria-label="По левому краю" title="По левому краю">≡←</button>
-              <button class="editor-tool" type="button" data-text-align-for="lecture" data-align="center" aria-label="По центру" title="По центру">≡</button>
-              <button class="editor-tool" type="button" data-text-align-for="lecture" data-align="right" aria-label="По правому краю" title="По правому краю">→≡</button>
-            </div>
-              <button class="editor-tool editor-media-remove" id="removeMedia" type="button" disabled>Удалить медиа</button>
-            </div>
-            <input id="imageFileInput" type="file" accept="image/*" hidden>
-            <p class="editor-help">Фото можно выбрать с компьютера или просто перетащить в текст лекции. Чтобы удалить фото или видео, нажмите на него в предпросмотре и затем «Удалить медиа». При экспорте путь к файлу автоматически станет <code>../assets/images/имя-файла</code>.</p>
-            <div class="editor-assets" id="assetList"></div>
+            <h2>Превью темы на главной</h2>
+            <div class="topic-thumbnail-preview" id="topicThumbnailPreview"><span>Стандартное превью</span></div>
+            <input id="topicThumbnailFile" type="file" accept="image/*" hidden>
+            <div class="editor-actions"><button class="editor-secondary" id="chooseTopicThumbnail" type="button">Загрузить превью</button><button class="editor-secondary" id="removeTopicThumbnail" type="button" disabled>Убрать превью</button></div>
+            <div class="editor-actions" style="margin-top:8px"><button class="editor-primary" id="publishTopicThumbnail" type="button">Опубликовать превью</button><button class="editor-secondary" id="downloadThumbnailPackage" type="button">Скачать ZIP превью</button></div>
+            <p class="editor-help">Выберите тему выше и загрузите изображение. Оно появится в списке тем на главной, отдельно от текста лекции. Публикация превью обновляет изображение и topics.js?v=20 На телефоне кадр автоматически подстраивается под карточку.</p>
           </section>
+
+          <section class="editor-section"><h2>Текст и медиа</h2><div data-toolbar-slot></div></section>
 
           <section class="editor-section">
             <h2>Экспорт лекции</h2>
-            <div class="editor-actions"><button class="editor-primary editor-publish-button" id="publishLecture">Опубликовать на GitHub</button><button class="editor-secondary" id="downloadPackage">Скачать пакет ZIP</button><button class="editor-secondary" id="downloadLecture">Только HTML</button><button class="editor-secondary" id="downloadTopics">Только topics.js</button></div>
+            <div class="editor-actions"><button class="editor-primary editor-publish-button" id="publishLecture">Опубликовать на GitHub</button><button class="editor-secondary" id="downloadPackage">Скачать пакет ZIP</button><button class="editor-secondary" id="downloadLecture">Только HTML</button><button class="editor-secondary" id="downloadTopics">Только topics.js?v=20></div>
             <div class="editor-actions" style="margin-top:8px"><button class="editor-secondary" id="copyContent">Копировать HTML текста</button><button class="editor-secondary" id="copyTopic">Копировать запись темы</button></div>
-            <p class="editor-help">ZIP содержит готовую лекцию, обновлённый topics.js и все картинки, которые вы добавили с компьютера. Распакуйте его и загрузите файлы в соответствующие папки GitHub.</p>
+            <p class="editor-help">ZIP содержит готовую лекцию, обновлённый topics.js?v=20 и все изображения, GIF и видео, которые вы добавили с компьютера. Распакуйте его и загрузите файлы в соответствующие папки GitHub.</p>
           </section>
 
           <section class="editor-section">
-            <h2>Запись для topics.js</h2>
+            <h2>Запись для topics.js?v=20>
             <textarea class="editor-codebox" id="codeBox" readonly></textarea>
           </section>
         </div>
@@ -118,21 +107,7 @@
           <section class="editor-section">
             <h2>О курсе</h2>
             <label class="editor-field"><span>Заголовок блока</span><input id="homeAboutTitle" value="О КУРСЕ"></label>
-            <div class="editor-actions">
-              <button class="editor-tool" data-home-format="bold"><b>Ж</b></button>
-              <button class="editor-tool" data-home-format="italic"><i>К</i></button>
-              <button class="editor-tool" data-home-format="p">Абзац</button>
-              <button class="editor-tool" data-home-format="ul">• Список</button>
-              <button class="editor-tool" data-home-format="ol">1. Список</button>
-              <div class="text-format-tools" aria-label="Размер и выравнивание текста">
-                            <label>Размер <select data-font-size-for="home" aria-label="Размер шрифта"><option value="14">14 px</option><option value="16" selected>16 px</option><option value="18">18 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label>
-                            <span class="text-align-label">Выравнивание</span>
-                            <button class="editor-tool" type="button" data-text-align-for="home" data-align="left" aria-label="По левому краю" title="По левому краю">≡←</button>
-                            <button class="editor-tool" type="button" data-text-align-for="home" data-align="center" aria-label="По центру" title="По центру">≡</button>
-                            <button class="editor-tool" type="button" data-text-align-for="home" data-align="right" aria-label="По правому краю" title="По правому краю">→≡</button>
-                          </div>
-              <button class="editor-tool is-accent" id="homeAddLink">Ссылка</button>
-            </div>
+            <div data-toolbar-slot></div>
           </section>
 
           <section class="editor-section">
@@ -144,7 +119,7 @@
 
           <section class="editor-section">
             <h2>Экспорт главной</h2>
-            <div class="editor-actions"><button class="editor-primary editor-publish-button" id="publishHome">Опубликовать на GitHub</button><button class="editor-secondary" id="downloadHome">Скачать index.html</button><button class="editor-secondary" id="copyHomeAbout">Копировать HTML «О курсе»</button></div>
+            <div class="editor-actions"><button class="editor-primary editor-publish-button" id="publishHome">Опубликовать на GitHub</button><button class="editor-secondary" id="downloadHomePackage">Скачать ZIP с медиа</button><button class="editor-secondary" id="downloadHome">Скачать index.html</button><button class="editor-secondary" id="copyHomeAbout">Копировать HTML «О курсе»</button></div>
             <p class="editor-help">Черновик сохраняется локально автоматически. Кнопка «Опубликовать» сразу обновляет index.html в GitHub после подключения токена.</p>
           </section>
         </div>
@@ -169,24 +144,7 @@
           <section class="editor-section">
             <h2>Содержимое страницы</h2>
             <label class="editor-field"><span>Заголовок страницы</span><input id="resourceTitle" placeholder="Название страницы"></label>
-            <div class="editor-actions">
-              <button class="editor-tool" data-resource-format="bold"><b>Ж</b></button>
-              <button class="editor-tool" data-resource-format="italic"><i>К</i></button>
-              <button class="editor-tool" data-resource-format="h2">Заголовок</button>
-              <button class="editor-tool" data-resource-format="p">Абзац</button>
-              <button class="editor-tool" data-resource-format="blockquote">Цитата</button>
-              <button class="editor-tool" data-resource-format="ul">• Список</button>
-              <button class="editor-tool" data-resource-format="ol">1. Список</button>
-              <div class="text-format-tools" aria-label="Размер и выравнивание текста">
-                            <label>Размер <select data-font-size-for="resource" aria-label="Размер шрифта"><option value="14">14 px</option><option value="16" selected>16 px</option><option value="18">18 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label>
-                            <span class="text-align-label">Выравнивание</span>
-                            <button class="editor-tool" type="button" data-text-align-for="resource" data-align="left" aria-label="По левому краю" title="По левому краю">≡←</button>
-                            <button class="editor-tool" type="button" data-text-align-for="resource" data-align="center" aria-label="По центру" title="По центру">≡</button>
-                            <button class="editor-tool" type="button" data-text-align-for="resource" data-align="right" aria-label="По правому краю" title="По правому краю">→≡</button>
-                          </div>
-              <button class="editor-tool is-accent" id="resourceEditLink">Ссылка</button>
-            </div>
-            <p class="editor-help">Текст внутри карточек тоже можно менять прямо в предпросмотре. Чтобы поменять адрес карточки или текстовой ссылки, поставьте курсор внутрь неё и нажмите «Ссылка».</p>
+            <div data-toolbar-slot></div>
           </section>
 
           <section class="editor-section" id="resourceCardsSection">
@@ -201,7 +159,7 @@
 
           <section class="editor-section">
             <h2>Сохранение</h2>
-            <div class="editor-actions"><button class="editor-primary editor-publish-button" id="publishResource">Опубликовать на GitHub</button><button class="editor-secondary" id="downloadResource">Скачать HTML</button></div>
+            <div class="editor-actions"><button class="editor-primary editor-publish-button" id="publishResource">Опубликовать на GitHub</button><button class="editor-secondary" id="downloadResourcePackage">Скачать ZIP с медиа</button><button class="editor-secondary" id="downloadResource">Скачать HTML</button></div>
             <p class="editor-help">Черновик сохраняется в этом браузере автоматически. Публикация обновляет выбранный файл в папке resources.</p>
           </section>
         </div>
@@ -242,7 +200,10 @@
     </div>
   </div>
 
-  <script src="../topics.js"></script>
-  <script src="editor.js?v=10"></script>
+  <script src="../topics.js?v=20"></script>
+  <script src="../site-settings.js?v=20"></script>
+  <script src="../course-design.js?v=20"></script>
+  <script src="rich-editor.js?v=20"></script>
+  <script src="editor.js?v=20"></script>
 </body>
 </html>

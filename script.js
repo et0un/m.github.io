@@ -1,16 +1,22 @@
 const topics = window.COURSE_TOPICS || [];
 const cls = t => t === 'Актуально' ? 'actual' : t === 'Теория' ? 'theory' : t === 'Практика' ? 'practice' : t === 'Софт' ? 'soft' : t === 'Д/з' ? 'home' : t === 'Курсовая работа' ? 'coursework' : '';
 const list = document.querySelector('#topicList');
+const escapeTopicAttribute = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const topicThumbnailUrl = value => typeof value === 'string' && value.trim() && !/[\u0000-\u001f]/.test(value) && (!/^[a-z][a-z0-9+.-]*:/i.test(value) || /^https?:/i.test(value)) ? value : '';
 if (list) {
   list.innerHTML = topics.map((topic, i) => {
     const vars = `--x:${35 + (i*17)%45}%;--y:${28 + (i*23)%46}%;--r:${(i*37)%360}deg;--rot:${-28 + (i*19)%56}deg`;
+    const thumbnail = topicThumbnailUrl(topic.thumbnail);
     return `<a class="topic" href="lectures/${topic.slug}.html" style="color:inherit;text-decoration:none">
-      <div class="thumb" style="${vars}"></div>
+      <div class="thumb${thumbnail ? ' has-thumbnail' : ''}" style="${vars}">${thumbnail ? `<img src="${escapeTopicAttribute(thumbnail)}" alt="" loading="lazy" decoding="async">` : ''}</div>
       <div class="topic-title">${topic.title}</div>
       <div class="tags">${(Array.isArray(topic.tags) ? topic.tags : []).map(t => `<span class="tag ${cls(t)}">${t}</span>`).join('')}</div>
       <div class="go">›</div>
     </a>`;
   }).join('');
+  list.querySelectorAll('.thumb img').forEach(img => img.addEventListener('error', () => {
+    img.parentElement.classList.remove('has-thumbnail'); img.remove();
+  }, { once:true }));
 }
 
 const track = document.querySelector('.link-track');

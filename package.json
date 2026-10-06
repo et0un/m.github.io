@@ -1,0 +1,6 @@
+{
+  "name": "motion-course-studio",
+  "private": true,
+  "scripts": { "test": "node tests/studio.test.cjs" },
+  "devDependencies": { "playwright": "1.63.0" }
+}

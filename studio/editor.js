@@ -56,7 +56,11 @@
     initialized = true;
 
     const baseTopics = Array.isArray(window.COURSE_TOPICS) ? window.COURSE_TOPICS : [];
-    let editorTopics = baseTopics.map(t => ({ slug: t.slug, title: t.title, tags: Array.isArray(t.tags) ? [...t.tags] : [] }));
+    const thumbnailDraftKey = `studio-topic-thumbnails:${courseName}`;
+    let thumbnailDrafts = {};
+    try { thumbnailDrafts = JSON.parse(localStorage.getItem(thumbnailDraftKey) || '{}'); } catch (_) {}
+    let editorTopics = baseTopics.map(t => ({ ...t, tags: Array.isArray(t.tags) ? [...t.tags] : [], ...(Object.hasOwn(thumbnailDrafts, t.slug) ? { thumbnail:thumbnailDrafts[t.slug] } : {}) }));
+    let currentThumbnail = '';
 
     const topicSelect = document.getElementById('topicSelect');
     const slugInput = document.getElementById('slugInput');
@@ -71,9 +75,6 @@
     const homeControls = document.getElementById('homeControls');
     const lecturePreview = document.getElementById('lecturePreview');
     const homePreview = document.getElementById('homePreview');
-    const assetList = document.getElementById('assetList');
-    const imageFileInput = document.getElementById('imageFileInput');
-    const removeMedia = document.getElementById('removeMedia');
 
     const homeAboutTitle = document.getElementById('homeAboutTitle');
     const homeLinksTitle = document.getElementById('homeLinksTitle');
@@ -110,9 +111,6 @@
     let resourceCards = [];
     let resourceGridClasses = 'resource-card-grid';
     let homeDraftTimer = null;
-    const assetFiles = new Map();
-    const assetUrls = new Map();
-    let selectedMedia = null;
 
     const escapeHtml = (s) => String(s ?? '')
       .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -123,7 +121,7 @@
       : t === 'Практика' ? 'practice'
       : t === 'Софт' ? 'soft'
       : t === 'Д/з' ? 'home'
-      : t === 'Курсовая работа' ? 'coursework'
+      : (t === 'Курсовая работа' || t === 'Зачёт') ? 'coursework'
       : '';
 
     const parseTags = () => tagsInput.value.split(',').map(s => s.trim()).filter(Boolean);
@@ -245,6 +243,7 @@
 
     function switchMode(mode) {
       activeMode = mode;
+      selectMediaBlock(null);
       document.querySelectorAll('[data-editor-mode]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.editorMode === mode));
       lectureControls.hidden = mode !== 'lecture';
       homeControls.hidden = mode !== 'home';
@@ -252,8 +251,8 @@
       lecturePreview.hidden = mode !== 'lecture';
       homePreview.hidden = mode !== 'home';
       resourcePreview.hidden = mode !== 'resource';
-      if (mode === 'home' && !homeLoaded) loadPublishedHome();
-      if (mode === 'resource' && !resourceLoadedPath) loadPublishedResource();
+      if (mode === 'home' && !homeLoaded) loadPublishedHome(true);
+      if (mode === 'resource' && !resourceLoadedPath) loadPublishedResource(true);
     }
     document.querySelectorAll('[data-editor-mode]').forEach(button => button.addEventListener('click', () => switchMode(button.dataset.editorMode)));
 
@@ -265,7 +264,11 @@
     }
 
     function currentRecord() {
-      return { slug: slugInput.value.trim(), title: titleInput.value.trim(), tags: parseTags() };
+      const slug = slugInput.value.trim();
+      const record = { ...editorTopics.find(topic => topic.slug === slug), slug, title:titleInput.value.trim(), tags:parseTags() };
+      if (currentThumbnail) record.thumbnail = currentThumbnail;
+      else delete record.thumbnail;
+      return record;
     }
 
     function topicObjectText() {
@@ -281,6 +284,7 @@
       const tags = parseTags();
       previewTags.innerHTML = tags.map(t => `<span class="tag ${tagClass(t)}">${escapeHtml(t)}</span>`).join('');
       previewTags.hidden = tags.length === 0;
+      renderThumbnail();
       updateCodeBox();
       scheduleDraftSave();
     }
@@ -299,6 +303,7 @@
       slugInput.dataset.touched = '';
       titleInput.value = '';
       tagsInput.value = '';
+      currentThumbnail = '';
       editable.innerHTML = '<p class="lead">Краткое вступление к лекции.</p><h2>Первый раздел</h2><p>Начните писать текст…</p>';
       clearAssets();
       selectMediaBlock(null);
@@ -313,11 +318,13 @@
       slugInput.dataset.touched = '1';
       titleInput.value = topic.title;
       tagsInput.value = topic.tags.join(', ');
+      currentThumbnail = topic.thumbnail || '';
       const draft = loadDraft(topic.slug);
       if (draft?.content) {
         editable.innerHTML = draft.content;
         if (draft.title) titleInput.value = draft.title;
         if (Array.isArray(draft.tags)) tagsInput.value = draft.tags.join(', ');
+        if (typeof draft.thumbnail === 'string') currentThumbnail = draft.thumbnail;
         setStatus('Загружен локальный черновик');
       } else {
         editable.innerHTML = '<p class="lead">Нажмите «Загрузить опубликованную», чтобы получить текущий текст с сайта.</p>';
@@ -357,233 +364,83 @@
       }
     });
 
-    // Formatting toolbar for lecture.
-    document.querySelectorAll('[data-format]').forEach(button => {
-      button.addEventListener('click', () => {
-        editable.focus();
-        const cmd = button.dataset.format;
-        if (cmd === 'h2') document.execCommand('formatBlock', false, 'h2');
-        else if (cmd === 'p') document.execCommand('formatBlock', false, 'p');
-        else if (cmd === 'blockquote') document.execCommand('formatBlock', false, 'blockquote');
-        else if (cmd === 'ul') document.execCommand('insertUnorderedList');
-        else if (cmd === 'ol') document.execCommand('insertOrderedList');
-        else document.execCommand(cmd, false, null);
-        editable.dispatchEvent(new Event('input'));
-      });
+    window.normaliseCourseVideo = normaliseVideoEmbed;
+    const rich = window.createCourseEditor({
+      roots: { lecture: editable, home: homeAboutEditable, resource: resourceEditable },
+      controls: { lecture: lectureControls, home: homeControls, resource: resourceControls },
+      getMode: () => activeMode, setStatus, courseName
     });
-
-    // Shared font-size and alignment controls for all rich-text editors.
-    const richEditors = { lecture: editable, home: homeAboutEditable, resource: resourceEditable };
-    const savedEditorRanges = new Map();
-    function saveEditorRange(root) {
-      const selection = getSelection();
-      if (root && selection?.rangeCount && root.contains(selection.anchorNode)) savedEditorRanges.set(root, selection.getRangeAt(0).cloneRange());
+    const thumbnailPreview = document.getElementById('topicThumbnailPreview');
+    const thumbnailInput = document.getElementById('topicThumbnailFile');
+    async function renderThumbnail() {
+      const path = currentThumbnail;
+      document.getElementById('removeTopicThumbnail').disabled = !path;
+      if (!path) { thumbnailPreview.innerHTML = '<span>Стандартное превью</span>'; return; }
+      const url = await rich.assetPreviewUrl(path);
+      if (path !== currentThumbnail) return;
+      thumbnailPreview.innerHTML = `<img src="${escapeHtml(url)}" alt="Превью темы: ${escapeHtml(titleInput.value)}">`;
     }
-    function restoreEditorRange(root) {
-      const selection = getSelection();
-      const range = savedEditorRanges.get(root);
-      if (range && root.contains(range.commonAncestorContainer)) {
-        root.focus(); selection.removeAllRanges(); selection.addRange(range); return range;
-      }
-      return selection?.rangeCount && root.contains(selection.anchorNode) ? selection.getRangeAt(0) : null;
+    function rememberThumbnail(record) {
+      thumbnailDrafts[record.slug] = record.thumbnail || '';
+      try { localStorage.setItem(thumbnailDraftKey, JSON.stringify(thumbnailDrafts)); } catch (_) { setStatus('Не удалось сохранить черновик превью. Скачайте ZIP.'); }
+      const index = editorTopics.findIndex(topic => topic.slug === record.slug);
+      if (index >= 0) editorTopics[index] = record; else editorTopics.push(record);
+      renderTopicSelect(slugInput.value.trim());
     }
-    function applyEditorFontSize(root, size) {
-      const range = restoreEditorRange(root);
-      if (!range) return;
-      const blocks = [...root.querySelectorAll('p,li,h2,h3,blockquote,div:not(.resource-card-grid)')];
-      let touched = blocks.filter(block => { try { return range.intersectsNode(block); } catch (_) { return false; } });
-      if (range.collapsed) {
-        let node = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement;
-        const block = node?.closest('p,li,h2,h3,blockquote,div:not(.resource-card-grid)');
-        if (block && root.contains(block)) block.style.fontSize = `${size}px`;
-        else root.style.fontSize = `${size}px`;
-      } else if (touched.length === 1 && touched[0].contains(range.startContainer) && touched[0].contains(range.endContainer)) {
-        const span = document.createElement('span'); span.style.fontSize = `${size}px`;
-        try { range.surroundContents(span); }
-        catch (_) { const contents = range.extractContents(); span.append(contents); range.insertNode(span); }
-      } else {
-        touched.forEach(block => { block.style.fontSize = `${size}px`; });
-      }
-      root.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    document.querySelectorAll('[data-font-size-for]').forEach(select => {
-      const root = richEditors[select.dataset.fontSizeFor];
-      if (!root) return;
-      select.addEventListener('pointerdown', () => saveEditorRange(root));
-      select.addEventListener('focus', () => saveEditorRange(root));
-      select.addEventListener('change', () => applyEditorFontSize(root, Number(select.value)));
+    document.getElementById('chooseTopicThumbnail').addEventListener('click', () => {
+      if (!slugInput.value.trim() || !titleInput.value.trim()) return setStatus('Выберите тему или задайте имя файла и название новой темы');
+      thumbnailInput.click();
     });
-    document.querySelectorAll('[data-text-align-for]').forEach(button => {
-      const root = richEditors[button.dataset.textAlignFor];
-      if (!root) return;
-      button.addEventListener('mousedown', () => saveEditorRange(root));
-      button.addEventListener('click', () => {
-        const range = restoreEditorRange(root);
-        if (!range) return;
-        const align = button.dataset.align;
-        const command = align === 'center' ? 'justifyCenter' : align === 'right' ? 'justifyRight' : 'justifyLeft';
-        document.execCommand(command, false, null);
-        root.dispatchEvent(new Event('input', { bubbles: true }));
-      });
+    thumbnailInput.addEventListener('change', async () => {
+      const file = thumbnailInput.files?.[0]; if (!file) return;
+      const record = currentRecord();
+      try {
+        const item = await rich.addThumbnail(file);
+        record.thumbnail = item.path; rememberThumbnail(record);
+        if (record.slug === slugInput.value.trim()) { currentThumbnail = item.path; renderMeta(); }
+        setStatus('Превью загружено отдельно от текста лекции');
+      } catch (error) { setStatus(error.message); }
+      finally { thumbnailInput.value = ''; }
     });
-
-    function insertAtCaret(html, root = editable) {
-      root.focus();
-      const selection = getSelection();
-      if (!selection || !selection.rangeCount || !root.contains(selection.anchorNode)) {
-        root.insertAdjacentHTML('beforeend', html);
-        return;
-      }
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      const frag = range.createContextualFragment(html);
-      const last = frag.lastChild;
-      range.insertNode(frag);
-      if (last) {
-        range.setStartAfter(last); range.collapse(true);
-        selection.removeAllRanges(); selection.addRange(range);
+    document.getElementById('removeTopicThumbnail').addEventListener('click', () => {
+      currentThumbnail = ''; const record = currentRecord(); rememberThumbnail(record); renderMeta(); setStatus('Восстановлено стандартное превью');
+    });
+    async function thumbnailAssets() { return rich.assetsForPaths(editorTopics.map(topic => topic.thumbnail)); }
+    async function publishThumbnailAssets() {
+      for (const [path, file] of await thumbnailAssets()) await githubPublishBytes(path, new Uint8Array(await file.arrayBuffer()), 'Добавить превью: ' + path);
+    }
+    document.getElementById('publishTopicThumbnail').addEventListener('click', async () => {
+      try {
+        upsertCurrentTopic(); setStatus('Публикую превью…');
+        await publishThumbnailAssets();
+        await githubPublishText('topics.js', topicsJsText(), 'Обновить превью тем · ' + courseName);
+        setStatus('✓ Превью опубликованы; текст лекций не изменён');
+      } catch (error) { setStatus('GitHub: ' + error.message); }
+    });
+    document.getElementById('downloadThumbnailPackage').addEventListener('click', async () => {
+      try {
+        upsertCurrentTopic();
+        const entries = [{ name:'topics.js', data:new Blob([topicsJsText()]) }];
+        for (const [path,file] of await thumbnailAssets()) entries.push({ name:path, data:file });
+        download('topic-thumbnails.zip', await makeZip(entries), 'application/zip'); setStatus('ZIP превью и topics.js скачан');
+      } catch (error) { setStatus(error.message); }
+    });
+    // Assets stay available across page switches and are stored in IndexedDB.
+    function clearAssets() {}
+    function selectMediaBlock(figure) { rich.selectMedia(figure); }
+    async function publishAssets(root) {
+      for (const [path, file] of await rich.usedAssets(root)) {
+        await githubPublishBytes(path, new Uint8Array(await file.arrayBuffer()), 'Добавить медиа: ' + path);
       }
     }
-
-    document.getElementById('addLead').addEventListener('click', () => {
-      insertAtCaret('<p class="lead">Вступительный текст…</p>');
-      editable.dispatchEvent(new Event('input'));
-    });
-
-    document.getElementById('addLink').addEventListener('click', () => {
-      const url = prompt('URL ссылки:');
-      if (!url) return;
-      editable.focus();
-      const sel = getSelection();
-      if (sel && !sel.isCollapsed && editable.contains(sel.anchorNode)) {
-        document.execCommand('createLink', false, url);
-      } else {
-        const label = prompt('Текст ссылки:', 'Ссылка') || 'Ссылка';
-        insertAtCaret(`<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`);
-      }
-      editable.dispatchEvent(new Event('input'));
-    });
-
-    function sanitiseFileName(name) {
-      const lastDot = name.lastIndexOf('.');
-      const ext = lastDot >= 0 ? name.slice(lastDot).toLowerCase() : '';
-      const stem = (lastDot >= 0 ? name.slice(0, lastDot) : name)
-        .toLowerCase().replace(/ё/g, 'e').replace(/[^a-z0-9а-я_-]+/gi, '-').replace(/^-+|-+$/g, '') || 'image';
-      let candidate = `${stem}${ext}`;
-      let i = 2;
-      while (assetFiles.has(candidate)) candidate = `${stem}-${i++}${ext}`;
-      return candidate;
+    async function downloadPagePackage(root, pagePath, html) {
+      const entries = [{ name: pagePath, data: new Blob([html]) }];
+      for (const [path, file] of await rich.usedAssets(root)) entries.push({ name: path, data: file });
+      const settings = await fetch('../site-settings.js').then(r => r.text());
+      entries.push({ name:'site-settings.js', data:new Blob([settings]) });
+      download(pagePath.split('/').pop().replace('.html','') + '-package.zip', await makeZip(entries), 'application/zip');
+      setStatus('ZIP страницы и медиа скачан');
     }
-
-    function clearAssets() {
-      assetUrls.forEach(url => URL.revokeObjectURL(url));
-      assetUrls.clear();
-      assetFiles.clear();
-      renderAssetList();
-    }
-
-    function renderAssetList() {
-      if (!assetList) return;
-      assetList.innerHTML = [...assetFiles.entries()].map(([name, file]) => {
-        const url = assetUrls.get(name) || '';
-        return `<div class="editor-asset" data-asset-name="${escapeHtml(name)}"><img src="${escapeHtml(url)}" alt=""><div class="editor-asset-copy"><strong>${escapeHtml(name)}</strong><small>assets/images/${escapeHtml(name)}</small></div><button type="button" aria-label="Убрать из пакета">×</button></div>`;
-      }).join('');
-      assetList.querySelectorAll('.editor-asset button').forEach(btn => btn.addEventListener('click', () => {
-        const row = btn.closest('.editor-asset');
-        const name = row.dataset.assetName;
-        const url = assetUrls.get(name);
-        if (url) URL.revokeObjectURL(url);
-        assetUrls.delete(name);
-        assetFiles.delete(name);
-        renderAssetList();
-      }));
-    }
-
-    function addLocalImage(file, options = {}) {
-      if (!file || !file.type.startsWith('image/')) return;
-      const name = sanitiseFileName(file.name || 'image.png');
-      const url = URL.createObjectURL(file);
-      assetFiles.set(name, file);
-      assetUrls.set(name, url);
-      renderAssetList();
-      const alt = options.alt ?? (prompt('Описание изображения (alt):', '') || '');
-      const caption = options.caption ?? (prompt('Подпись под изображением (можно оставить пустой):', '') || '');
-      const cap = caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : '';
-      insertAtCaret(`<figure class="embedded-media"><img src="${escapeHtml(url)}" data-export-src="../assets/images/${escapeHtml(name)}" data-studio-asset="${escapeHtml(name)}" alt="${escapeHtml(alt)}">${cap}</figure><p><br></p>`);
-      editable.dispatchEvent(new Event('input'));
-      setStatus(`Фото добавлено: ${name}`);
-    }
-
-    document.getElementById('addImage').addEventListener('click', () => imageFileInput.click());
-    imageFileInput.addEventListener('change', () => {
-      const file = imageFileInput.files?.[0];
-      if (file) addLocalImage(file);
-      imageFileInput.value = '';
-    });
-
-    document.getElementById('addImageUrl').addEventListener('click', () => {
-      const src = prompt('URL изображения или путь на сайте:');
-      if (!src) return;
-      const alt = prompt('Описание изображения (alt):', '') || '';
-      const caption = prompt('Подпись под изображением (можно оставить пустой):', '') || '';
-      const cap = caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : '';
-      insertAtCaret(`<figure class="embedded-media"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}">${cap}</figure><p><br></p>`);
-      editable.dispatchEvent(new Event('input'));
-    });
-
-    editable.addEventListener('dragover', event => {
-      if ([...(event.dataTransfer?.items || [])].some(item => item.kind === 'file' && item.type.startsWith('image/'))) {
-        event.preventDefault();
-        editable.classList.add('editor-drop-active');
-      }
-    });
-    editable.addEventListener('dragleave', () => editable.classList.remove('editor-drop-active'));
-    editable.addEventListener('drop', event => {
-      const file = [...(event.dataTransfer?.files || [])].find(f => f.type.startsWith('image/'));
-      if (!file) return;
-      event.preventDefault();
-      editable.classList.remove('editor-drop-active');
-      addLocalImage(file, { alt: '', caption: '' });
-    });
-
-    function selectMediaBlock(figure) {
-      if (selectedMedia && selectedMedia !== figure) selectedMedia.classList.remove('is-selected-media');
-      selectedMedia = figure && editable.contains(figure) ? figure : null;
-      if (selectedMedia) selectedMedia.classList.add('is-selected-media');
-      if (removeMedia) removeMedia.disabled = !selectedMedia;
-    }
-
-    editable.addEventListener('click', event => {
-      const figure = event.target.closest?.('figure.embedded-media');
-      if (figure && editable.contains(figure)) {
-        event.preventDefault();
-        selectMediaBlock(figure);
-      } else if (!event.target.closest?.('.editor-tool')) {
-        selectMediaBlock(null);
-      }
-    });
-
-    removeMedia?.addEventListener('click', () => {
-      if (!selectedMedia || !editable.contains(selectedMedia)) {
-        selectMediaBlock(null);
-        return setStatus('Сначала нажмите на фото или видео в предпросмотре');
-      }
-      const wasVideo = !!selectedMedia.querySelector('iframe');
-      const img = selectedMedia.querySelector('img[data-studio-asset]');
-      if (img?.dataset.studioAsset) {
-        const name = img.dataset.studioAsset;
-        const url = assetUrls.get(name);
-        if (url) URL.revokeObjectURL(url);
-        assetUrls.delete(name);
-        assetFiles.delete(name);
-        renderAssetList();
-      }
-      selectedMedia.remove();
-      selectMediaBlock(null);
-      editable.dispatchEvent(new Event('input'));
-      editable.focus();
-      setStatus(wasVideo ? 'Видео удалено' : 'Изображение удалено');
-    });
 
     function extractVideoSource(value) {
       const raw = String(value || '').trim();
@@ -675,24 +532,6 @@
       return null;
     }
 
-    document.getElementById('addVideo').addEventListener('click', () => {
-      const src = prompt('Вставьте обычную ссылку YouTube/Vimeo или iframe-код. Также поддерживаются embed-ссылки Rutube/VK Video:');
-      if (!src) return;
-      const video = normaliseVideoEmbed(src);
-      if (!video) {
-        setStatus('Не удалось распознать видео. Вставьте обычную ссылку YouTube/Vimeo или iframe-код.');
-        alert('Не удалось распознать ссылку. Для YouTube/Vimeo можно вставить обычный URL ролика или целиком iframe-код из кнопки «Поделиться / Встроить».');
-        return;
-      }
-      const title = prompt('Название видео:', video.provider) || video.provider;
-      const allow = video.provider === 'Vimeo'
-        ? 'autoplay; fullscreen; picture-in-picture; clipboard-write'
-        : 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-      insertAtCaret(`<figure class="embedded-media" data-video-provider="${escapeHtml(video.provider)}"><div class="video-frame"><iframe src="${escapeHtml(video.url)}" title="${escapeHtml(title)}" loading="lazy" allow="${escapeHtml(allow)}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></figure><p><br></p>`);
-      editable.dispatchEvent(new Event('input'));
-      setStatus(`${video.provider}: видео добавлено`);
-    });
-
     document.getElementById('saveTopic').addEventListener('click', () => {
       const record = currentRecord();
       if (!record.slug || !record.title) return setStatus('Нужны slug и название');
@@ -713,25 +552,14 @@
       setStatus('Тема удалена из списка');
     });
 
-    function exportLectureContent() {
-      const clone = editable.cloneNode(true);
-      clone.querySelectorAll('img[data-export-src]').forEach(img => {
-        img.setAttribute('src', img.dataset.exportSrc);
-        img.removeAttribute('data-export-src');
-        img.removeAttribute('data-studio-asset');
-      });
-      clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
-      clone.querySelectorAll('.is-selected-media').forEach(el => el.classList.remove('is-selected-media'));
-      clone.querySelectorAll('[data-studio-control]').forEach(el => el.remove());
-      return clone.innerHTML.trim();
-    }
+    function exportLectureContent() { return rich.exportContent(editable); }
 
     function lectureHtml() {
       const record = currentRecord();
       const safeSlug = escapeHtml(record.slug);
       const safeTitle = escapeHtml(record.title || 'Лекция');
       const content = exportLectureContent();
-      return `<!doctype html>\n<html lang="ru">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <meta name="description" content="Лекция курса «${escapeHtml(courseName)}»">\n  <title>${safeTitle} — ${escapeHtml(courseName)}</title>\n  <link rel="stylesheet" href="../styles.css">\n</head>\n<body class="lecture-page" data-topic="${safeSlug}">\n<header class="lecture-topbar">\n  <nav aria-label="Главная навигация">\n    <a href="../index.html">Главная</a>\n    <a href="../index.html#about">О курсе</a>\n    <a href="../index.html#links">Ссылки</a>\n    <a class="active" href="../index.html#topics">Темы</a>\n  </nav>\n</header>\n<button class="topics-toggle" type="button" aria-expanded="false"><strong>Темы курса</strong><span>Темы · открыть</span></button>\n<div class="lecture-shell">\n  <aside class="lecture-sidebar" aria-label="Темы курса">\n    <div class="sidebar-head"><span>ТЕМЫ КУРСА</span><button class="sidebar-close" type="button" aria-label="Закрыть список тем">×</button></div>\n    <div id="lectureTopics" class="lecture-topic-list"></div>\n  </aside>\n  <main class="lecture-main">\n    <article class="lecture-article">\n      <div class="lecture-kicker">ТЕМА</div>\n      <h1>${safeTitle}</h1>\n      <div class="tags"></div>\n${content.split('\n').map(line => '      ' + line).join('\n')}\n      <nav class="lecture-pagination" aria-label="Навигация по лекциям">\n        <a id="prevLecture" href="#">← <span>Предыдущая тема</span></a>\n        <a id="nextLecture" href="#"><span>Следующая тема</span> →</a>\n      </nav>\n    </article>\n  </main>\n</div>\n<div class="sidebar-backdrop" aria-hidden="true"></div>\n<script src="../topics.js"></script>\n<script src="../lecture.js"></script>\n</body>\n</html>\n`;
+      return `<!doctype html>\n<html lang="ru">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <meta name="description" content="Лекция курса «${escapeHtml(courseName)}»">\n  <title>${safeTitle} — ${escapeHtml(courseName)}</title>\n  <link rel="stylesheet" href="../styles.css?v=20">\n</head>\n<body class="lecture-page" data-topic="${safeSlug}">\n<header class="lecture-topbar">\n  <nav aria-label="Главная навигация">\n    <a href="../index.html">Главная</a>\n    <a href="../index.html#about">О курсе</a>\n    <a href="../index.html#links">Ссылки</a>\n    <a class="active" href="../index.html#topics">Темы</a>\n  </nav>\n</header>\n<button class="topics-toggle" type="button" aria-expanded="false"><strong>Темы курса</strong><span>Темы · открыть</span></button>\n<div class="lecture-shell">\n  <aside class="lecture-sidebar" aria-label="Темы курса">\n    <div class="sidebar-head"><span>ТЕМЫ КУРСА</span><button class="sidebar-close" type="button" aria-label="Закрыть список тем">×</button></div>\n    <div id="lectureTopics" class="lecture-topic-list"></div>\n  </aside>\n  <main class="lecture-main">\n    <article class="lecture-article">\n      <div class="lecture-kicker">ТЕМА</div>\n      <h1>${safeTitle}</h1>\n      <div class="tags"></div>\n${content.split('\n').map(line => '      ' + line).join('\n')}\n      <nav class="lecture-pagination" aria-label="Навигация по лекциям">\n        <a id="prevLecture" href="#">← <span>Предыдущая тема</span></a>\n        <a id="nextLecture" href="#"><span>Следующая тема</span> →</a>\n      </nav>\n    </article>\n  </main>\n</div>\n<div class="sidebar-backdrop" aria-hidden="true"></div>\n<script src="../topics.js?v=20"></script>\n<script src="../lecture.js"></script>\n<script src="../site-settings.js?v=20"></script>\n<script src="../course-design.js?v=20"></script>\n</body>\n</html>\n`;
     }
 
     function download(name, content, type = 'text/html;charset=utf-8') {
@@ -800,6 +628,7 @@
     });
 
     document.getElementById('downloadTopics').addEventListener('click', () => {
+      if (slugInput.value.trim() && titleInput.value.trim()) upsertCurrentTopic();
       download('topics.js', topicsJsText(), 'text/javascript;charset=utf-8');
       setStatus('topics.js скачан');
     });
@@ -807,15 +636,17 @@
     document.getElementById('downloadPackage').addEventListener('click', async () => {
       const slug = slugInput.value.trim();
       if (!slug) return setStatus('Укажите slug');
+      if (titleInput.value.trim()) upsertCurrentTopic();
       const entries = [
         { name: `lectures/${slug}.html`, data: new Blob([lectureHtml()], { type: 'text/html;charset=utf-8' }) },
         { name: 'topics.js', data: new Blob([topicsJsText()], { type: 'text/javascript;charset=utf-8' }) },
-        { name: 'README_UPLOAD.txt', data: new Blob(['Загрузите lectures/*.html в папку lectures, topics.js в корень репозитория, а файлы из assets/images — в assets/images.\n'], { type: 'text/plain;charset=utf-8' }) }
+        { name: 'README_UPLOAD.txt', data: new Blob(['Загрузите lectures/*.html в папку lectures, topics.js в корень репозитория, а папку assets — в assets (изображения, GIF и видео).\n'], { type: 'text/plain;charset=utf-8' }) }
       ];
-      for (const [name, file] of assetFiles) entries.push({ name: `assets/images/${name}`, data: file });
+      for (const [path, file] of await rich.usedAssets(editable)) entries.push({ name: path, data: file });
+      for (const [path, file] of await thumbnailAssets()) if (!entries.some(entry => entry.name === path)) entries.push({ name:path, data:file });
       const zip = await makeZip(entries);
       download(`${slug}-package.zip`, zip, 'application/zip');
-      setStatus(`Пакет скачан · изображений: ${assetFiles.size}`);
+      setStatus('Пакет лекции и медиа скачан');
     });
 
 
@@ -833,15 +664,11 @@
       try {
         const record = upsertCurrentTopic();
         setStatus('Публикую лекцию…');
+        await publishAssets(editable);
+        await publishThumbnailAssets();
         await githubPublishText(`lectures/${record.slug}.html`, lectureHtml(), `Обновить лекцию: ${record.title}`);
         await githubPublishText('topics.js', topicsJsText(), `Обновить список тем · ${courseName}`);
-        let uploaded = 0;
-        for (const [name, file] of assetFiles) {
-          const bytes = new Uint8Array(await file.arrayBuffer());
-          await githubPublishBytes(`assets/images/${name}`, bytes, `Добавить изображение ${name}`);
-          uploaded++;
-        }
-        setStatus(`✓ Лекция опубликована${uploaded ? ` · картинок: ${uploaded}` : ''}`);
+        setStatus('✓ Лекция и медиа опубликованы');
       } catch (error) { setStatus(`GitHub: ${error.message}`); }
     });
 
@@ -864,10 +691,8 @@
       clearTimeout(draftTimer);
       draftTimer = setTimeout(() => {
         const rec = currentRecord();
-        // Do not save blob URLs; replace them with final asset paths in local draft HTML.
-        const clone = editable.cloneNode(true);
-        clone.querySelectorAll('img[data-export-src]').forEach(img => img.setAttribute('src', img.dataset.exportSrc));
-        const data = { title: rec.title, tags: rec.tags, content: clone.innerHTML, updated: Date.now() };
+        const data = { title: rec.title, tags: rec.tags, thumbnail:currentThumbnail, content: rich.exportContent(editable, { draft:true }), updated: Date.now() };
+        try { localStorage.setItem(`studio-last-lecture:${courseName}`, JSON.stringify(rec)); } catch (_) {}
         try { localStorage.setItem(draftKey(rec.slug), JSON.stringify(data)); status.textContent = 'Черновик сохранён в браузере'; } catch (_) {}
       }, 650);
     }
@@ -927,27 +752,6 @@
     homeLinksTitle.addEventListener('input', () => { renderHomeTitles(); scheduleHomeDraftSave(); });
     homeAboutEditable.addEventListener('input', scheduleHomeDraftSave);
 
-    document.querySelectorAll('[data-home-format]').forEach(button => button.addEventListener('click', () => {
-      homeAboutEditable.focus();
-      const cmd = button.dataset.homeFormat;
-      if (cmd === 'p') document.execCommand('formatBlock', false, 'p');
-      else if (cmd === 'ul') document.execCommand('insertUnorderedList');
-      else if (cmd === 'ol') document.execCommand('insertOrderedList');
-      else document.execCommand(cmd, false, null);
-    }));
-
-    document.getElementById('homeAddLink').addEventListener('click', () => {
-      const url = prompt('URL ссылки:');
-      if (!url) return;
-      homeAboutEditable.focus();
-      const sel = getSelection();
-      if (sel && !sel.isCollapsed && homeAboutEditable.contains(sel.anchorNode)) document.execCommand('createLink', false, url);
-      else {
-        const label = prompt('Текст ссылки:', 'Ссылка') || 'Ссылка';
-        insertAtCaret(`<a href="${escapeHtml(url)}">${escapeHtml(label)}</a>`, homeAboutEditable);
-      }
-    });
-
     document.getElementById('homeAddCard').addEventListener('click', () => {
       homeLinks.push({ icon: '↗', label: 'Новая ссылка', href: '#' });
       renderHomeLinksFields(); renderHomeLinksPreview(); scheduleHomeDraftSave();
@@ -960,7 +764,7 @@
         try {
           localStorage.setItem(homeDraftKey, JSON.stringify({
             aboutTitle: homeAboutTitle.value,
-            aboutHtml: homeAboutEditable.innerHTML,
+            aboutHtml: rich.exportContent(homeAboutEditable, { draft:true }),
             linksTitle: homeLinksTitle.value,
             links: homeLinks,
             updated: Date.now()
@@ -973,7 +777,7 @@
       try { return JSON.parse(localStorage.getItem(homeDraftKey)); } catch (_) { return null; }
     }
 
-    async function loadPublishedHome() {
+    async function loadPublishedHome(restoreDraft = false) {
       try {
         const response = await fetch(`../index.html?studio=${Date.now()}`, { cache: 'no-store' });
         if (!response.ok) throw new Error('not found');
@@ -990,6 +794,13 @@
           href: a.getAttribute('href') || '#'
         }));
         if (!homeLinks.length) homeLinks = [{ icon: '↗', label: 'Ссылка', href: '#' }];
+        const draft = restoreDraft === true ? loadHomeDraft() : null;
+        if (draft) {
+          homeAboutTitle.value = draft.aboutTitle || homeAboutTitle.value;
+          homeAboutEditable.innerHTML = draft.aboutHtml || homeAboutEditable.innerHTML;
+          homeLinksTitle.value = draft.linksTitle || homeLinksTitle.value;
+          homeLinks = draft.links || homeLinks;
+        }
         renderHomeTitles(); renderHomeLinksFields(); renderHomeLinksPreview();
         homeLoaded = true;
         setStatus('Главная страница загружена');
@@ -1007,7 +818,7 @@
       const links = doc.querySelector('#links');
       if (about) {
         const h2 = about.querySelector('.section-title h2'); if (h2) h2.textContent = homeAboutTitle.value.trim() || 'О КУРСЕ';
-        const prose = about.querySelector('.prose'); if (prose) prose.innerHTML = homeAboutEditable.innerHTML.trim();
+        const prose = about.querySelector('.prose'); if (prose) prose.innerHTML = rich.exportContent(homeAboutEditable);
       }
       if (links) {
         const h2 = links.querySelector('.section-title h2'); if (h2) h2.textContent = homeLinksTitle.value.trim() || 'ПОЛЕЗНЫЕ ССЫЛКИ';
@@ -1032,6 +843,7 @@
         const html = buildHomeHtml();
         if (!html) return setStatus('Не удалось подготовить index.html');
         setStatus('Публикую главную…');
+        await publishAssets(homeAboutEditable);
         await githubPublishText('index.html', html, `Обновить главную · ${courseName}`);
         publishedHomeSource = html;
         setStatus('✓ Главная опубликована на GitHub');
@@ -1039,7 +851,7 @@
     });
 
     document.getElementById('copyHomeAbout').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(homeAboutEditable.innerHTML.trim()); setStatus('HTML «О курсе» скопирован'); }
+      try { await navigator.clipboard.writeText(rich.exportContent(homeAboutEditable)); setStatus('HTML «О курсе» скопирован'); }
       catch (_) { setStatus('Не удалось скопировать'); }
     });
 
@@ -1063,6 +875,8 @@
         .map(el => ({
           title: el.querySelector('strong')?.textContent?.trim() || 'Новая карточка',
           description: el.querySelector('span')?.textContent?.trim() || '',
+          titleHtml: el.querySelector('strong')?.innerHTML || '',
+          descriptionHtml: el.querySelector('span')?.innerHTML || '',
           titleSize: Number.parseInt(el.querySelector('strong')?.style.fontSize, 10) || 16,
           titleAlign: ['left','center','right'].includes(el.querySelector('strong')?.style.textAlign) ? el.querySelector('strong').style.textAlign : 'left',
           descriptionSize: Number.parseInt(el.querySelector('span')?.style.fontSize, 10) || 14,
@@ -1084,7 +898,7 @@
       const descriptionSize = [12,14,16,18,20,24].includes(Number(card.descriptionSize)) ? Number(card.descriptionSize) : 14;
       const titleAlign = ['left','center','right'].includes(card.titleAlign) ? card.titleAlign : 'left';
       const descriptionAlign = ['left','center','right'].includes(card.descriptionAlign) ? card.descriptionAlign : 'left';
-      const inner = `<strong style="font-size:${titleSize}px;text-align:${titleAlign}">${escapeHtml(card.title || 'Новая карточка')}</strong><span style="font-size:${descriptionSize}px;text-align:${descriptionAlign}">${escapeHtml(card.description || '')}</span>`;
+      const inner = `<strong style="font-size:${titleSize}px;text-align:${titleAlign}">${card.titleHtml || escapeHtml(card.title || 'Новая карточка')}</strong><span style="font-size:${descriptionSize}px;text-align:${descriptionAlign}">${card.descriptionHtml || escapeHtml(card.description || '')}</span>`;
       if (!href) return `<div class="${escapeHtml(classes)}">${inner}</div>`;
       const target = card.newTab || isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
       return `<a class="${escapeHtml(classes)}" href="${escapeHtml(href)}"${target}>${inner}</a>`;
@@ -1138,12 +952,20 @@
       const i = Number(row.dataset.cardIndex);
       const card = resourceCards[i];
       if (!card) return;
+      // Inline formatting edited in the preview must survive changes in card fields.
+      const previewCards = [...(resourceCardGrid()?.children || [])];
+      resourceCards.forEach((record, index) => {
+        const preview = previewCards[index];
+        if (preview) { record.titleHtml = preview.querySelector('strong')?.innerHTML || ''; record.descriptionHtml = preview.querySelector('span')?.innerHTML || ''; }
+      });
       const field = event.target.dataset.cardField;
       const setting = event.target.dataset.cardSetting;
       if (field === 'newTab') card.newTab = event.target.checked;
       else if (field) card[field] = event.target.value;
       else if (setting) card[setting] = ['titleSize','descriptionSize'].includes(setting) ? Number(event.target.value) : event.target.value;
       else return;
+      if (field === 'title') card.titleHtml = '';
+      if (field === 'description') card.descriptionHtml = '';
       syncResourceCardsToPreview();
     };
     resourceCardFields?.addEventListener('input', updateResourceCard);
@@ -1196,8 +1018,9 @@
         }
         if (node.nodeType !== Node.ELEMENT_NODE) return;
         const tag = node.tagName.toLowerCase();
-        if (tag === 'div' && !node.classList.contains('resource-card-grid') && !node.classList.contains('resource-kicker')) {
+        if (tag === 'div' && !node.className && !node.querySelector('div,figure,pre,p,ul,ol,h2,h3')) {
           const p = root.ownerDocument.createElement('p');
+          [...node.attributes].forEach(a => p.setAttribute(a.name, a.value));
           p.innerHTML = node.innerHTML;
           node.replaceWith(p);
         }
@@ -1217,7 +1040,7 @@
         const path = resourcePath.value.trim();
         if (!path) return;
         try {
-          localStorage.setItem(resourceDraftKey(path), JSON.stringify({ title:resourceTitle.value, html:resourceEditable.innerHTML, updated:Date.now() }));
+          localStorage.setItem(resourceDraftKey(path), JSON.stringify({ title:resourceTitle.value, html:rich.exportContent(resourceEditable, { draft:true }), updated:Date.now() }));
           status.textContent = 'Черновик страницы сохранён';
         } catch (_) {}
       }, 650);
@@ -1225,7 +1048,7 @@
 
     resourceSelect?.addEventListener('change', () => {
       resourcePath.value = resourceSelect.value;
-      loadPublishedResource();
+      loadPublishedResource(true);
     });
     resourcePath?.addEventListener('change', () => { resourceLoadedPath = ''; });
     resourceTitle?.addEventListener('input', () => { resourcePreviewTitle.textContent = resourceTitle.value.trim() || 'Страница'; scheduleResourceDraftSave(); });
@@ -1234,7 +1057,7 @@
     resourceEditable?.addEventListener('paste', () => setTimeout(() => { normalizeResourceBlocks(resourceEditable); scheduleResourceDraftSave(); }, 0));
     resourceEditable?.addEventListener('click', event => { if (event.target.closest('a')) event.preventDefault(); });
 
-    async function loadPublishedResource() {
+    async function loadPublishedResource(restoreDraft = false) {
       const path = resourcePath.value.trim() || resourceSelect.value;
       if (!path) return setStatus('Укажите путь страницы');
       try {
@@ -1254,6 +1077,12 @@
           if (afterTitle) bodyNodes.push(node.outerHTML);
         });
         resourceEditable.innerHTML = bodyNodes.join('\n') || '<p>Начните писать…</p>';
+        if (restoreDraft === true) {
+          try {
+            const draft = JSON.parse(localStorage.getItem(resourceDraftKey(path)) || 'null');
+            if (draft) { resourceEditable.innerHTML = draft.html; resourceTitle.value = draft.title; resourcePreviewTitle.textContent = draft.title; }
+          } catch (_) {}
+        }
         normalizeResourceBlocks(resourceEditable);
         readResourceCardsFromPreview();
         resourceLoadedPath = path;
@@ -1261,38 +1090,6 @@
       } catch (error) { setStatus('Не удалось загрузить страницу'); }
     }
     document.getElementById('loadResourcePublished')?.addEventListener('click', loadPublishedResource);
-
-    document.querySelectorAll('[data-resource-format]').forEach(button => button.addEventListener('click', () => {
-      resourceEditable.focus();
-      const cmd = button.dataset.resourceFormat;
-      if (cmd === 'h2') document.execCommand('formatBlock', false, 'h2');
-      else if (cmd === 'p') document.execCommand('formatBlock', false, 'p');
-      else if (cmd === 'blockquote') document.execCommand('formatBlock', false, 'blockquote');
-      else if (cmd === 'ul') document.execCommand('insertUnorderedList');
-      else if (cmd === 'ol') document.execCommand('insertOrderedList');
-      else document.execCommand(cmd, false, null);
-      resourceEditable.dispatchEvent(new Event('input'));
-    }));
-
-    document.getElementById('resourceEditLink')?.addEventListener('click', () => {
-      resourceEditable.focus();
-      const sel = getSelection();
-      let anchor = null;
-      if (sel?.anchorNode) anchor = (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement)?.closest?.('a');
-      if (anchor && resourceEditable.contains(anchor)) {
-        const url = prompt('Адрес ссылки:', anchor.getAttribute('href') || '');
-        if (url !== null) anchor.setAttribute('href', url || '#');
-      } else {
-        const url = prompt('Адрес ссылки:');
-        if (!url) return;
-        if (sel && !sel.isCollapsed && resourceEditable.contains(sel.anchorNode)) document.execCommand('createLink', false, url);
-        else {
-          const label = prompt('Текст ссылки:', 'Ссылка') || 'Ссылка';
-          insertAtCaret(`<a href="${escapeHtml(url)}">${escapeHtml(label)}</a>`, resourceEditable);
-        }
-      }
-      resourceEditable.dispatchEvent(new Event('input'));
-    });
 
     function buildResourceHtml() {
       if (!publishedResourceSource) return '';
@@ -1318,7 +1115,7 @@
       article.appendChild(h1);
 
       const tmp = doc.createElement('div');
-      tmp.innerHTML = resourceEditable.innerHTML.trim();
+      tmp.innerHTML = rich.exportContent(resourceEditable);
       normalizeResourceBlocks(tmp);
       [...tmp.childNodes].forEach(node => article.appendChild(node));
 
@@ -1348,6 +1145,7 @@
         const html = buildResourceHtml();
         if (!path || !html) return setStatus('Не удалось подготовить страницу');
         setStatus('Публикую страницу…');
+        await publishAssets(resourceEditable);
         await githubPublishText(path, html, `Обновить страницу: ${resourceTitle.value.trim() || path}`);
         publishedResourceSource = html;
         resourceLoadedPath = path;
@@ -1355,8 +1153,42 @@
       } catch (error) { setStatus(`GitHub: ${error.message}`); }
     });
 
+    document.getElementById('downloadHomePackage').addEventListener('click', async () => {
+      try { if (!publishedHomeSource) await loadPublishedHome(); await downloadPagePackage(homeAboutEditable, 'index.html', buildHomeHtml()); }
+      catch (error) { setStatus(error.message); }
+    });
+    document.getElementById('downloadResourcePackage').addEventListener('click', async () => {
+      try { if (!publishedResourceSource) await loadPublishedResource(); await downloadPagePackage(resourceEditable, resourcePath.value.trim(), buildResourceHtml()); }
+      catch (error) { setStatus(error.message); }
+    });
+    const siteFont = document.getElementById('siteFont');
+    siteFont.value = window.COURSE_DESIGN?.font || 'Inter';
+    siteFont.addEventListener('change', () => {
+      if (window.CourseDesign.validFont(siteFont.value.trim())) window.CourseDesign.applyFont(siteFont.value.trim());
+    });
+    function siteSettingsText() {
+      const font = siteFont.value.trim();
+      if (!window.CourseDesign.validFont(font)) throw new Error('Введите название шрифта из Google Fonts.');
+      return 'window.COURSE_DESIGN = ' + JSON.stringify({ font }, null, 2) + ';\n';
+    }
+    document.getElementById('downloadSiteFont').addEventListener('click', () => {
+      try { download('site-settings.js', siteSettingsText(), 'text/javascript;charset=utf-8'); } catch (error) { setStatus(error.message); }
+    });
+    document.getElementById('publishSiteFont').addEventListener('click', async () => {
+      try { await githubPublishText('site-settings.js', siteSettingsText(), 'Изменить шрифт сайта'); setStatus('✓ Шрифт всего сайта опубликован'); }
+      catch (error) { setStatus('GitHub: ' + error.message); }
+    });
     renderTopicSelect();
     newLecture();
+    let lastRecord = null;
+    try { lastRecord = JSON.parse(localStorage.getItem(`studio-last-lecture:${courseName}`) || 'null'); } catch (_) {}
+    const initialDraft = loadDraft(lastRecord?.slug || '');
+    if (initialDraft?.content) {
+      editable.innerHTML = initialDraft.content; slugInput.value = lastRecord?.slug || ''; slugInput.dataset.touched = '1';
+      titleInput.value = initialDraft.title || ''; tagsInput.value = (initialDraft.tags || []).join(', ');
+      currentThumbnail = initialDraft.thumbnail ?? lastRecord?.thumbnail ?? '';
+      topicSelect.value = lastRecord?.slug || ''; renderMeta();
+    }
     renderHomeTitles();
   }
 })();

@@ -11,6 +11,34 @@ html,body{min-height:100%}
 body.editor-page{margin:0;background:var(--studio-bg);color:var(--studio-text);overflow-x:hidden}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
+
+.topic-thumbnail-preview{display:flex;align-items:center;justify-content:center;min-height:110px;margin:0 0 12px;border:1px solid #333;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#252525,#0d0d0d);color:#aaa;font-size:12px}
+.topic-thumbnail-preview img{display:block;width:100%;height:150px;object-fit:cover}
+#removeTopicThumbnail:disabled{opacity:.45;cursor:default}
+
+.rich-toolbar .editor-field{flex:1 1 110px;margin:4px 0}
+.rich-toolbar .rich-full{flex-basis:100%}
+.rich-toolbar input[type="color"]{height:40px;padding:4px;cursor:pointer}
+.rich-toolbar select{font-size:12px}
+.studio-dialog{width:min(600px,calc(100vw - 32px));max-height:85vh;overflow:auto;border:1px solid #454545;border-radius:14px;padding:24px;background:#101010;color:#eee;box-shadow:0 20px 80px #000}
+.studio-dialog::backdrop{background:#000b}
+.studio-dialog h2{font-size:21px;margin:0 0 22px}
+.studio-dialog .editor-actions{margin-top:20px}
+.studio-dialog label{font-size:13px}
+.studio-dialog input[type="file"]{font-size:13px}
+.studio-dialog .code-input{font:14px/1.6 ui-monospace,Consolas,monospace;white-space:pre;resize:vertical}
+.dialog-error{color:#ffaaa0;font-size:13px;line-height:1.5}
+.media-inspector textarea{resize:vertical}
+.media-inspector output{color:#bbb;font-size:12px}
+.media-inspector [data-media-fields]{margin-top:14px}
+.media-inspector button:disabled{opacity:.45;cursor:default}
+[contenteditable] .embedded-media.is-selected-media{outline:2px solid var(--editor-accent);outline-offset:6px}
+[contenteditable] .embedded-media figcaption{display:block;min-height:24px;outline:none;cursor:text}
+[contenteditable] figcaption:empty:before{content:attr(data-placeholder);color:#888;font-style:italic}
+[contenteditable] .embedded-media iframe{pointer-events:none}
+[contenteditable] .course-code{cursor:text}
+.editor-page .course-code:after{content:"Двойной клик — изменить код · Ctrl+Enter — выйти";display:block;color:#999;font:11px/1.5 system-ui,sans-serif;margin-top:14px;white-space:normal}
+.home-prose-editor,.resource-editor-content{overflow-wrap:anywhere}
 [hidden]{display:none!important}
 .editor-auth{position:fixed;inset:0;z-index:999;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,rgba(var(--editor-accent-rgb),.10),transparent 30%),#070707;padding:24px}
 .editor-login-card{width:min(430px,100%);border:1px solid #2a2a2a;border-radius:18px;background:#0b0b0bf2;padding:30px;box-shadow:0 30px 100px #000}
