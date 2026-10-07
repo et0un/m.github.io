@@ -5,7 +5,7 @@ window.COURSE_TOPICS = [
     "tags": [
       "Теория"
     ],
-    "thumbnail": "assets/images/magic.jpg"
+    "thumbnail": "assets/images/topic-history-minimal.svg"
   },
   {
     "slug": "02-applications",
@@ -13,14 +13,16 @@ window.COURSE_TOPICS = [
     "tags": [
       "Теория",
       "Практика"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-applications-minimal.svg"
   },
   {
     "slug": "03-disney-principles",
     "title": "12 принципов анимации студии Уолта Диснея",
     "tags": [
       "Теория"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-principles-minimal.svg"
   },
   {
     "slug": "04-after-effects-basics",
@@ -28,7 +30,8 @@ window.COURSE_TOPICS = [
     "tags": [
       "Софт",
       "Практика"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-layers-minimal.svg"
   },
   {
     "slug": "05-import-masks-shapes",
@@ -36,6 +39,7 @@ window.COURSE_TOPICS = [
     "tags": [
       "Практика",
       "Софт"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-masks-minimal.svg"
   }
 ];
