@@ -506,3 +506,35 @@ a.resource-detail-card.internal-card:hover:after{transform:translateX(3px)}
   .embedded-media{width:100%!important}
   .course-code{font-size:13px;padding-left:14px;padding-right:14px}
 }
+
+/* Shared reading rhythm for published pages and Studio previews. */
+:root{--course-copy-color:#bdbdbd}
+:is(.lecture-article,.resource-article) :is(h1,h2,h3){color:var(--course-copy-color)}
+:is(.lecture-article,.resource-article) :is(h1,h2,h3) :is(strong,b,em){color:inherit}
+.lecture-article h2,.resource-page .resource-article h2,.resource-article h2{
+  align-items:baseline;line-height:1.2;margin:34px 0 14px;color:var(--course-copy-color)
+}
+.lecture-article h2:after,.resource-page .resource-article h2:after,.resource-article h2:after{
+  align-self:baseline;transform:translateY(-.32em);min-width:24px
+}
+.lecture-article h3,.resource-page .resource-article h3,.resource-article h3{
+  color:var(--course-copy-color);line-height:1.3;margin:26px 0 12px
+}
+.lecture-article p,.resource-page .resource-article p{margin-bottom:14px}
+.lecture-article ul,.lecture-article ol,.resource-page .resource-article ul,.resource-page .resource-article ol{margin:12px 0 18px}
+.lecture-article blockquote,.resource-page .resource-article blockquote{margin:22px 0}
+:is(.lecture-article,.resource-article) blockquote>:last-child{margin-bottom:0}
+.embedded-media,.media-layout,.media-pair{margin-top:20px;margin-bottom:24px}
+.media-layout>.embedded-media,.media-pair>.embedded-media{margin:0}
+:is(.lecture-article,.resource-article) :is(figure,.media-layout,.media-pair)+h2{margin-top:28px}
+:is(.lecture-article,.resource-article) h2+figure{margin-top:16px}
+.resource-page .resource-card-grid{margin-top:20px;margin-bottom:24px}
+.section-title{align-items:baseline}
+.section-title h2{color:#c8c8c8;line-height:1.2}
+.section-title span{align-self:baseline;font-size:clamp(25px,3vw,40px);transform:translateY(-.32em)}
+body:not(.editor-page) :is(.lecture-article,.resource-article) p:empty{display:none}
+body:not(.editor-page) :is(.lecture-article,.resource-article) p:has(>br:only-child){margin:0;line-height:1.2}
+@media(max-width:760px){
+  .lecture-article h2,.resource-page .resource-article h2{margin-top:28px}
+  .section-title span{font-size:25px}
+}
