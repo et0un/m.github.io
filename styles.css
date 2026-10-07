@@ -538,3 +538,5 @@ body:not(.editor-page) :is(.lecture-article,.resource-article) p:has(>br:only-ch
   .lecture-article h2,.resource-page .resource-article h2{margin-top:28px}
   .section-title span{font-size:25px}
 }
+
+.resource-page .resource-article h1{color:var(--course-copy-color)}
