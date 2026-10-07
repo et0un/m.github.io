@@ -5,7 +5,7 @@ window.COURSE_TOPICS = [
     "tags": [
       "Теория"
     ],
-    "thumbnail": "assets/images/topic-history-minimal.svg"
+    "thumbnail": "assets/images/topic-history-sculpted.svg"
   },
   {
     "slug": "02-applications",
@@ -14,7 +14,7 @@ window.COURSE_TOPICS = [
       "Теория",
       "Практика"
     ],
-    "thumbnail": "assets/images/topic-applications-minimal.svg"
+    "thumbnail": "assets/images/topic-applications-sculpted.svg"
   },
   {
     "slug": "03-disney-principles",
@@ -22,7 +22,7 @@ window.COURSE_TOPICS = [
     "tags": [
       "Теория"
     ],
-    "thumbnail": "assets/images/topic-principles-minimal.svg"
+    "thumbnail": "assets/images/topic-principles-sculpted.svg"
   },
   {
     "slug": "04-after-effects-basics",
@@ -31,7 +31,7 @@ window.COURSE_TOPICS = [
       "Софт",
       "Практика"
     ],
-    "thumbnail": "assets/images/topic-layers-minimal.svg"
+    "thumbnail": "assets/images/topic-layers-sculpted.svg"
   },
   {
     "slug": "05-import-masks-shapes",
@@ -40,6 +40,6 @@ window.COURSE_TOPICS = [
       "Практика",
       "Софт"
     ],
-    "thumbnail": "assets/images/topic-masks-minimal.svg"
+    "thumbnail": "assets/images/topic-masks-sculpted.svg"
   }
 ];
