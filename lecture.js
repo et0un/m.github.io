@@ -26,9 +26,10 @@ if (list) {
   list.innerHTML = topics.map((topic, i) => {
     const active = topic.slug === currentSlug ? ' is-active' : '';
     const vars = `--x:${35 + (i*17)%45}%;--y:${28 + (i*23)%46}%;--r:${(i*37)%360}deg;--rot:${-28 + (i*19)%56}deg`;
+    const thumbnail = typeof topic.thumbnail === 'string' && /^assets\/images\/[a-zA-Z0-9._-]+$/.test(topic.thumbnail) ? topic.thumbnail : '';
     return `<a class="sidebar-topic${active}" href="${topic.slug}.html" ${active ? 'aria-current="page"' : ''}>
       <span class="sidebar-number">${topicNumber(i)}</span>
-      <span class="sidebar-thumb" style="${vars}"></span>
+      <span class="sidebar-thumb" style="${vars}">${thumbnail ? `<img src="../${thumbnail}" alt="" loading="lazy" style="position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover">` : ''}</span>
       <span class="sidebar-copy"><span class="sidebar-title">${topic.title}</span></span>
     </a>`;
   }).join('');
@@ -59,12 +60,12 @@ if (currentTopic) {
     tags.hidden = topicTags(currentTopic).length === 0;
   }
 
-  document.title = `${currentTopic.title} — Моушн-дизайн`;
+  document.title = `${currentTopic.title}: Моушн-дизайн`;
   const description = document.querySelector('meta[name="description"]');
-  if (description) description.content = `${currentTopic.title} — курс «Моушн-дизайн»`;
+  if (description) description.content = `${currentTopic.title}: курс «Моушн-дизайн»`;
 }
 
-// Предыдущая / следующая — тоже по позиции темы в topics.js.
+// Предыдущая / следующая: тоже по позиции темы в topics.js.
 const prev = document.querySelector('#prevLecture');
 const next = document.querySelector('#nextLecture');
 if (prev) {
