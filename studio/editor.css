@@ -259,3 +259,21 @@ button{cursor:pointer}
 .resource-editor-content>blockquote,
 .resource-editor-content>div:not(.resource-card-grid){max-width:none!important}
 .resource-editor-content .resource-card-grid{width:100%;max-width:none}
+
+/* Keep content typography identical to the published reading area. */
+.editor-preview-shell :is(.lecture-article,.resource-article) :is(h1,h2,h3){color:var(--course-copy-color,#bdbdbd)}
+.editor-preview-shell :is(.lecture-article,.resource-article) :is(h1,h2,h3) :is(strong,b,em){color:inherit}
+.editor-preview-shell :is(.lecture-article,.resource-article) h2{align-items:baseline;line-height:1.2;margin:34px 0 14px}
+.editor-preview-shell :is(.lecture-article,.resource-article) h2:after{align-self:baseline;transform:translateY(-.32em);min-width:24px}
+.editor-preview-shell :is(.lecture-article,.resource-article) h3{line-height:1.3;margin:26px 0 12px}
+.editor-preview-shell :is(.lecture-article,.resource-article) p{margin-bottom:14px}
+.editor-preview-shell :is(.lecture-article,.resource-article) :is(ul,ol){margin:12px 0 18px}
+.editor-preview-shell :is(.lecture-article,.resource-article) blockquote{margin:22px 0}
+.editor-preview-shell :is(.lecture-article,.resource-article) blockquote>:last-child{margin-bottom:0}
+.editor-preview-shell .embedded-media,.editor-preview-shell .media-layout{margin-top:20px;margin-bottom:24px}
+.editor-preview-shell .media-layout>.embedded-media{margin:0}
+.editor-preview-shell :is(figure,.media-layout,.media-pair)+h2{margin-top:28px}
+.editor-preview-shell h2+figure{margin-top:16px}
+.editor-content{padding-bottom:32px}
+.resource-editor-content{padding-bottom:32px}
+.editor-content p:has(>br:only-child),.resource-editor-content p:has(>br:only-child){margin-block:0;line-height:1.2}
