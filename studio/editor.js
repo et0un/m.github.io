@@ -413,16 +413,16 @@
       try {
         upsertCurrentTopic(); setStatus('Публикую превью…');
         await publishThumbnailAssets();
-        await githubPublishText('topics.js?v=29', topicsJsText(), 'Обновить превью тем · ' + courseName);
+        await githubPublishText('topics.js', topicsJsText(), 'Обновить превью тем · ' + courseName);
         setStatus('✓ Превью опубликованы; текст лекций не изменён');
       } catch (error) { setStatus('GitHub: ' + error.message); }
     });
     document.getElementById('downloadThumbnailPackage').addEventListener('click', async () => {
       try {
         upsertCurrentTopic();
-        const entries = [{ name:'topics.js?v=29', data:new Blob([topicsJsText()]) }];
+        const entries = [{ name:'topics.js', data:new Blob([topicsJsText()]) }];
         for (const [path,file] of await thumbnailAssets()) entries.push({ name:path, data:file });
-        download('topic-thumbnails.zip', await makeZip(entries), 'application/zip'); setStatus('ZIP превью и topics.js?v=29 скачан');
+        download('topic-thumbnails.zip', await makeZip(entries), 'application/zip'); setStatus('ZIP превью и topics.js скачан');
       } catch (error) { setStatus(error.message); }
     });
     // Assets stay available across page switches and are stored in IndexedDB.
@@ -629,8 +629,8 @@
 
     document.getElementById('downloadTopics').addEventListener('click', () => {
       if (slugInput.value.trim() && titleInput.value.trim()) upsertCurrentTopic();
-      download('topics.js?v=29', topicsJsText(), 'text/javascript;charset=utf-8');
-      setStatus('topics.js?v=29 скачан');
+      download('topics.js', topicsJsText(), 'text/javascript;charset=utf-8');
+      setStatus('topics.js скачан');
     });
 
     document.getElementById('downloadPackage').addEventListener('click', async () => {
@@ -639,8 +639,8 @@
       if (titleInput.value.trim()) upsertCurrentTopic();
       const entries = [
         { name: `lectures/${slug}.html`, data: new Blob([lectureHtml()], { type: 'text/html;charset=utf-8' }) },
-        { name: 'topics.js?v=29', data: new Blob([topicsJsText()], { type: 'text/javascript;charset=utf-8' }) },
-        { name: 'README_UPLOAD.txt', data: new Blob(['Загрузите lectures/*.html в папку lectures, topics.js?v=29 в корень репозитория, а папку assets — в assets (изображения, GIF и видео).\n'], { type: 'text/plain;charset=utf-8' }) }
+        { name: 'topics.js', data: new Blob([topicsJsText()], { type: 'text/javascript;charset=utf-8' }) },
+        { name: 'README_UPLOAD.txt', data: new Blob(['Загрузите lectures/*.html в папку lectures, topics.js в корень репозитория, а папку assets — в assets (изображения, GIF и видео).\n'], { type: 'text/plain;charset=utf-8' }) }
       ];
       for (const [path, file] of await rich.usedAssets(editable)) entries.push({ name: path, data: file });
       for (const [path, file] of await thumbnailAssets()) if (!entries.some(entry => entry.name === path)) entries.push({ name:path, data:file });
@@ -667,7 +667,7 @@
         await publishAssets(editable);
         await publishThumbnailAssets();
         await githubPublishText(`lectures/${record.slug}.html`, lectureHtml(), `Обновить лекцию: ${record.title}`);
-        await githubPublishText('topics.js?v=29', topicsJsText(), `Обновить список тем · ${courseName}`);
+        await githubPublishText('topics.js', topicsJsText(), `Обновить список тем · ${courseName}`);
         setStatus('✓ Лекция и медиа опубликованы');
       } catch (error) { setStatus(`GitHub: ${error.message}`); }
     });
@@ -1192,3 +1192,4 @@
     renderHomeTitles();
   }
 })();
+
