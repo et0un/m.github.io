@@ -413,16 +413,16 @@
       try {
         upsertCurrentTopic(); setStatus('Публикую превью…');
         await publishThumbnailAssets();
-        await githubPublishText('topics.js?v=26', topicsJsText(), 'Обновить превью тем · ' + courseName);
+        await githubPublishText('topics.js?v=27', topicsJsText(), 'Обновить превью тем · ' + courseName);
         setStatus('✓ Превью опубликованы; текст лекций не изменён');
       } catch (error) { setStatus('GitHub: ' + error.message); }
     });
     document.getElementById('downloadThumbnailPackage').addEventListener('click', async () => {
       try {
         upsertCurrentTopic();
-        const entries = [{ name:'topics.js?v=26', data:new Blob([topicsJsText()]) }];
+        const entries = [{ name:'topics.js?v=27', data:new Blob([topicsJsText()]) }];
         for (const [path,file] of await thumbnailAssets()) entries.push({ name:path, data:file });
-        download('topic-thumbnails.zip', await makeZip(entries), 'application/zip'); setStatus('ZIP превью и topics.js?v=26 скачан');
+        download('topic-thumbnails.zip', await makeZip(entries), 'application/zip'); setStatus('ZIP превью и topics.js?v=27 скачан');
       } catch (error) { setStatus(error.message); }
     });
     // Assets stay available across page switches and are stored in IndexedDB.
@@ -559,7 +559,7 @@
       const safeSlug = escapeHtml(record.slug);
       const safeTitle = escapeHtml(record.title || 'Лекция');
       const content = exportLectureContent();
-      return `<!doctype html>\n<html lang="ru">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <meta name="description" content="Лекция курса «${escapeHtml(courseName)}»">\n  <title>${safeTitle} — ${escapeHtml(courseName)}</title>\n  <link rel="stylesheet" href="../styles.css?v=21">\n</head>\n<body class="lecture-page" data-topic="${safeSlug}">\n<header class="lecture-topbar">\n  <nav aria-label="Главная навигация">\n    <a href="../index.html">Главная</a>\n    <a href="../index.html#about">О курсе</a>\n    <a href="../index.html#links">Ссылки</a>\n    <a class="active" href="../index.html#topics">Темы</a>\n  </nav>\n</header>\n<button class="topics-toggle" type="button" aria-expanded="false"><strong>Темы курса</strong><span>Темы · открыть</span></button>\n<div class="lecture-shell">\n  <aside class="lecture-sidebar" aria-label="Темы курса">\n    <div class="sidebar-head"><span>ТЕМЫ КУРСА</span><button class="sidebar-close" type="button" aria-label="Закрыть список тем">×</button></div>\n    <div id="lectureTopics" class="lecture-topic-list"></div>\n  </aside>\n  <main class="lecture-main">\n    <article class="lecture-article">\n      <div class="lecture-kicker">ТЕМА</div>\n      <h1>${safeTitle}</h1>\n      <div class="tags"></div>\n${content.split('\n').map(line => '      ' + line).join('\n')}\n      <nav class="lecture-pagination" aria-label="Навигация по лекциям">\n        <a id="prevLecture" href="#">← <span>Предыдущая тема</span></a>\n        <a id="nextLecture" href="#"><span>Следующая тема</span> →</a>\n      </nav>\n    </article>\n  </main>\n</div>\n<div class="sidebar-backdrop" aria-hidden="true"></div>\n<script src="../topics.js?v=26"></script>\n<script src="../lecture.js?v=26"></script>\n<script src="../site-settings.js?v=20"></script>\n<script src="../course-design.js?v=21"></script>\n</body>\n</html>\n`;
+      return `<!doctype html>\n<html lang="ru">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <meta name="description" content="Лекция курса «${escapeHtml(courseName)}»">\n  <title>${safeTitle} — ${escapeHtml(courseName)}</title>\n  <link rel="stylesheet" href="../styles.css?v=21">\n</head>\n<body class="lecture-page" data-topic="${safeSlug}">\n<header class="lecture-topbar">\n  <nav aria-label="Главная навигация">\n    <a href="../index.html">Главная</a>\n    <a href="../index.html#about">О курсе</a>\n    <a href="../index.html#links">Ссылки</a>\n    <a class="active" href="../index.html#topics">Темы</a>\n  </nav>\n</header>\n<button class="topics-toggle" type="button" aria-expanded="false"><strong>Темы курса</strong><span>Темы · открыть</span></button>\n<div class="lecture-shell">\n  <aside class="lecture-sidebar" aria-label="Темы курса">\n    <div class="sidebar-head"><span>ТЕМЫ КУРСА</span><button class="sidebar-close" type="button" aria-label="Закрыть список тем">×</button></div>\n    <div id="lectureTopics" class="lecture-topic-list"></div>\n  </aside>\n  <main class="lecture-main">\n    <article class="lecture-article">\n      <div class="lecture-kicker">ТЕМА</div>\n      <h1>${safeTitle}</h1>\n      <div class="tags"></div>\n${content.split('\n').map(line => '      ' + line).join('\n')}\n      <nav class="lecture-pagination" aria-label="Навигация по лекциям">\n        <a id="prevLecture" href="#">← <span>Предыдущая тема</span></a>\n        <a id="nextLecture" href="#"><span>Следующая тема</span> →</a>\n      </nav>\n    </article>\n  </main>\n</div>\n<div class="sidebar-backdrop" aria-hidden="true"></div>\n<script src="../topics.js?v=27"></script>\n<script src="../lecture.js?v=26"></script>\n<script src="../site-settings.js?v=20"></script>\n<script src="../course-design.js?v=21"></script>\n</body>\n</html>\n`;
     }
 
     function download(name, content, type = 'text/html;charset=utf-8') {
@@ -629,8 +629,8 @@
 
     document.getElementById('downloadTopics').addEventListener('click', () => {
       if (slugInput.value.trim() && titleInput.value.trim()) upsertCurrentTopic();
-      download('topics.js?v=26', topicsJsText(), 'text/javascript;charset=utf-8');
-      setStatus('topics.js?v=26 скачан');
+      download('topics.js?v=27', topicsJsText(), 'text/javascript;charset=utf-8');
+      setStatus('topics.js?v=27 скачан');
     });
 
     document.getElementById('downloadPackage').addEventListener('click', async () => {
@@ -639,8 +639,8 @@
       if (titleInput.value.trim()) upsertCurrentTopic();
       const entries = [
         { name: `lectures/${slug}.html`, data: new Blob([lectureHtml()], { type: 'text/html;charset=utf-8' }) },
-        { name: 'topics.js?v=26', data: new Blob([topicsJsText()], { type: 'text/javascript;charset=utf-8' }) },
-        { name: 'README_UPLOAD.txt', data: new Blob(['Загрузите lectures/*.html в папку lectures, topics.js?v=26 в корень репозитория, а папку assets — в assets (изображения, GIF и видео).\n'], { type: 'text/plain;charset=utf-8' }) }
+        { name: 'topics.js?v=27', data: new Blob([topicsJsText()], { type: 'text/javascript;charset=utf-8' }) },
+        { name: 'README_UPLOAD.txt', data: new Blob(['Загрузите lectures/*.html в папку lectures, topics.js?v=27 в корень репозитория, а папку assets — в assets (изображения, GIF и видео).\n'], { type: 'text/plain;charset=utf-8' }) }
       ];
       for (const [path, file] of await rich.usedAssets(editable)) entries.push({ name: path, data: file });
       for (const [path, file] of await thumbnailAssets()) if (!entries.some(entry => entry.name === path)) entries.push({ name:path, data:file });
@@ -667,7 +667,7 @@
         await publishAssets(editable);
         await publishThumbnailAssets();
         await githubPublishText(`lectures/${record.slug}.html`, lectureHtml(), `Обновить лекцию: ${record.title}`);
-        await githubPublishText('topics.js?v=26', topicsJsText(), `Обновить список тем · ${courseName}`);
+        await githubPublishText('topics.js?v=27', topicsJsText(), `Обновить список тем · ${courseName}`);
         setStatus('✓ Лекция и медиа опубликованы');
       } catch (error) { setStatus(`GitHub: ${error.message}`); }
     });

@@ -52,5 +52,15 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-homework-sculpted.svg"
+  },
+  {
+    "slug": "07-typography-text",
+    "title": "Типографика и анимация текста",
+    "tags": [
+      "Теория",
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-typography-sculpted.svg"
   }
 ];
