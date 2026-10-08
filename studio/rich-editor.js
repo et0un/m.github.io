@@ -8,6 +8,43 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
   const activeRoot = () => roots[getMode()];
   const prefix = root => root === roots.home ? '' : '../';
   let selected = null;
+  let draggedMedia = null;
+  function prepareMedia(root) {
+    // Clipboard and old drafts can contain bare images inside text paragraphs.
+    root.querySelectorAll('img').forEach(img => {
+      if (img.closest('figure.embedded-media') || img.closest('.resource-detail-card')) return;
+      const figure = document.createElement('figure'); figure.className = 'embedded-media';
+      const anchor = img.closest('a');
+      const item = anchor && anchor.childNodes.length === 1 ? anchor : img;
+      const paragraph = item.closest('p');
+      if (paragraph && root.contains(paragraph)) {
+        const tail = document.createRange(); tail.selectNodeContents(paragraph); tail.setStartAfter(item);
+        const after = paragraph.cloneNode(false); after.append(tail.extractContents());
+        paragraph.after(figure); figure.append(item);
+        if (after.hasChildNodes()) figure.after(after);
+        if (!paragraph.textContent.trim() && !paragraph.querySelector('img,video')) paragraph.remove();
+      } else { item.before(figure); figure.append(item); }
+    });
+    root.querySelectorAll('figure.embedded-media').forEach(figure => {
+      if (figure.contentEditable !== 'false') figure.contentEditable = 'false';
+      if (!figure.hasAttribute('tabindex')) figure.tabIndex = 0;
+      if (figure.draggable !== true) figure.draggable = true;
+      figure.querySelectorAll('img,a').forEach(node => { if (node.draggable !== false) node.draggable = false; });
+      const caption = figure.querySelector('figcaption');
+      if (caption) {
+        if (caption.contentEditable !== 'true') caption.contentEditable = 'true';
+        caption.dataset.placeholder = 'Добавить подпись…';
+      }
+    });
+  }
+  const movableBlock = figure => figure.closest('.media-layout') || figure;
+  function moveMedia(root, block, target, after) {
+    if (!target || target === block || block.contains(target)) return;
+    const oldLayout = block.parentElement?.closest('.media-layout');
+    if (after) target.after(block); else target.before(block);
+    if (oldLayout && !oldLayout.querySelector('figure')) oldLayout.remove();
+    changed(root);
+  }
   let dialogRoot = null;
   let editingCode = null;
   const dbReady = new Promise(resolve => {
@@ -42,6 +79,7 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     });
   }
   async function hydrate(root) {
+    prepareMedia(root);
     if (root === roots.home) root.querySelectorAll('img[src],video[src],source[src]').forEach(node => {
       const src = node.getAttribute('src');
       if (src.startsWith('assets/') && !node.dataset.exportSrc) {
@@ -268,8 +306,13 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
       else media = `<div class="video-frame"><iframe src="${esc(item.src)}" title="${esc(item.title || options.caption || 'Видео')}" loading="lazy" allow="fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`;
       return `<figure class="embedded-media" contenteditable="false">${media}<figcaption contenteditable="true" data-placeholder="Добавить подпись…">${esc(options.caption || '')}</figcaption></figure>`;
     }).join('');
-    const html = `<div class="media-layout" data-columns="${options.columns === '2' ? '2' : '1'}" style="width:${Number(options.width) || 100}%" contenteditable="false">${markup}</div>`;
+    const marker = crypto.randomUUID();
+    const html = `<div data-new-media="${marker}" class="media-layout" data-columns="${options.columns === '2' ? '2' : '1'}" style="width:${Number(options.width) || 100}%" contenteditable="false">${markup}</div>`;
     insertBlock(root, html);
+    prepareMedia(root);
+    const inserted = root.querySelector(`[data-new-media="${marker}"]`);
+    inserted?.removeAttribute('data-new-media');
+    selectMedia(inserted?.querySelector('figure') || null);
     setStatus('Медиа добавлено. Нажмите на него, чтобы изменить размер и подпись.');
   }
 
@@ -342,7 +385,13 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     root.addEventListener('click', event => {
       if (event.target.closest('a')) event.preventDefault();
       const figure = event.target.closest('figure.embedded-media');
-      selectMedia(figure && root.contains(figure) ? figure : null);
+      if (!figure && event.target.closest('img')) prepareMedia(root);
+      const current = event.target.closest('figure.embedded-media');
+      selectMedia(current && root.contains(current) ? current : null);
+    });
+    root.addEventListener('focusin', event => {
+      const figure = event.target.closest('figure.embedded-media');
+      if (figure) selectMedia(figure);
     });
     root.addEventListener('dblclick', event => {
       const code = event.target.closest('pre.course-code'); if (code) editCode(root, code);
@@ -375,22 +424,56 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
           doc.querySelectorAll('div').forEach(node => {
             if (!node.querySelector('div,p,ul,ol,figure,pre')) { const p = doc.createElement('p'); p.append(...node.childNodes); node.replaceWith(p); }
           });
-          const allowed = new Set(['P','BR','B','STRONG','I','EM','U','S','H2','H3','UL','OL','LI','BLOCKQUOTE','A','PRE','CODE']);
+          const allowed = new Set(['P','BR','B','STRONG','I','EM','U','S','H2','H3','UL','OL','LI','BLOCKQUOTE','A','PRE','CODE','IMG']);
           [...doc.body.querySelectorAll('*')].reverse().forEach(node => {
             if (!allowed.has(node.tagName)) { node.replaceWith(...node.childNodes); return; }
             const href = node.tagName === 'A' ? safeUrl(node.getAttribute('href') || '') : '';
+            const src = node.tagName === 'IMG' ? safeUrl(node.getAttribute('src') || '', true) : '';
+            const alt = node.getAttribute('alt') || '';
             [...node.attributes].forEach(a => node.removeAttribute(a.name)); if (href) node.setAttribute('href', href);
+            if (node.tagName === 'IMG') { if (!src) node.remove(); else { node.src = src; node.alt = alt; } }
           });
           document.execCommand('insertHTML', false, doc.body.innerHTML || esc(text));
         }
         changed(root);
       }
     });
-    root.addEventListener('dragover', event => { if ([...(event.dataTransfer?.items || [])].some(i => i.kind === 'file')) { event.preventDefault(); root.classList.add('editor-drop-active'); } });
+    root.addEventListener('dragstart', event => {
+      const figure = event.target.closest('figure.embedded-media');
+      if (!figure || !root.contains(figure)) return;
+      if (event.target.closest('figcaption')) { event.preventDefault(); return; }
+      draggedMedia = { root, block: movableBlock(figure), figure };
+      selectMedia(figure);
+      event.dataTransfer.clearData();
+      event.dataTransfer.setData('application/x-course-media', 'move');
+      event.dataTransfer.effectAllowed = 'move';
+    });
+    root.addEventListener('dragend', () => { draggedMedia = null; root.classList.remove('editor-drop-active'); });
+    root.addEventListener('dragover', event => {
+      if (draggedMedia || [...(event.dataTransfer?.items || [])].some(i => i.kind === 'file')) {
+        event.preventDefault(); root.classList.add('editor-drop-active');
+        event.dataTransfer.dropEffect = draggedMedia ? 'move' : 'copy';
+      }
+    });
     root.addEventListener('dragleave', () => root.classList.remove('editor-drop-active'));
     root.addEventListener('drop', async event => {
+      root.classList.remove('editor-drop-active');
+      if (draggedMedia) {
+        event.preventDefault(); event.stopPropagation();
+        const moving = draggedMedia; draggedMedia = null;
+        if (moving.root !== root) return;
+        let target = event.target;
+        while (target && target.parentElement !== root && target !== root) target = target.parentElement;
+        if (target && target !== root) {
+          const rect = target.getBoundingClientRect();
+          moveMedia(root, moving.block, target, event.clientY > rect.top + rect.height / 2);
+        } else if (event.clientY > root.getBoundingClientRect().top + root.clientHeight / 2) {
+          root.append(moving.block); changed(root);
+        } else { root.prepend(moving.block); changed(root); }
+        selectMedia(moving.figure); return;
+      }
       const chosen = [...(event.dataTransfer?.files || [])]; if (!chosen.length) return;
-      event.preventDefault(); root.classList.remove('editor-drop-active');
+      event.preventDefault();
       const position = document.caretRangeFromPoint?.(event.clientX, event.clientY);
       if (position && root.contains(position.startContainer)) ranges.set(root, position);
       await addDropped(root, chosen);
@@ -398,10 +481,7 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     new MutationObserver(() => {
       if (selected && !activeRoot().contains(selected)) selectMedia(null);
       hydrate(root);
-      root.querySelectorAll('figure.embedded-media').forEach(figure => {
-        figure.contentEditable = 'false';
-        const caption = figure.querySelector('figcaption'); if (caption) { caption.contentEditable = 'true'; caption.dataset.placeholder = 'Добавить подпись…'; }
-      });
+      prepareMedia(root);
     }).observe(root, { childList: true, subtree: true });
   });
   async function addDropped(root, chosen) {
@@ -411,18 +491,22 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     } catch (error) { setStatus(error.message); }
   }
 
-  const mediaPanel = document.createElement('section'); mediaPanel.className = 'editor-section media-inspector';
-  mediaPanel.innerHTML = `<h2>Выбранное медиа</h2><p class="editor-help" data-media-hint>Нажмите на изображение или видео в предпросмотре.</p><div data-media-fields hidden>
+  const mediaPanel = document.createElement('section'); mediaPanel.className = 'editor-section media-inspector'; mediaPanel.hidden = true;
+  mediaPanel.setAttribute('aria-label', 'Настройки выбранного медиа');
+  mediaPanel.innerHTML = `<div class="media-inspector-head"><h2>Настройки медиа</h2><button type="button" class="editor-secondary" data-media-close aria-label="Закрыть настройки">×</button></div><p class="editor-help" data-media-hint>Нажмите на изображение или видео в предпросмотре.</p><div data-media-fields hidden>
     ${field('Ширина блока (%)', '<input data-media-width type="range" min="20" max="100" step="5" value="100"><output data-width-label>100%</output>')}
+    ${field('Выравнивание блока', '<select data-media-align><option value="left">Слева</option><option value="center">По центру</option><option value="right">Справа</option></select>')}
     ${field('Расположение', '<select data-media-columns><option value="1">По одному</option><option value="2">Два рядом</option></select>')}
     ${field('Подпись под выбранным медиа', '<textarea data-media-caption rows="2"></textarea>')}
     ${field('Описание изображения', '<input data-media-alt>')}
-    <div class="editor-actions"><button class="editor-secondary" type="button" data-media-pair>Добавить фото рядом</button><button class="editor-danger" type="button" data-media-remove>Удалить медиа</button></div>
+    <div class="editor-actions"><button class="editor-secondary" type="button" data-media-up>Выше</button><button class="editor-secondary" type="button" data-media-down>Ниже</button><button class="editor-secondary" type="button" data-media-replace>Заменить изображение</button><button class="editor-secondary" type="button" data-media-pair>Добавить фото рядом</button><button class="editor-danger" type="button" data-media-remove>Удалить медиа</button></div>
     </div>`;
-  document.getElementById('githubSettings').after(mediaPanel);
+  document.body.append(mediaPanel);
+  mediaPanel.querySelector('[data-media-close]').onclick = () => selectMedia(null);
   const mediaFields = mediaPanel.querySelector('[data-media-fields]');
   function selectMedia(figure) {
     if (selected) selected.classList.remove('is-selected-media'); selected = figure;
+    mediaPanel.hidden = !figure;
     mediaFields.hidden = !figure;
     mediaPanel.querySelector('[data-media-hint]').hidden = !!figure;
     if (!figure) return;
@@ -430,6 +514,8 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     const layout = figure.closest('.media-layout') || figure;
     mediaPanel.querySelector('[data-media-width]').value = parseInt(layout.style.width, 10) || 100;
     mediaPanel.querySelector('[data-width-label]').textContent = `${parseInt(layout.style.width, 10) || 100}%`;
+    mediaPanel.querySelector('[data-media-align]').value = layout.style.marginLeft === 'auto' ? (layout.style.marginRight === 'auto' ? 'center' : 'right') : 'left';
+    mediaPanel.querySelector('[data-media-replace]').disabled = !figure.querySelector('img');
     mediaPanel.querySelector('[data-media-columns]').value = layout.dataset.columns || '1';
     mediaPanel.querySelector('[data-media-caption]').value = figure.querySelector('figcaption')?.textContent || '';
     mediaPanel.querySelector('[data-media-alt]').value = figure.querySelector('img')?.alt || '';
@@ -439,7 +525,11 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
   mediaPanel.addEventListener('input', event => {
     if (!selected || !activeRoot().contains(selected)) return selectMedia(null);
     const layout = selected.closest('.media-layout') || selected;
-    if (event.target.hasAttribute('data-media-width')) { layout.style.width = `${event.target.value}%`; mediaPanel.querySelector('[data-width-label]').textContent = `${event.target.value}%`; }
+    if (event.target.hasAttribute('data-media-width')) { layout.style.removeProperty('max-width'); layout.style.width = `${event.target.value}%`; mediaPanel.querySelector('[data-width-label]').textContent = `${event.target.value}%`; }
+    if (event.target.hasAttribute('data-media-align')) {
+      layout.style.marginLeft = event.target.value === 'left' ? '0' : 'auto';
+      layout.style.marginRight = event.target.value === 'right' ? '0' : 'auto';
+    }
     if (event.target.hasAttribute('data-media-columns')) {
       if (layout === selected) { const wrapper = document.createElement('div'); wrapper.className = 'media-layout'; wrapper.contentEditable = 'false'; wrapper.style.width = selected.style.width || '100%'; selected.before(wrapper); wrapper.append(selected); selected.style.removeProperty('width'); wrapper.dataset.columns = event.target.value; }
       else layout.dataset.columns = event.target.value;
@@ -451,6 +541,26 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     if (event.target.hasAttribute('data-media-alt')) selected.querySelector('img').alt = event.target.value;
     changed(activeRoot());
   });
+  for (const direction of ['up', 'down']) mediaPanel.querySelector(`[data-media-${direction}]`).onclick = () => {
+    if (!selected || !activeRoot().contains(selected)) return;
+    const block = movableBlock(selected);
+    const target = direction === 'up' ? block.previousElementSibling : block.nextElementSibling;
+    moveMedia(activeRoot(), block, target, direction === 'down');
+    selected.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  };
+  mediaPanel.querySelector('[data-media-replace]').onclick = () => {
+    if (!selected?.querySelector('img')) return;
+    const figure = selected, root = activeRoot();
+    showDialog(root, 'Заменить изображение', field('Новый файл', '<input name="file" type="file" accept="image/*" required>'), async data => {
+      if (!root.contains(figure)) throw new Error('Изображение уже удалено.');
+      const item = await localItem(data.get('file'), root);
+      const img = figure.querySelector('img');
+      img.src = item.src; img.dataset.studioAsset = item.path; img.dataset.exportSrc = item.exportSrc;
+      img.removeAttribute('width'); img.removeAttribute('height'); img.style.height = 'auto';
+      const anchor = img.closest('a'); if (anchor) anchor.replaceWith(img);
+      changed(root); selectMedia(figure);
+    });
+  };
   mediaPanel.querySelector('[data-media-remove]').onclick = () => {
     if (!selected || !activeRoot().contains(selected)) return;
     const layout = selected.closest('.media-layout'); selected.remove(); if (layout && !layout.querySelector('figure')) layout.remove(); selectMedia(null); changed(activeRoot());
@@ -475,6 +585,7 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
       node.setAttribute('src', node.dataset.exportSrc);
       if (!draft) { node.removeAttribute('data-export-src'); node.removeAttribute('data-studio-asset'); }
     });
+    clone.querySelectorAll('figure.embedded-media').forEach(figure => { figure.removeAttribute('draggable'); figure.removeAttribute('tabindex'); figure.querySelectorAll('[draggable]').forEach(node => node.removeAttribute('draggable')); });
     clone.querySelectorAll('[contenteditable],[data-placeholder],[data-studio-run]').forEach(node => { node.removeAttribute('contenteditable'); node.removeAttribute('data-placeholder'); node.removeAttribute('data-studio-run'); });
     clone.querySelectorAll('.is-selected-media').forEach(node => node.classList.remove('is-selected-media'));
     clone.querySelectorAll('[data-studio-control]').forEach(node => node.remove());
@@ -522,3 +633,4 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     }
   };
 };
+
