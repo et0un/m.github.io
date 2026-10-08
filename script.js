@@ -1,5 +1,5 @@
 const topics = window.COURSE_TOPICS || [];
-const cls = t => t === 'Актуально' ? 'actual' : t === 'Теория' ? 'theory' : t === 'Практика' ? 'practice' : t === 'Софт' ? 'soft' : t === 'Д/з' ? 'home' : t === 'Курсовая работа' ? 'coursework' : '';
+const cls = t => t === 'Актуально' ? 'actual' : t === 'Теория' ? 'theory' : t === 'Практика' ? 'practice' : t === 'Софт' ? 'soft' : (t === 'Д/з' || t === 'Домашнее задание') ? 'home' : t === 'Курсовая работа' ? 'coursework' : '';
 const list = document.querySelector('#topicList');
 const escapeTopicAttribute = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const topicThumbnailUrl = value => typeof value === 'string' && value.trim() && !/[\u0000-\u001f]/.test(value) && (!/^[a-z][a-z0-9+.-]*:/i.test(value) || /^https?:/i.test(value)) ? value : '';

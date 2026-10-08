@@ -41,5 +41,15 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-masks-sculpted.svg"
+  },
+  {
+    "slug": "06-homework",
+    "title": "Домашнее задание",
+    "tags": [
+      "Практика",
+      "Домашнее задание",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-homework-sculpted.svg"
   }
 ];
