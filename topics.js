@@ -68,8 +68,8 @@ window.COURSE_TOPICS = [
     "slug": "08-project-pipeline",
     "title": "Этапы создания проекта",
     "tags": [
-      "Теория",
-      "Практика"
+      "Актуально",
+      "Теория"
     ],
     "thumbnail": "assets/images/topic-pipeline-sculpted.svg"
   }
