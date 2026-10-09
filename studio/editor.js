@@ -318,7 +318,7 @@
     editable.addEventListener('input', () => { draftReady = true; updateCodeBox(); scheduleDraftSave(); });
 
     function newLecture() {
-      saveDraftNow();
+      if (draftReady && !saveDraftNow()) return;
       lectureLoadSequence++;
       draftReady = true;
       topicSelect.value = '';
@@ -335,7 +335,10 @@
     }
 
     topicSelect.addEventListener('change', () => {
-      saveDraftNow();
+      if (draftReady && !saveDraftNow()) {
+        topicSelect.value = slugInput.value.trim();
+        return;
+      }
       lectureLoadSequence++;
       draftReady = false;
       const topic = editorTopics.find(t => t.slug === topicSelect.value);
@@ -364,7 +367,7 @@
     document.getElementById('loadPublished').addEventListener('click', async () => {
       const slug = slugInput.value.trim();
       if (!slug) return setStatus('Сначала выберите лекцию');
-      saveDraftNow();
+      if (draftReady && !saveDraftNow()) return;
       const request = ++lectureLoadSequence;
       const beforeLoad = rich.exportContent(editable, { draft:true });
       try {
@@ -803,7 +806,7 @@
       if (saveDraftNow()) setStatus('Черновик сохранён в браузере. Для сайта нажмите «Опубликовать на GitHub».', true);
     });
     document.getElementById('restoreDraftVersion')?.addEventListener('click', () => {
-      saveDraftNow();
+      if (draftReady && !saveDraftNow()) return;
       const slug = slugInput.value.trim();
       let versions = [];
       try { versions = JSON.parse(localStorage.getItem(draftHistoryKey(slug)) || '[]'); } catch (_) {}
@@ -814,7 +817,8 @@
       dialog.querySelector('[data-cancel]').onclick = () => dialog.close();
       dialog.addEventListener('close', () => dialog.remove());
       dialog.querySelector('form').onsubmit = event => {
-        event.preventDefault(); saveDraftNow();
+        event.preventDefault();
+        if (draftReady && !saveDraftNow()) { dialog.close(); return; }
         const version = versions[Number(dialog.querySelector('select').value)];
         titleInput.value = version.title || ''; tagsInput.value = (version.tags || []).join(', ');
         currentThumbnail = version.thumbnail || ''; editable.innerHTML = version.content;
@@ -1316,5 +1320,6 @@
     renderHomeTitles();
   }
 })();
+
 
 
