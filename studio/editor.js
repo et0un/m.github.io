@@ -102,6 +102,13 @@
     const githubState = document.getElementById('githubState');
 
     let activeMode = 'lecture';
+    const draftKey = slug => `studio-draft:${courseName}:${slug || '_new'}`;
+    const draftHistoryKey = slug => `studio-draft-history:${courseName}:${slug || '_new'}`;
+    let draftTimer = null;
+    let pendingDraft = null;
+    let draftReady = false;
+    let publishingLecture = false;
+    let lectureLoadSequence = 0;
     let publishedHomeSource = '';
     let homeLoaded = false;
     let homeLinks = [];
@@ -129,9 +136,12 @@
       .replace(/ё/g, 'e').replace(/[^a-z0-9а-я\s-]/gi, '')
       .replace(/\s+/g, '-').replace(/-+/g, '-');
 
-    const setStatus = (message) => {
+    const setStatus = (message, persistent = /GitHub:|Не удалось|Ошибка|Публикую|Сайт обновится|не опубликована/.test(message)) => {
       status.textContent = message;
+      status.setAttribute('role', 'status');
+      setStatus.persistent = persistent;
       clearTimeout(setStatus.timer);
+      if (persistent) return;
       setStatus.timer = setTimeout(() => { if (status.textContent === message) status.textContent = ''; }, 3500);
     };
 
@@ -203,17 +213,19 @@
       const cfg = githubConfig(true);
       const api = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${githubApiPath(path)}`;
       let sha;
+      const encoded = bytesToBase64(bytes);
       const current = await fetch(`${api}?ref=${encodeURIComponent(cfg.branch)}`, {
         cache: 'no-store',
         headers: { 'Accept':'application/vnd.github+json', 'Authorization':`Bearer ${cfg.token}` }
       });
       if (current.ok) {
         const data = await current.json(); sha = data.sha;
+        if (data.encoding === 'base64' && typeof data.content === 'string' && data.content.replace(/\s/g, '') === encoded) return { content:{ sha }, unchanged:true };
       } else if (current.status !== 404) {
         let detail = ''; try { detail = (await current.json()).message || ''; } catch (_) {}
         throw new Error(`${current.status}${detail ? ' · ' + detail : ''}`);
       }
-      const payload = { message, content: bytesToBase64(bytes), branch: cfg.branch };
+      const payload = { message, content: encoded, branch: cfg.branch };
       if (sha) payload.sha = sha;
       const response = await githubFetch(api, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
       return response.json();
@@ -221,6 +233,14 @@
 
     async function githubPublishText(path, text, message) {
       return githubPublishBytes(path, enc.encode(text), message);
+    }
+
+    async function verifyStoredFile(path, sha) {
+      if (!sha) throw new Error('GitHub не вернул подтверждение сохранения файла.');
+      const cfg = githubConfig(true);
+      const api = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${githubApiPath(path)}?ref=${encodeURIComponent(cfg.branch)}`;
+      const data = await (await githubFetch(api, { cache:'no-store' })).json();
+      if (data.sha !== sha) throw new Error('Проверка сохранённой версии не пройдена: ' + path);
     }
 
     async function checkGithubConnection() {
@@ -295,9 +315,12 @@
     });
     slugInput.addEventListener('input', () => { slugInput.dataset.touched = '1'; renderMeta(); });
     tagsInput.addEventListener('input', renderMeta);
-    editable.addEventListener('input', () => { updateCodeBox(); scheduleDraftSave(); });
+    editable.addEventListener('input', () => { draftReady = true; updateCodeBox(); scheduleDraftSave(); });
 
     function newLecture() {
+      saveDraftNow();
+      lectureLoadSequence++;
+      draftReady = true;
       topicSelect.value = '';
       slugInput.value = '';
       slugInput.dataset.touched = '';
@@ -312,6 +335,9 @@
     }
 
     topicSelect.addEventListener('change', () => {
+      saveDraftNow();
+      lectureLoadSequence++;
+      draftReady = false;
       const topic = editorTopics.find(t => t.slug === topicSelect.value);
       if (!topic) return newLecture();
       slugInput.value = topic.slug;
@@ -321,6 +347,7 @@
       currentThumbnail = topic.thumbnail || '';
       const draft = loadDraft(topic.slug);
       if (draft?.content) {
+        draftReady = true;
         editable.innerHTML = draft.content;
         if (draft.title) titleInput.value = draft.title;
         if (Array.isArray(draft.tags)) tagsInput.value = draft.tags.join(', ');
@@ -337,6 +364,9 @@
     document.getElementById('loadPublished').addEventListener('click', async () => {
       const slug = slugInput.value.trim();
       if (!slug) return setStatus('Сначала выберите лекцию');
+      saveDraftNow();
+      const request = ++lectureLoadSequence;
+      const beforeLoad = rich.exportContent(editable, { draft:true });
       try {
         const response = await fetch(`../lectures/${encodeURIComponent(slug)}.html?studio=${Date.now()}`, { cache: 'no-store' });
         if (!response.ok) throw new Error('not found');
@@ -354,11 +384,18 @@
           }
           nodes.push(node.outerHTML);
         });
+        if (request !== lectureLoadSequence || slug !== slugInput.value.trim()) return;
+        if (beforeLoad !== rich.exportContent(editable, { draft:true })) {
+          setStatus('Текст изменён во время загрузки. Черновик сохранён; опубликованная версия не заменяла его.', true);
+          return;
+        }
+        draftReady = true;
         editable.innerHTML = nodes.join('\n') || '<p class="lead">Пустая лекция.</p>';
         clearAssets();
         selectMediaBlock(null);
         renderMeta();
-        setStatus('Опубликованная лекция загружена');
+        saveDraftNow();
+        setStatus('Опубликованная лекция загружена. Предыдущий черновик доступен в истории.', true);
       } catch (e) {
         setStatus('Не удалось загрузить страницу');
       }
@@ -406,8 +443,8 @@
       currentThumbnail = ''; const record = currentRecord(); rememberThumbnail(record); renderMeta(); setStatus('Восстановлено стандартное превью');
     });
     async function thumbnailAssets() { return rich.assetsForPaths(editorTopics.map(topic => topic.thumbnail)); }
-    async function publishThumbnailAssets() {
-      for (const [path, file] of await thumbnailAssets()) await githubPublishBytes(path, new Uint8Array(await file.arrayBuffer()), 'Добавить превью: ' + path);
+    async function publishThumbnailAssets(paths = editorTopics.map(topic => topic.thumbnail)) {
+      for (const [path, file] of await rich.assetsForPaths(paths, { localOnly:true })) await githubPublishBytes(path, new Uint8Array(await file.arrayBuffer()), 'Добавить превью: ' + path);
     }
     document.getElementById('publishTopicThumbnail').addEventListener('click', async () => {
       try {
@@ -660,16 +697,46 @@
       return record;
     }
 
-    document.getElementById('publishLecture')?.addEventListener('click', async () => {
+    document.getElementById('publishLecture')?.addEventListener('click', async event => {
+      if (publishingLecture) return;
+      if (!draftReady) return setStatus('Сначала загрузите текст лекции или восстановите черновик.', true);
+      let stage = 'подготовка', textSaved = false, record;
+      const button = event.currentTarget;
+      const previousTopicDisabled = topicSelect.disabled;
+      publishingLecture = true; button.disabled = true; topicSelect.disabled = true;
+      document.getElementById('newLecture').disabled = true;
       try {
-        const record = upsertCurrentTopic();
-        setStatus('Публикую лекцию…');
-        await publishAssets(editable);
-        await publishThumbnailAssets();
-        await githubPublishText(`lectures/${record.slug}.html`, lectureHtml(), `Обновить лекцию: ${record.title}`);
-        await githubPublishText('topics.js', topicsJsText(), `Обновить список тем · ${courseName}`);
-        setStatus('✓ Лекция и медиа опубликованы');
-      } catch (error) { setStatus(`GitHub: ${error.message}`); }
+        saveDraftNow();
+        record = upsertCurrentTopic();
+        const snapshot = editable.cloneNode(true);
+        const html = lectureHtml();
+        const topicsText = topicsJsText();
+        stage = 'загрузка медиа этой лекции';
+        setStatus(`Публикую «${record.title}»: ${stage}…`, true);
+        await publishAssets(snapshot);
+        stage = 'загрузка нового превью этой темы';
+        await publishThumbnailAssets([record.thumbnail]);
+        stage = 'сохранение текста лекции';
+        setStatus(`Публикую «${record.title}»: ${stage}…`, true);
+        const result = await githubPublishText(`lectures/${record.slug}.html`, html, `Обновить лекцию: ${record.title}`);
+        stage = 'проверка сохранённого текста';
+        await verifyStoredFile(`lectures/${record.slug}.html`, result.content?.sha);
+        textSaved = true;
+        stage = 'сохранение списка тем';
+        const topicsResult = await githubPublishText('topics.js', topicsText, `Обновить список тем · ${courseName}`);
+        await verifyStoredFile('topics.js', topicsResult.content?.sha);
+        const newerEdits = lectureHtml() !== html;
+        setStatus(newerEdits
+          ? `✓ «${record.title}» сохранена на GitHub. В редакторе есть новые правки: опубликуйте их следующим нажатием.`
+          : `✓ «${record.title}» сохранена на GitHub. Сайт обновится после публикации.`, true);
+      } catch (error) {
+        setStatus(textSaved
+          ? `Текст «${record.title}» уже сохранён на GitHub. Ошибка на этапе «${stage}»: ${error.message}`
+          : `Лекция не опубликована. Этап «${stage}»: ${error.message}. Черновик остаётся в редакторе; скачайте ZIP.`, true);
+      } finally {
+        publishingLecture = false; button.disabled = false; topicSelect.disabled = previousTopicDisabled;
+        document.getElementById('newLecture').disabled = false;
+      }
     });
 
     document.getElementById('copyTopic').addEventListener('click', async () => {
@@ -684,21 +751,78 @@
 
     document.getElementById('newLecture').addEventListener('click', newLecture);
 
-    // Local drafts live only in this browser.
-    const draftKey = slug => `studio-draft:${courseName}:${slug || '_new'}`;
-    let draftTimer = null;
+    // Keep the existing draft keys so previously saved work remains available.
+    function captureDraft() {
+      if (!draftReady) return null;
+      const record = currentRecord();
+      return { record, data:{ title:record.title, tags:record.tags, thumbnail:currentThumbnail,
+        content:rich.exportContent(editable, { draft:true }), updated:Date.now() } };
+    }
+    function draftEqual(a, b) {
+      return a && b && a.content === b.content && a.title === b.title &&
+        a.thumbnail === b.thumbnail && JSON.stringify(a.tags) === JSON.stringify(b.tags);
+    }
+    function persistDraft(snapshot) {
+      if (!snapshot) return false;
+      const {record, data} = snapshot;
+      const previous = loadDraft(record.slug);
+      try {
+        localStorage.setItem(draftKey(record.slug), JSON.stringify(data));
+        localStorage.setItem(`studio-last-lecture:${courseName}`, JSON.stringify(record));
+      } catch (_) {
+        setStatus('Не удалось сохранить черновик в браузере. Скачайте ZIP, чтобы сохранить правки.', true);
+        return false;
+      }
+      if (previous?.content && !draftEqual(previous, data)) {
+        try {
+          const versions = JSON.parse(localStorage.getItem(draftHistoryKey(record.slug)) || '[]');
+          localStorage.setItem(draftHistoryKey(record.slug), JSON.stringify([previous, ...versions].slice(0,5)));
+        } catch (_) { /* The newest draft is safe even when history storage is full. */ }
+      }
+      if (!publishingLecture && !setStatus.persistent) setStatus('Черновик сохранён в браузере. На сайт не отправлен.');
+      return true;
+    }
+    function saveDraftNow() {
+      clearTimeout(draftTimer); pendingDraft = null;
+      return persistDraft(captureDraft());
+    }
     function scheduleDraftSave() {
       clearTimeout(draftTimer);
-      draftTimer = setTimeout(() => {
-        const rec = currentRecord();
-        const data = { title: rec.title, tags: rec.tags, thumbnail:currentThumbnail, content: rich.exportContent(editable, { draft:true }), updated: Date.now() };
-        try { localStorage.setItem(`studio-last-lecture:${courseName}`, JSON.stringify(rec)); } catch (_) {}
-        try { localStorage.setItem(draftKey(rec.slug), JSON.stringify(data)); status.textContent = 'Черновик сохранён в браузере'; } catch (_) {}
-      }, 650);
+      pendingDraft = captureDraft();
+      if (!pendingDraft) return;
+      const snapshot = pendingDraft;
+      draftTimer = setTimeout(() => { pendingDraft = null; persistDraft(snapshot); }, 650);
     }
     function loadDraft(slug) {
       try { return JSON.parse(localStorage.getItem(draftKey(slug))); } catch (_) { return null; }
     }
+    window.addEventListener('pagehide', saveDraftNow);
+    window.addEventListener('beforeunload', saveDraftNow);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveDraftNow(); });
+    document.getElementById('saveDraftNow')?.addEventListener('click', () => {
+      if (saveDraftNow()) setStatus('Черновик сохранён в браузере. Для сайта нажмите «Опубликовать на GitHub».', true);
+    });
+    document.getElementById('restoreDraftVersion')?.addEventListener('click', () => {
+      saveDraftNow();
+      const slug = slugInput.value.trim();
+      let versions = [];
+      try { versions = JSON.parse(localStorage.getItem(draftHistoryKey(slug)) || '[]'); } catch (_) {}
+      if (!versions.length) return setStatus('Предыдущих версий пока нет. Существующий черновик загружается при выборе темы.', true);
+      const dialog = document.createElement('dialog'); dialog.className = 'studio-dialog';
+      dialog.innerHTML = `<form><h2>История черновика</h2><label class="editor-field"><span>Выберите сохранённую версию</span><select name="version">${versions.map((v,i)=>`<option value="${i}">${escapeHtml(new Date(v.updated).toLocaleString('ru-RU'))} · ${escapeHtml(v.title || 'Без названия')}</option>`).join('')}</select></label><p class="editor-help">Текущий текст тоже сохранится в истории. Восстановление не публикует изменения на сайт.</p><div class="editor-actions"><button class="editor-primary" type="submit">Восстановить</button><button class="editor-secondary" type="button" data-cancel>Отмена</button></div></form>`;
+      document.body.append(dialog);
+      dialog.querySelector('[data-cancel]').onclick = () => dialog.close();
+      dialog.addEventListener('close', () => dialog.remove());
+      dialog.querySelector('form').onsubmit = event => {
+        event.preventDefault(); saveDraftNow();
+        const version = versions[Number(dialog.querySelector('select').value)];
+        titleInput.value = version.title || ''; tagsInput.value = (version.tags || []).join(', ');
+        currentThumbnail = version.thumbnail || ''; editable.innerHTML = version.content;
+        draftReady = true; renderMeta(); saveDraftNow(); dialog.close();
+        setStatus('Версия черновика восстановлена в редакторе. На сайт не отправлена.', true);
+      };
+      dialog.showModal();
+    });
 
     // ---------------- homepage editor ----------------
     function renderHomeLinksFields() {
@@ -1018,7 +1142,7 @@
         }
         if (node.nodeType !== Node.ELEMENT_NODE) return;
         const tag = node.tagName.toLowerCase();
-        if (tag === 'div' && !node.className && !node.querySelector('div,figure,pre,p,ul,ol,h2,h3')) {
+        if (tag === 'div' && !node.className && !node.querySelector('div,figure,pre,p,ul,ol,h2,h3,table,svg,video,iframe,canvas,section')) {
           const p = root.ownerDocument.createElement('p');
           [...node.attributes].forEach(a => p.setAttribute(a.name, a.value));
           p.innerHTML = node.innerHTML;
@@ -1179,17 +1303,18 @@
       catch (error) { setStatus('GitHub: ' + error.message); }
     });
     renderTopicSelect();
-    newLecture();
     let lastRecord = null;
     try { lastRecord = JSON.parse(localStorage.getItem(`studio-last-lecture:${courseName}`) || 'null'); } catch (_) {}
     const initialDraft = loadDraft(lastRecord?.slug || '');
     if (initialDraft?.content) {
+      draftReady = true;
       editable.innerHTML = initialDraft.content; slugInput.value = lastRecord?.slug || ''; slugInput.dataset.touched = '1';
       titleInput.value = initialDraft.title || ''; tagsInput.value = (initialDraft.tags || []).join(', ');
       currentThumbnail = initialDraft.thumbnail ?? lastRecord?.thumbnail ?? '';
       topicSelect.value = lastRecord?.slug || ''; renderMeta();
-    }
+    } else newLecture();
     renderHomeTitles();
   }
 })();
+
 

@@ -115,7 +115,7 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     [...root.childNodes].forEach(node => {
       if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
         const p = document.createElement('p'); node.replaceWith(p); p.append(node);
-      } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'DIV' && !node.className && !node.querySelector('p,h2,h3,ul,ol,figure,pre,div')) {
+      } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'DIV' && !node.className && !node.querySelector('p,h2,h3,ul,ol,figure,pre,div,table,svg,video,iframe,canvas,section')) {
         const p = document.createElement('p');
         [...node.attributes].forEach(a => p.setAttribute(a.name, a.value));
         p.append(...node.childNodes); node.replaceWith(p);
@@ -606,13 +606,13 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     }
     return entries;
   }
-  async function assetsForPaths(paths) {
+  async function assetsForPaths(paths, { localOnly = false } = {}) {
     await Promise.all(pendingFiles);
     const entries = [];
     for (const path of new Set(paths.filter(Boolean))) {
       const file = await restoreFile(path);
       if (file) entries.push([path, file]);
-      else if (path.startsWith('assets/')) {
+      else if (!localOnly && path.startsWith('assets/')) {
         const response = await fetch('../' + path);
         if (!response.ok) throw new Error('Не найден файл превью. Загрузите его повторно: ' + path);
         // Existing published thumbnails are included in downloadable packages as well.
@@ -633,4 +633,5 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     }
   };
 };
+
 
