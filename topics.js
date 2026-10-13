@@ -90,5 +90,14 @@ window.COURSE_TOPICS = [
       "Практика"
     ],
     "thumbnail": "assets/images/topic-dramaturgy-sculpted.svg"
+  },
+  {
+    "slug": "11-composition-editing",
+    "title": "Композиция и монтаж",
+    "tags": [
+      "Теория",
+      "Практика"
+    ],
+    "thumbnail": "assets/images/topic-composition-sculpted.svg"
   }
 ];

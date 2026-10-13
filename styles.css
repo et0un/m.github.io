@@ -561,3 +561,12 @@ body:not(.editor-page) :is(.lecture-article,.resource-article) p:has(>br:only-ch
 .lecture-page[data-topic="10-dramaturgy"] .explication-table td:nth-child(4){min-width:190px}
 .lecture-page[data-topic="10-dramaturgy"] .explication-table td:last-child{width:180px;min-width:180px}
 .lecture-page[data-topic="10-dramaturgy"] .explication-table svg{display:block;width:150px;height:auto;max-width:none}
+
+
+/* Composition and editing: reference media and comparison table. */
+.lecture-page[data-topic="11-composition-editing"] .reference-gif{width:100%;height:auto;max-height:520px;object-fit:contain;background:#151515}
+.lecture-page[data-topic="11-composition-editing"] .table-wrap{overflow-x:auto;margin:24px 0}
+.lecture-page[data-topic="11-composition-editing"] table{width:100%;border-collapse:collapse;min-width:620px;font-size:.95em}
+.lecture-page[data-topic="11-composition-editing"] th,.lecture-page[data-topic="11-composition-editing"] td{padding:14px 16px;border:1px solid #3b3b3b;text-align:left;vertical-align:top}
+.lecture-page[data-topic="11-composition-editing"] th{background:#202020;font-weight:600}
+.lecture-page[data-topic="11-composition-editing"] .lecture-section-links{font-size:.95em}
