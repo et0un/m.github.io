@@ -81,5 +81,14 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-render-sculpted.svg"
+  },
+  {
+    "slug": "10-dramaturgy",
+    "title": "Основы драматургии",
+    "tags": [
+      "Теория",
+      "Практика"
+    ],
+    "thumbnail": "assets/images/topic-dramaturgy-sculpted.svg"
   }
 ];
