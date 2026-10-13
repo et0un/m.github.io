@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="450"
+   height="300"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   version="1.0"
+   sodipodi:docbase="/home/ultimatum/photo"
+   sodipodi:docname="3x3.svg"
+   inkscape:export-filename="/home/ultimatum/3x3.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="1"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.3485294"
+     inkscape:cx="237.14286"
+     inkscape:cy="128.57143"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     gridspacingx="50px"
+     inkscape:grid-bbox="true"
+     inkscape:grid-points="true"
+     guidetolerance="1px"
+     gridspacingy="50px"
+     inkscape:window-width="1014"
+     inkscape:window-height="687"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:showpageshadow="false"
+     borderlayer="top" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>3*3</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>sub</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Public Domain</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <cc:license
+           rdf:resource="http://web.resource.org/cc/PublicDomain" />
+        <dc:description>a draw to explain the 3*3 rule of photography</dc:description>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://web.resource.org/cc/PublicDomain">
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Reproduction" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Distribution" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ff0000;stroke-width:2.02825427;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 151.75284,300 C 151.01413,0.032524557 151.01413,0.032524557 151.01413,0.032524557"
+       id="path1309"
+       sodipodi:nodetypes="cc" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path2184"
+       d="M 303.1273,299.9488 C 302.38859,-2.3619995e-14 302.38859,-2.3619995e-14 302.38859,-2.3619995e-14"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ff0000;stroke-width:2.02819109;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ff0000;stroke-width:1.99616432;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0.99616808,100.52345 C 450.01048,101.26499 450.01048,101.26499 450.01048,101.26499"
+       id="path2194" />
+    <path
+       id="path3069"
+       d="M 2.731043,201 C 451.74535,201.74154 451.74535,201.74154 451.74535,201.74154"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ff0000;stroke-width:1.99616432;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.78431373"
+       id="path3079"
+       sodipodi:cx="107.15376"
+       sodipodi:cy="129.81461"
+       sodipodi:rx="7.7862597"
+       sodipodi:ry="7.7862597"
+       d="M 114.94002 129.81461 A 7.7862597 7.7862597 0 1 1  99.367503,129.81461 A 7.7862597 7.7862597 0 1 1  114.94002 129.81461 z"
+       transform="translate(44.49291,-28.92039)" />
+    <path
+       transform="translate(195.7688,-28.92039)"
+       d="M 114.94002 129.81461 A 7.7862597 7.7862597 0 1 1  99.367503,129.81461 A 7.7862597 7.7862597 0 1 1  114.94002 129.81461 z"
+       sodipodi:ry="7.7862597"
+       sodipodi:rx="7.7862597"
+       sodipodi:cy="129.81461"
+       sodipodi:cx="107.15376"
+       id="path3954"
+       style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.78431373"
+       sodipodi:type="arc" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.78431373"
+       id="path3956"
+       sodipodi:cx="107.15376"
+       sodipodi:cy="129.81461"
+       sodipodi:rx="7.7862597"
+       sodipodi:ry="7.7862597"
+       d="M 114.94002 129.81461 A 7.7862597 7.7862597 0 1 1  99.367503,129.81461 A 7.7862597 7.7862597 0 1 1  114.94002 129.81461 z"
+       transform="translate(195.7688,71.93021)" />
+    <path
+       transform="translate(45.23446,71.93021)"
+       d="M 114.94002 129.81461 A 7.7862597 7.7862597 0 1 1  99.367503,129.81461 A 7.7862597 7.7862597 0 1 1  114.94002 129.81461 z"
+       sodipodi:ry="7.7862597"
+       sodipodi:rx="7.7862597"
+       sodipodi:cy="129.81461"
+       sodipodi:cx="107.15376"
+       id="path3958"
+       style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.78431373"
+       sodipodi:type="arc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="arrows" />
+</svg>
