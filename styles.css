@@ -540,3 +540,10 @@ body:not(.editor-page) :is(.lecture-article,.resource-article) p:has(>br:only-ch
 }
 
 .resource-page .resource-article h1{color:var(--course-copy-color)}
+
+/* Tables in the rendering lecture. */
+.lecture-page[data-topic="09-render-export"] .table-wrap{overflow-x:auto;margin:22px 0 28px;border:1px solid #333;border-radius:10px}
+.lecture-page[data-topic="09-render-export"] .table-wrap table{width:100%;border-collapse:collapse;min-width:580px;font-size:16px;line-height:1.5}
+.lecture-page[data-topic="09-render-export"] .table-wrap th,.lecture-page[data-topic="09-render-export"] .table-wrap td{padding:14px 18px;text-align:left;vertical-align:top;border-bottom:1px solid #333}
+.lecture-page[data-topic="09-render-export"] .table-wrap th{background:#191919;font-weight:650;color:#ddd}
+.lecture-page[data-topic="09-render-export"] .table-wrap tr:last-child td{border-bottom:0}
