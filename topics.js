@@ -72,5 +72,14 @@ window.COURSE_TOPICS = [
       "Теория"
     ],
     "thumbnail": "assets/images/topic-pipeline-sculpted.svg"
+  },
+  {
+    "slug": "09-render-export",
+    "title": "Рендер и экспорт из After Effects",
+    "tags": [
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-render-sculpted.svg"
   }
 ];
