@@ -57,7 +57,6 @@ window.COURSE_TOPICS = [
     "slug": "07-typography-text",
     "title": "Типографика и анимация текста",
     "tags": [
-      "Актуально",
       "Теория",
       "Практика",
       "Софт"
