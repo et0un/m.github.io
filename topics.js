@@ -77,6 +77,7 @@ window.COURSE_TOPICS = [
     "slug": "09-render-export",
     "title": "Рендер и экспорт из After Effects",
     "tags": [
+      "Актуально",
       "Практика",
       "Софт"
     ],
