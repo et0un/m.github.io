@@ -95,6 +95,7 @@ window.COURSE_TOPICS = [
     "slug": "11-composition-editing",
     "title": "Композиция и монтаж",
     "tags": [
+      "Актуально",
       "Теория",
       "Практика"
     ],
