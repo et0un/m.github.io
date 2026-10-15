@@ -85,6 +85,7 @@ window.COURSE_TOPICS = [
     "slug": "10-dramaturgy",
     "title": "Основы драматургии",
     "tags": [
+      "Актуально",
       "Теория",
       "Практика"
     ],
