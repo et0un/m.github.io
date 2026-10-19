@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Процедурная анимация в Blender и TouchDesigner: Geometry Nodes, инстансинг, поля, шум, звук и симуляции. Схемы, примеры и видеоуроки.">
+  <title>Процедурная анимация: движение по правилам | Моушн-дизайн</title>
+  <link rel="stylesheet" href="../styles.css?v=46">
+
+<style>
+.lecture-page[data-topic="15-procedural-animation"] code{font-family:Consolas,"Courier New",monospace;overflow-wrap:anywhere}
+.lecture-page[data-topic="15-procedural-animation"] p code,.lecture-page[data-topic="15-procedural-animation"] li code{background:#242424;padding:2px 5px;border-radius:4px}
+.proc-flow{margin:26px 0;padding:24px;border:1px solid #373737;border-radius:12px;background:#151515}
+.proc-chain{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.proc-chain>div{flex:1 1 145px;min-width:0;padding:17px 14px;border:1px solid #494949;border-top:3px solid #a5a5a5;border-radius:7px;background:#202020}
+.proc-chain strong,.proc-chain span,.proc-branch span{display:block}.proc-chain strong{font-size:16px;line-height:1.45}.proc-chain span{margin-top:8px;font-size:14px;line-height:1.5;color:#bfbfbf}.proc-chain>b{font-size:22px;color:#aaa}
+.proc-flow figcaption{margin-top:18px;line-height:1.5;font-size:14px}
+.proc-branch{margin-top:18px;padding:16px;border:1px dashed #666;border-radius:7px;font-size:15px;line-height:1.6}.proc-branch code{display:block;margin:8px 0;font-size:14px}.proc-branch span{color:#bbb}
+.proc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}.proc-grid section{padding:20px;border:1px solid #363636;border-radius:10px;background:#151515}.proc-grid h3{margin:0 0 10px!important}.proc-grid p{margin:0!important;font-size:16px;line-height:1.65}
+.lecture-page[data-topic="15-procedural-animation"] h2{scroll-margin-top:85px}
+@media(max-width:600px){.proc-grid{grid-template-columns:1fr}.proc-flow{padding:16px}.proc-chain{flex-direction:column;align-items:stretch}.proc-chain>div{flex:auto}.proc-chain>b{text-align:center;transform:rotate(90deg)}}
+
+</style>
+</head>
+<body class="lecture-page" data-topic="15-procedural-animation">
+<header class="lecture-topbar">
+  <nav aria-label="Главная навигация">
+    <a href="../index.html">Главная</a>
+    <a href="../index.html#about">О курсе</a>
+    <a href="../index.html#links">Ссылки</a>
+    <a class="active" href="../index.html#topics">Темы</a>
+  </nav>
+</header>
+<button class="topics-toggle" type="button" aria-expanded="false"><strong>Темы курса</strong><span>Темы · открыть</span></button>
+<div class="lecture-shell">
+  <aside class="lecture-sidebar" aria-label="Темы курса">
+    <div class="sidebar-head"><span>ТЕМЫ КУРСА</span><button class="sidebar-close" type="button" aria-label="Закрыть список тем">×</button></div>
+    <div id="lectureTopics" class="lecture-topic-list"></div>
+  </aside>
+  <main class="lecture-main">
+    <article class="lecture-article">
+      <div class="lecture-kicker">ТЕМА</div>
+      <h1>Процедурная анимация: движение по правилам</h1>
+      <div class="tags"></div>
+
+
+<p>Представьте сотню плиток, по&nbsp;которым проходит волна. Для каждой можно поставить ключи, подобрать высоту и&nbsp;сдвинуть начало движения. Но что произойдёт, если плиток станет тысяча, а&nbsp;волна должна будет огибать логотип и&nbsp;реагировать на&nbsp;музыку?</p>
+<p><strong>Процедурная анимация описывает, по&nbsp;каким правилам возникает движение.</strong> Мы задаём зависимости, а&nbsp;программа рассчитывает состояние элементов. Один и&nbsp;тот же принцип можно собрать выражением, цепочкой нод или системой модификаторов. В&nbsp;этой лекции разберём его на&nbsp;примере Blender и&nbsp;TouchDesigner.</p>
+
+<h2 id="rules">От&nbsp;движения объекта к&nbsp;устройству системы</h2>
+<p>В&nbsp;прошлой теме выражение связывало отдельные свойства: один слой следовал за&nbsp;другим, копии получали задержку, камера меняла фокус. Теперь будем мыслить целой системой: где появляются элементы, чем они отличаются и&nbsp;как ведут себя вместе.</p>
+<figure class="proc-flow"><div class="proc-chain"><div><strong>Источник</strong><span>точки, поверхность, текст</span></div><b aria-hidden="true">→</b><div><strong>Правило</strong><span>время, расстояние, шум</span></div><b aria-hidden="true">→</b><div><strong>Изменение</strong><span>позиция, масштаб, цвет</span></div><b aria-hidden="true">→</b><div><strong>Изображение</strong><span>объекты, материал, свет</span></div></div><figcaption>Сначала определяем, откуда берутся данные и&nbsp;что они меняют. Затем собираем изображение.</figcaption></figure>
+<p>Например, у&nbsp;волны есть расположение точек, форма колебания, скорость и&nbsp;высота. Материал, свет и&nbsp;камера делают эту систему металлической поверхностью, мягкой тканью или экранной графикой. Алгоритм может быть общим, а&nbsp;визуальный характер получится разным.</p>
+<p>Ключи при этом остаются полезны. Можно вручную анимировать один параметр «сила движения», а&nbsp;правило распределит его по&nbsp;всем объектам. Так легче соединить точную режиссуру появления и&nbsp;кульминации с&nbsp;большим количеством деталей.</p>
+<p>Процедурность не&nbsp;обязательно означает случайность. Ровная решётка и&nbsp;точно повторяющаяся волна тоже процедурны. И&nbsp;не&nbsp;всякая процедурная система реагирует на&nbsp;зрителя: интерактивность появляется, когда её поведение связано с&nbsp;внешним вводом.</p>
+
+<h3>Где это пригодится в&nbsp;моушн-дизайне</h3>
+<p><strong>Брендовые паттерны.</strong> Из&nbsp;одного модуля можно собрать поле, которое уплотняется вокруг знака, меняет направление или раскрывается волной. Для серии носителей сохраняем правило, меняем формат и&nbsp;плотность.</p>
+<p><strong>Продуктовая и&nbsp;абстрактная графика.</strong> Ряды деталей, колеблющиеся поверхности, растущие линии и&nbsp;деформации помогают показать свойства материала или идею продукта. Важно выбрать, что движение сообщает: гибкость, энергию, точность или сопротивление.</p>
+<p><strong>Сценические экраны и&nbsp;инсталляции.</strong> Система может работать длительное время и&nbsp;менять состояние от&nbsp;звука, позиции человека или команды оператора. Здесь нужно продумать и&nbsp;спокойное поведение, когда входных событий нет.</p>
+
+<h2 id="data">Из&nbsp;чего складывается правило</h2>
+<p>Для начала достаточно четырёх источников: <strong>номера элемента, его положения, времени и&nbsp;входных данных</strong>. Это разные способы ответить на&nbsp;вопрос «почему именно эта копия движется именно так?».</p>
+<div class="proc-grid"><section><h3>Номер</h3><p>Первая плитка начинает раньше второй. Чётные элементы повёрнуты в&nbsp;одну сторону, нечётные в&nbsp;другую. Номер удобен для последовательностей.</p></section><section><h3>Положение</h3><p>Чем ближе объект к&nbsp;центру, тем он крупнее. Справа волна поднимается позже, чем слева. Расстояние связывает поведение с&nbsp;пространством.</p></section><section><h3>Время</h3><p>Фаза колебания постепенно меняется. Даже неподвижная решётка превращается в&nbsp;волну, если правило зависит от&nbsp;времени.</p></section><section><h3>Входной сигнал</h3><p>Громкость меняет амплитуду, курсор притягивает элементы, кнопка запускает раскрытие. Сначала обрабатываем вход, затем связываем его с&nbsp;движением.</p></section></div>
+<p>Номер и&nbsp;положение дают разный результат. Если переставить точки, порядок по&nbsp;номеру может измениться, а&nbsp;зависимость от&nbsp;расстояния до&nbsp;центра останется пространственной. При изменении количества элементов проверяйте, сохраняется ли нужная последовательность.</p>
+
+<h3>Поле: одно правило для множества элементов</h3>
+<p>Представьте невидимый холм. В&nbsp;каждой точке у&nbsp;него своя высота. Если прочитать эту высоту и&nbsp;передать её в&nbsp;масштаб копии, получится поле крупных и&nbsp;мелких объектов. Если передать в&nbsp;смещение, появится рельеф.</p>
+<p>В&nbsp;Geometry Nodes <strong>поле, или field, вычисляет значение в&nbsp;контексте элементов геометрии</strong>. Например, Position позволяет получить положение каждой точки, а&nbsp;расстояние до&nbsp;выбранного объекта превратить в&nbsp;коэффициент влияния. Это не&nbsp;отдельная сохранённая картинка: значение вычисляется там, где оно нужно. Подробности: <a href="https://docs.blender.org/manual/en/latest/modeling/geometry_nodes/fields.html" target="_blank" rel="noopener noreferrer">поля в&nbsp;руководстве Blender</a>.</p>
+<figure class="proc-flow"><div class="proc-chain"><div><strong>Расстояние до&nbsp;центра</strong><span>близко / далеко</span></div><b aria-hidden="true">→</b><div><strong>Диапазон 0…1</strong><span>границы и&nbsp;плавный спад</span></div><b aria-hidden="true">→</b><div><strong>Сила воздействия</strong><span>масштаб или смещение</span></div></div><figcaption>Область влияния позволяет менять часть системы, сохраняя остальные элементы спокойными.</figcaption></figure>
+<p>Полезно отделять <strong>форму влияния</strong> от&nbsp;<strong>его силы</strong>. Например, расстояние определяет, какие точки затронуты, а&nbsp;отдельный параметр задаёт высоту подъёма. Тогда область можно перемещать, увеличивать и&nbsp;анимировать независимо от&nbsp;амплитуды.</p>
+
+<h2 id="blender">Blender: движение через Geometry Nodes</h2>
+<p>Geometry Nodes позволяет создавать и&nbsp;изменять геометрию цепочкой операций. Одна нода строит точки, другая меняет их положение, третья размещает на&nbsp;них объекты. Соединения показывают, какие данные поступают на&nbsp;вход следующего действия.</p>
+<p>Сначала читайте путь геометрии от&nbsp;начала к&nbsp;выходу, затем ветки, которые управляют параметрами. Вход для геометрии, число и&nbsp;вектор выполняют разные роли. Вектор в&nbsp;данном случае можно представить как три числа X, Y и&nbsp;Z: положение или направление в&nbsp;пространстве.</p>
+<p><strong>Инстансы</strong> позволяют размещать множество экземпляров исходной геометрии. Они удобны для повторений и&nbsp;обычно экономнее множества независимых копий. При этом большой объём исходного меша, материалы и&nbsp;тени всё равно влияют на&nbsp;скорость. Realize Instances нужен, когда дальнейшая операция требует обычной геометрии; добавлять его везде заранее не&nbsp;стоит.</p>
+
+<h3>Собираем поле с&nbsp;волной</h3>
+<p>Сделаем решётку небольших сфер. Начнём с&nbsp;простого материала и&nbsp;одного источника света, чтобы оценивать движение без отвлекающих эффектов.</p>
+<ol>
+<li>Добавьте объект и&nbsp;создайте для него новую группу Geometry Nodes. В&nbsp;этой группе будем генерировать собственную геометрию, поэтому исходную связь Group Input с&nbsp;Group Output можно убрать.</li>
+<li>Создайте <strong>Grid</strong>: размер по&nbsp;X и&nbsp;Y около 8, число вершин по&nbsp;каждой оси 20. Получится 400 точек размещения.</li>
+<li>Соедините Grid с&nbsp;<strong>Set Position</strong>, затем с&nbsp;входом Points ноды <strong>Instance on Points</strong>. Результат передайте в&nbsp;Group Output.</li>
+<li>Добавьте <strong>Ico Sphere</strong> с&nbsp;небольшим радиусом, например 0,1. Её выход соедините с&nbsp;входом Instance. Это форма, которую будем повторять.</li>
+<li>Создайте <strong>Position → Separate XYZ</strong>. Координату X умножьте на&nbsp;1,5 через Math в&nbsp;режиме Multiply. Это пространственная частота волны.</li>
+<li>У&nbsp;<strong>Scene Time</strong> возьмите Seconds и&nbsp;умножьте на&nbsp;2. Вычтите это значение из&nbsp;результата предыдущего шага через Math в&nbsp;режиме Subtract.</li>
+<li>Передайте разность в&nbsp;Math с&nbsp;операцией <strong>Sine</strong>, затем умножьте результат на&nbsp;0,5. Это ограничит высоту колебания.</li>
+<li>Подайте значение в&nbsp;Z ноды <strong>Combine XYZ</strong>, оставив X и&nbsp;Y равными нулю. Её вектор подключите к&nbsp;<strong>Offset</strong> у&nbsp;Set Position. При воспроизведении таймлайна по&nbsp;решётке пойдёт волна.</li>
+</ol>
+<figure class="proc-flow"><div class="proc-chain"><div><strong>Grid</strong><span>где находятся точки</span></div><b aria-hidden="true">→</b><div><strong>Set Position</strong><span>высота по&nbsp;правилу</span></div><b aria-hidden="true">→</b><div><strong>Instance on Points</strong><span>сфера на&nbsp;каждой точке</span></div><b aria-hidden="true">→</b><div><strong>Group Output</strong><span>готовая геометрия</span></div></div><div class="proc-branch"><strong>Ветка управления Offset:</strong><code>sin(X × 1.5 − Seconds × 2) × 0.5 → Combine XYZ: Z</code><span>Сначала считаем высоту для каждой точки, затем используем её для смещения.</span></div><figcaption>Схема показывает логику соединений. Формулу не&nbsp;нужно вводить в&nbsp;ноду целиком: она собрана отдельными Math-операциями.</figcaption></figure>
+<p><strong>Что меняют параметры?</strong> Амплитуда 0,5 задаёт высоту. Множитель X определяет, насколько часто повторяются гребни. Множитель времени определяет скорость изменения фазы. Знак перед временем меняет направление распространения. Аргумент Sine здесь измеряется в&nbsp;радианах.</p>
+<p>Если все сферы поднимаются одновременно, проверьте, присутствует ли в&nbsp;формуле координата X. Если решётка сдвигается целиком, возможно, в&nbsp;Set Position приходит одно общее число вместо поля, зависящего от&nbsp;положения точек.</p>
+<p>Оставьте сцену неподвижной и&nbsp;поменяйте форму сферы на&nbsp;плитку. Затем измените камеру и&nbsp;расстояния между копиями. Даже без нового алгоритма характер изображения станет другим. Это хороший способ понять, где заканчивается вычисление и&nbsp;начинается композиция.</p>
+
+<h3>От&nbsp;волны к&nbsp;направлению и&nbsp;притяжению</h3>
+<p>Вместо высоты можно рассчитывать поворот к&nbsp;выбранному объекту. Например, поле стрелок следит за&nbsp;Empty, а&nbsp;перемещение Empty создаёт общую волну переориентации. Важно различать направление взгляда и&nbsp;перемещение: объект может смотреть на&nbsp;цель, оставаясь на&nbsp;месте.</p>
+<p>В&nbsp;туториале PIXXO 3D разбирается направление объектов к&nbsp;цели средствами Geometry Nodes. Следите за&nbsp;тем, как вычисляется вектор к&nbsp;цели и&nbsp;какая локальная ось объекта должна на&nbsp;неё смотреть. Именно неверно выбранная ось часто создаёт неожиданный поворот.</p>
+<figure class="embedded-media"><div class="video-frame"><iframe src="https://www.youtube.com/embed/1Yoxd84iflU" title="PIXXO 3D. GeoNodes: Make Objects Point Towards Target, 2025. Направление объектов к цели." loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><figcaption>PIXXO 3D. GeoNodes: Make Objects Point Towards Target, 2025. Направление объектов к&nbsp;цели. <a href="https://www.youtube.com/watch?v=1Yoxd84iflU" target="_blank" rel="noopener noreferrer">Смотреть на&nbsp;YouTube</a>.</figcaption></figure>
+<p>Попробуйте мысленно заменить стрелки буквами, лепестками или пластинами. Правило останется прежним, но исходная форма сильно изменит смысл движения.</p>
+
+<h2 id="touchdesigner">TouchDesigner: движение через данные</h2>
+<p>В&nbsp;TouchDesigner удобно собирать системы, которые пересчитываются во&nbsp;время работы и&nbsp;принимают внешние сигналы. Это могут быть звук, координаты курсора, MIDI или данные датчиков. Но начать можно с&nbsp;обычного ряда точек и&nbsp;математической волны.</p>
+<p><strong>CHOP</strong> работает с&nbsp;числовыми каналами, <strong>SOP</strong> с&nbsp;геометрией, <strong>TOP</strong> с&nbsp;изображениями, <strong>COMP</strong> объединяет компоненты системы. В&nbsp;современных версиях также есть <strong>POP</strong> для обработки данных точек на&nbsp;GPU. Для первого примера достаточно CHOP, геометрии и&nbsp;рендера.</p>
+<p>Один канал может содержать много отсчётов, или samples. В&nbsp;нашем примере каждый отсчёт будет описывать одну копию. Канал <code>tx</code> задаст координаты X всех экземпляров, а&nbsp;<code>ty</code> их координаты Y. Это пространственное распределение данных: не&nbsp;следует путать его с&nbsp;записью движения одного объекта во&nbsp;времени.</p>
+<p>Официальное видео Derivative показывает базовый принцип инстансинга и&nbsp;связь данных с&nbsp;параметрами геометрии. Учебные файлы доступны на&nbsp;<a href="https://learn.derivative.ca/courses/200-intermediate/lessons/201-converting-data-types-and-instancing/topic/basics-of-instancing/" target="_blank" rel="noopener noreferrer">странице занятия</a>.</p>
+<figure class="embedded-media"><div class="video-frame"><iframe src="https://www.youtube.com/embed/nRV2CtTC3to" title="Derivative. Basics of Instancing, 2024. Как данные управляют множеством экземпляров." loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><figcaption>Derivative. Basics of Instancing, 2024. Как данные управляют множеством экземпляров. <a href="https://www.youtube.com/watch?v=nRV2CtTC3to" target="_blank" rel="noopener noreferrer">Смотреть на&nbsp;YouTube</a>.</figcaption></figure>
+
+<h3>Собираем ряд с&nbsp;волной</h3>
+<ol>
+<li>Создайте <strong>Pattern CHOP</strong> для координат X. Выберите Ramp, задайте Length 40 и&nbsp;назовите канал <code>tx</code>. Через Math CHOP приведите его диапазон к&nbsp;удобной ширине ряда: например, от&nbsp;−5 до&nbsp;5. Исходный диапазон смотрите по&nbsp;значениям канала; From Range должен соответствовать этим значениям.</li>
+<li>Создайте второй <strong>Pattern CHOP</strong>, выберите Sine, задайте тот же Length 40 и&nbsp;имя канала <code>ty</code>. Уменьшите Amplitude примерно до&nbsp;0,5.</li>
+<li>В&nbsp;параметре <strong>Phase</strong> второго Pattern переключитесь в&nbsp;режим Python Expression и&nbsp;введите <code>absTime.seconds * 0.2</code>. Фаза начнёт меняться. Здесь используется абсолютное время приложения, поэтому сброс таймлайна сам по&nbsp;себе не&nbsp;начнёт волну заново.</li>
+<li>Объедините каналы через <strong>Merge CHOP → Null CHOP</strong>. Назовите Null <code>OUT_POINTS</code>. Проверьте, что оба канала содержат по&nbsp;40 отсчётов и&nbsp;не&nbsp;обрезаются режимом Time Slice.</li>
+<li>Добавьте <strong>Geometry COMP</strong>. Внутри него создайте небольшую Sphere SOP, включите у&nbsp;неё Display и&nbsp;Render. Если внутри уже есть стандартная геометрия, замените её, чтобы не&nbsp;получить лишний объект.</li>
+<li>На&nbsp;странице <strong>Instance</strong> у&nbsp;Geometry включите Instancing. В&nbsp;Default Instance OP укажите <code>OUT_POINTS</code>. Для Translate X выберите <code>tx</code>, для Translate Y <code>ty</code>; Z оставьте равным нулю.</li>
+<li>Добавьте Camera COMP, Light COMP и&nbsp;Render TOP. Укажите камеру в&nbsp;Render TOP, включите геометрию в&nbsp;рендер и&nbsp;направьте камеру на&nbsp;ряд. Подберите расстояние камеры и&nbsp;радиус сферы так, чтобы все копии попадали в&nbsp;кадр.</li>
+</ol>
+<figure class="proc-flow"><div class="proc-chain"><div><strong>Pattern: Ramp</strong><span>координаты X → Math</span></div><div><strong>Pattern: Sine</strong><span>координаты Y + время</span></div><b aria-hidden="true">→</b><div><strong>Merge → Null</strong><span>tx и&nbsp;ty, по&nbsp;40 отсчётов</span></div><b aria-hidden="true">→</b><div><strong>Geometry: Instance</strong><span>40 копий одной формы</span></div></div><figcaption>Две ветки данных сходятся в&nbsp;Merge. Geometry читает каждый отсчёт как параметры отдельного экземпляра.</figcaption></figure>
+<p>Length у&nbsp;Pattern CHOP задаёт число отсчётов. Количество циклов волны и&nbsp;её фазу настраиваем отдельно. В&nbsp;Blender мы поднимали точки по&nbsp;Z, здесь по&nbsp;Y: при переносе идеи между программами проверяйте оси, единицы и&nbsp;пространства координат.</p>
+<p>Справка по&nbsp;параметрам: <a href="https://docs.derivative.ca/Pattern_CHOP" target="_blank" rel="noopener noreferrer">Pattern CHOP</a> и&nbsp;<a href="https://docs.derivative.ca/Geometry_COMP" target="_blank" rel="noopener noreferrer">Geometry COMP</a>. Расположение отдельных параметров может различаться между версиями.</p>
+
+<h2 id="variation">Шум, вариативность и&nbsp;управляемый характер</h2>
+<p>Синус задаёт регулярный ритм. <strong>Шум</strong> даёт более нерегулярные изменения, при этом соседние значения могут плавно переходить друг в&nbsp;друга. Это позволяет получить дрейф, рельеф, течение или мягкую деформацию.</p>
+<p>Важно различать две задачи: один раз назначить копиям разные размеры и&nbsp;непрерывно менять их во&nbsp;времени. Для первого нужна стабильная вариация, для второго меняющийся сигнал. Если заново назначать независимые случайные значения каждый кадр, вместо мягкого движения легко получить мерцание.</p>
+<p>В&nbsp;Blender Noise Texture можно использовать как источник чисел для геометрии, а&nbsp;не&nbsp;только как изображение в&nbsp;материале. В&nbsp;TouchDesigner Noise CHOP формирует числовые каналы, Noise TOP создаёт изображение, а&nbsp;Noise POP работает с&nbsp;данными точек. Выбираем оператор по&nbsp;типу данных и&nbsp;задаче.</p>
+<div class="proc-grid"><section><h3>Масштаб</h3><p>Крупные изменения создают медленную общую пластику. Мелкие дают дробную поверхность. Сначала определите главный размер движения.</p></section><section><h3>Амплитуда</h3><p>Большая сила может разрушить силуэт и&nbsp;пересечения. Ограничьте отклонения, особенно рядом с&nbsp;текстом и&nbsp;логотипом.</p></section><section><h3>Скорость</h3><p>Слишком быстрое изменение превращает мягкое течение в&nbsp;беспокойную вибрацию. Скорость должна соответствовать характеру материала.</p></section><section><h3>Повторяемость</h3><p>Seed, исходные данные и&nbsp;способ расчёта помогают воспроизводить вариант. Удобно сохранять их вместе с&nbsp;настройками проекта.</p></section></div>
+<p>Для управляемой композиции можно совместить регулярную основу и&nbsp;небольшое отклонение: ровная решётка плюс мягкий шум положения; общий поворот плюс индивидуальная задержка. Если каждый параметр меняется независимо и&nbsp;с&nbsp;одинаковой силой, зрителю трудно увидеть закономерность.</p>
+
+<h3>Цепная реакция и&nbsp;область влияния</h3>
+<p>Чтобы копии раскрывались от&nbsp;центра к&nbsp;краям, вычисляем расстояние до&nbsp;центра и&nbsp;используем его как задержку. Чтобы раскрытие шло по&nbsp;спирали, понадобится другое описание порядка. В&nbsp;обоих случаях полезен общий параметр прогресса: он управляет моментом запуска, а&nbsp;локальные правила распределяют действие.</p>
+<p>Плавный спад влияния делает переход мягким. Жёсткая граница даёт чёткое разделение на&nbsp;«включено» и&nbsp;«выключено». Выбор зависит от&nbsp;задачи: для технической графики резкое переключение иногда точнее, чем органическое перетекание.</p>
+
+<h2 id="audio">Когда движением управляет звук</h2>
+<p>Аудиореактивность начинается с&nbsp;выбора признака звука. Общая громкость, энергия низких частот и&nbsp;отдельные удары дают разную информацию. Если связать всё с&nbsp;одним сырым сигналом, результат может дёргаться и&nbsp;постоянно перекрывать сам себя.</p>
+<figure class="proc-flow"><div class="proc-chain"><div><strong>Звук</strong><span>трек или вход</span></div><b aria-hidden="true">→</b><div><strong>Анализ</strong><span>уровень, диапазон, удар</span></div><b aria-hidden="true">→</b><div><strong>Обработка</strong><span>диапазон и&nbsp;сглаживание</span></div><b aria-hidden="true">→</b><div><strong>Один параметр</strong><span>сила волны или масштаб</span></div></div><figcaption>Сначала получаем управляемый сигнал. Затем связываем его с&nbsp;выбранным свойством изображения.</figcaption></figure>
+<p>В&nbsp;TouchDesigner удобно начать с&nbsp;инструмента Audio Analysis из&nbsp;Palette. Затем через Math привести значения к&nbsp;нужному диапазону, а&nbsp;через Lag смягчить изменения. Ограничение диапазона защищает композицию от&nbsp;случайных пиков. Подбирайте время сглаживания на&nbsp;слух и&nbsp;по&nbsp;изображению: излишнее сглаживание стирает ритм.</p>
+<p>Например, низкие частоты меняют высоту волны, а&nbsp;спокойный шум добавляет небольшую жизнь между ударами. Цвет и&nbsp;камера при этом остаются устойчивыми. Так видна связь со&nbsp;звуком, но изображение сохраняет структуру.</p>
+<p>В&nbsp;туториале The Interactive &amp; Immersive HQ синусоидальное распределение задаёт положение экземпляров, а&nbsp;звук управляет их размером. Это развитие нашего примера: пространственный рисунок и&nbsp;музыкальная реакция работают как разные слои системы.</p>
+<figure class="embedded-media"><div class="video-frame"><iframe src="https://www.youtube.com/embed/zcPlFsEk-as" title="The Interactive &amp;amp; Immersive HQ. Audio Reactive Visualizers in TouchDesigner, 2025. Волны, инстансинг и связь размера со звуком." loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><figcaption>The Interactive &amp; Immersive HQ. Audio Reactive Visualizers in TouchDesigner, 2025. Волны, инстансинг и&nbsp;связь размера со&nbsp;звуком. <a href="https://www.youtube.com/watch?v=zcPlFsEk-as" target="_blank" rel="noopener noreferrer">Смотреть на&nbsp;YouTube</a>.</figcaption></figure>
+<p>Посмотрите, что в&nbsp;изображении остаётся постоянным, когда музыка затихает. Достаточно ли выразителен силуэт без реакции на&nbsp;звук? Какой параметр лучше поддерживает удар: размер, расстояние между копиями или высота волны?</p>
+
+<h2 id="simulation">Когда системе нужна память</h2>
+<p>У&nbsp;нашей синусоидальной волны положение можно вычислить непосредственно для любого момента времени. Достаточно знать координату точки и&nbsp;время. Но у&nbsp;хвоста, который догоняет голову, состояние зависит ещё и&nbsp;от&nbsp;того, где звенья были раньше.</p>
+<p><strong>Симуляция</strong> последовательно обновляет состояние. На&nbsp;результат влияют начальные условия и&nbsp;предыдущие шаги. В&nbsp;Blender для таких задач есть Simulation Zone. В&nbsp;TouchDesigner похожая необходимость помнить предыдущий результат возникает в&nbsp;системах с&nbsp;feedback, например при накоплении следов изображения. Это разные механизмы, но в&nbsp;обоих случаях важно понимать, что хранится между кадрами.</p>
+<p>Отсюда практическое отличие: произвольный переход на&nbsp;таймлайне не&nbsp;всегда равен последовательному проигрыванию. Для повторяемого вывода могут понадобиться сброс, прогрев и&nbsp;кэширование или запекание симуляции. Простую зависимость от&nbsp;времени не&nbsp;обязательно усложнять системой с&nbsp;памятью.</p>
+<p>Johnny Matthews показывает более сложную процедурную анимацию цепочки, напоминающей хвост или движение рыбы. Здесь важны ограничения расстояния между соседними точками и&nbsp;последовательное обновление системы. Это материал для следующего шага после понимания базовых полей.</p>
+<figure class="embedded-media"><div class="video-frame"><iframe src="https://www.youtube.com/embed/pf3pLSTCmf4" title="Johnny Matthews. Curious about Procedural Animation? Learn with Geometry Nodes in Blender, 2025. Цепочка, ограничения и симуляция движения." loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><figcaption>Johnny Matthews. Curious about Procedural Animation? Learn with Geometry Nodes in Blender, 2025. Цепочка, ограничения и&nbsp;симуляция движения. <a href="https://www.youtube.com/watch?v=pf3pLSTCmf4" target="_blank" rel="noopener noreferrer">Смотреть на&nbsp;YouTube</a>.</figcaption></figure>
+<p>Обратите внимание, какая часть цепочки получает прямое управление, а&nbsp;какая отвечает на&nbsp;него. Как сохранить длину звеньев? Что изменится, если ведущая точка резко поменяет направление? Такие вопросы помогают читать сложную сеть как поведение, а&nbsp;не&nbsp;как набор незнакомых нод.</p>
+
+<h2 id="direction">Как превратить систему в&nbsp;законченный ролик</h2>
+<p>Собранная сеть ещё не&nbsp;определяет выразительность сцены. Решите, где находится главный акцент, как развивается движение и&nbsp;когда зритель должен прочитать форму. У&nbsp;непрерывной генеративной системы тоже могут быть спокойное состояние, нарастание, пик и&nbsp;возвращение.</p>
+<p><strong>Выведите несколько осмысленных контроллеров:</strong> плотность, амплитуду, скорость, масштаб рисунка, центр влияния и&nbsp;общий прогресс. Подписывайте их по&nbsp;смыслу. Параметр «высота волны» понятнее, чем набор не&nbsp;связанных друг с&nbsp;другом Multiply.</p>
+<p>В&nbsp;Blender настройки можно вывести на&nbsp;входы группы Geometry Nodes и&nbsp;анимировать ключами. В&nbsp;TouchDesigner удобно собрать компонент с&nbsp;собственными параметрами и&nbsp;понятными выходами. Внутри сети отделяйте источники, обработку, геометрию и&nbsp;вывод. Это помогает возвращаться к&nbsp;проекту и&nbsp;передавать его другому человеку.</p>
+<p>Для заставки важен фиксированный хронометраж и&nbsp;воспроизводимый финал. Для сценического фона важны длительная работа, переключение состояний и&nbsp;управление в&nbsp;реальном времени. Для интерактивной инсталляции дополнительно нужно поведение при отсутствии зрителя и&nbsp;при потере входного сигнала.</p>
+<p><strong>Петля требует согласования всех меняющихся частей.</strong> У&nbsp;синуса достаточно правильно выбрать длительность периода. Произвольный шум и&nbsp;симуляция сами по&nbsp;себе не&nbsp;обязаны замыкаться. Проверяйте стык движения, материала и&nbsp;камеры, а&nbsp;при экспорте не&nbsp;дублируйте одинаковый первый кадр в&nbsp;конце.</p>
+
+<h3>Что проверять, если результат не&nbsp;работает</h3>
+<ol>
+<li><strong>Данные.</strong> Есть ли нужные каналы и&nbsp;точки, совпадает ли их количество? Что действительно выходит из&nbsp;каждой ветки?</li>
+<li><strong>Диапазон.</strong> Не&nbsp;стал ли масштаб нулевым, отрицательным или слишком большим? Не&nbsp;переместились ли копии за&nbsp;пределы кадра?</li>
+<li><strong>Пространство.</strong> Где находится центр, какая ось считается вертикальной, в&nbsp;локальных или мировых координатах выполняется операция?</li>
+<li><strong>Время.</strong> Используется таймлайн или абсолютный счётчик? Требует ли система последовательного расчёта и&nbsp;сброса?</li>
+<li><strong>Вывод.</strong> Выбраны ли камера, геометрия и&nbsp;нужный выход? В&nbsp;TouchDesigner также проверьте флаги Display и&nbsp;Render.</li>
+<li><strong>Нагрузка.</strong> Проверьте систему на&nbsp;рабочем количестве копий и&nbsp;целевом разрешении. Инстансинг помогает с&nbsp;геометрией, но тяжёлые материалы, свет, прозрачности и&nbsp;постобработка всё равно требуют ресурсов.</li>
+</ol>
+<p>Начинайте с&nbsp;десятка простых объектов и&nbsp;одного правила. Когда оно работает, увеличивайте количество, добавляйте второй слой движения и&nbsp;только затем усложняйте материал и&nbsp;свет. Так легче понять, какое изменение улучшило изображение, а&nbsp;какое скрыло исходную идею.</p>
+
+<h3>Куда двигаться дальше</h3>
+<p>В&nbsp;Blender можно развивать работу с&nbsp;кривыми, распределением по&nbsp;поверхности, масками влияния и&nbsp;симуляциями. В&nbsp;TouchDesigner перейти к&nbsp;данным изображения, частицам и&nbsp;POPs. Начало работы с&nbsp;шумом в&nbsp;новой семье операторов разобрано в&nbsp;<a href="https://learn.derivative.ca/courses/100-fundamentals/lessons/109-pops-working-with-points/topic/working-with-the-noise-pop/" target="_blank" rel="noopener noreferrer">официальном занятии Working with the Noise POP</a>.</p>
+<p>Для справки по&nbsp;устройству сети пригодятся <a href="https://docs.blender.org/manual/en/latest/modeling/geometry_nodes/introduction.html" target="_blank" rel="noopener noreferrer">введение в&nbsp;Geometry Nodes</a> и&nbsp;<a href="https://docs.derivative.ca/Getting_started" target="_blank" rel="noopener noreferrer">руководство по&nbsp;началу работы с&nbsp;TouchDesigner</a>. Видеоматериалы в&nbsp;этой лекции на&nbsp;английском; названия нод оставлены как в&nbsp;интерфейсе, чтобы их было проще находить.</p>
+
+      <nav class="lecture-pagination" aria-label="Навигация по лекциям">
+        <a id="prevLecture" href="#">← <span>Предыдущая тема</span></a>
+        <a id="nextLecture" href="#"><span>Следующая тема</span> →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<div class="sidebar-backdrop" aria-hidden="true"></div>
+<script src="../topics.js?v=50"></script>
+<script src="../lecture.js?v=26"></script>
+<script src="../site-settings.js?v=20"></script>
+<script src="../course-design.js?v=21"></script>
+</body>
+</html>
