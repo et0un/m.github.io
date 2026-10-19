@@ -570,3 +570,14 @@ body:not(.editor-page) :is(.lecture-article,.resource-article) p:has(>br:only-ch
 .lecture-page[data-topic="11-composition-editing"] th,.lecture-page[data-topic="11-composition-editing"] td{padding:14px 16px;border:1px solid #3b3b3b;text-align:left;vertical-align:top}
 .lecture-page[data-topic="11-composition-editing"] th{background:#202020;font-weight:600}
 .lecture-page[data-topic="11-composition-editing"] .lecture-section-links{font-size:.95em}
+
+/* Readable reference tables for textures and effects. */
+.lecture-page[data-topic="12-textures-effects"] .table-wrap{overflow-x:auto;margin:24px 0 32px;border:1px solid #363636;border-radius:10px}
+.lecture-page[data-topic="12-textures-effects"] .table-wrap table{width:100%;min-width:680px;border-collapse:collapse;font-size:16px;line-height:1.55}
+.lecture-page[data-topic="12-textures-effects"] .table-wrap th,.lecture-page[data-topic="12-textures-effects"] .table-wrap td{padding:16px 20px;text-align:left;vertical-align:top;border-bottom:1px solid #333}
+.lecture-page[data-topic="12-textures-effects"] .table-wrap th{background:#1c1c1c;color:inherit;font-weight:650}
+.lecture-page[data-topic="12-textures-effects"] .table-wrap td{background:#111}
+.lecture-page[data-topic="12-textures-effects"] .table-wrap th:first-child,.lecture-page[data-topic="12-textures-effects"] .table-wrap td:first-child{width:21%}
+.lecture-page[data-topic="12-textures-effects"] .table-wrap th:nth-child(2),.lecture-page[data-topic="12-textures-effects"] .table-wrap td:nth-child(2){width:43%}
+.lecture-page[data-topic="12-textures-effects"] .table-wrap tbody tr:last-child td{border-bottom:0}
+@media(max-width:700px){.lecture-page[data-topic="12-textures-effects"] .table-wrap th,.lecture-page[data-topic="12-textures-effects"] .table-wrap td{padding:12px 16px}}
