@@ -117,5 +117,14 @@ window.COURSE_TOPICS = [
       "Практика"
     ],
     "thumbnail": "assets/images/topic-identity-sculpted.svg"
+  },
+  {
+    "slug": "14-expressions",
+    "title": "Экспрешены: связи, контроллеры и камера",
+    "tags": [
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-expressions-sculpted.svg"
   }
 ];
