@@ -126,5 +126,14 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-expressions-sculpted.svg"
+  },
+  {
+    "slug": "15-procedural-animation",
+    "title": "Процедурная анимация: движение по правилам",
+    "tags": [
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-procedural-sculpted.svg"
   }
 ];
