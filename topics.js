@@ -112,7 +112,7 @@ window.COURSE_TOPICS = [
   },
   {
     "slug": "13-motion-identity",
-    "title": "Моушн-айдентика: как движется бренд",
+    "title": "Моушн-айдентика",
     "tags": [
       "Практика"
     ],
