@@ -109,5 +109,13 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-textures-sculpted.svg"
+  },
+  {
+    "slug": "13-motion-identity",
+    "title": "Моушн-айдентика: как движется бренд",
+    "tags": [
+      "Практика"
+    ],
+    "thumbnail": "assets/images/topic-identity-sculpted.svg"
   }
 ];
