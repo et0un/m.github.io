@@ -100,5 +100,15 @@ window.COURSE_TOPICS = [
       "Практика"
     ],
     "thumbnail": "assets/images/topic-composition-sculpted.svg"
+  },
+  {
+    "slug": "12-textures-effects",
+    "title": "Текстуры и эффекты: как сделать изображение выразительнее",
+    "tags": [
+      "Актуально",
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-textures-sculpted.svg"
   }
 ];
