@@ -114,7 +114,7 @@ window.COURSE_TOPICS = [
     "slug": "13-motion-identity",
     "title": "Моушн-айдентика",
     "tags": [
-      "Практика"
+      "Теория"
     ],
     "thumbnail": "assets/images/topic-identity-sculpted.svg"
   },
