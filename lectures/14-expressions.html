@@ -33,22 +33,22 @@
       <p class="lecture-section-links"><a href="#start">Первые строки</a> · <a href="#nulls">Нулевые объекты</a> · <a href="#motion">Движение по&nbsp;правилу</a> · <a href="#logic">Связи и&nbsp;задержки</a> · <a href="#camera">Камера</a> · <a href="#rigs">Большие выражения</a> · <a href="#library">Библиотеки и&nbsp;ошибки</a></p>
       <h2 id="start">Первые строки: где писать и&nbsp;что возвращать</h2>
       <p>Создайте простую композицию с&nbsp;фигурой. Раскройте <em>Transform → Opacity</em> и&nbsp;нажмите <kbd>Alt</kbd> + щелчок по&nbsp;секундомеру в&nbsp;Windows или <kbd>Option</kbd> + щелчок в&nbsp;macOS. Появится поле выражения. Замените его содержимое одной строкой:</p>
-      <pre><code class="language-javascript" data-example="constant">100</code></pre>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="constant">100</code></pre>
       <p>Теперь Opacity получает значение 100. Замените его на&nbsp;30: слой станет полупрозрачным. Последнее вычисленное значение выражения становится результатом свойства. Чтобы временно сравнить результат с&nbsp;обычной анимацией, отключите выражение кнопкой <em>=</em> рядом с&nbsp;его строкой.</p>
       <p>Для&nbsp;примеров используйте современный движок <em>JavaScript</em>: <em>File → Project Settings → Expressions</em>. Пишем обычные прямые кавычки, а&nbsp;в&nbsp;дробных числах ставим точку: <code>0.5</code>. <a href="https://helpx.adobe.com/ru/after-effects/desktop/work-with-expressions/expression-basics/expression-basics.html" target="_blank" rel="noopener noreferrer">Основы выражений в&nbsp;справке Adobe</a>.</p>
       <h3>Число, координаты и&nbsp;исходное значение</h3>
       <p>Свойству нужно вернуть данные подходящего типа. <em>Rotation</em> и&nbsp;<em>Opacity</em> принимают число. <em>Position</em> двумерного слоя принимает пару <code>[x, y]</code>, трёхмерного слоя принимает тройку <code>[x, y, z]</code>. У&nbsp;цвета четыре компонента: красный, зелёный, синий и&nbsp;альфа.</p>
       <p><code>value</code> означает значение свойства до&nbsp;вычисления выражения, с&nbsp;учётом его ключей. Поэтому можно сохранить исходную анимацию и&nbsp;добавить к&nbsp;ней новое поведение. На&nbsp;<strong>Rotation двумерного слоя</strong> попробуйте:</p>
-      <pre><code class="language-javascript" data-example="rotation">value + (time - inPoint) * 30;</code></pre>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="rotation">value + (time - inPoint) * 30;</code></pre>
       <p><code>time</code> обозначает время композиции в&nbsp;секундах, <code>inPoint</code> начало слоя. Разность между ними позволяет отсчитывать движение от&nbsp;начала слоя. Число 30 задаёт скорость в&nbsp;градусах в&nbsp;секунду. Если у&nbsp;Rotation есть ключи, вращение добавится к&nbsp;ним.</p>
       <p>Для&nbsp;<strong>Position двумерного слоя</strong> можно записать смещение на&nbsp;100 пикселей вправо:</p>
-      <pre><code class="language-javascript" data-example="offset">[value[0] + 100, value[1]];</code></pre>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="offset">[value[0] + 100, value[1]];</code></pre>
       <p><code>value[0]</code> берёт X, <code>value[1]</code> берёт Y. Нумерация компонентов начинается с&nbsp;нуля. Здесь нужен весь Position: если вы включили <em>Separate Dimensions</em>, отдельное свойство X Position ожидает число, а&nbsp;не пару координат.</p>
       <h3>Связать два свойства без&nbsp;набора кода вручную</h3>
       <p>Назовите первую фигуру <code>LEAD</code>. На&nbsp;её Rotation создайте пару ключей. У&nbsp;второй фигуры откройте выражение Rotation и&nbsp;перетащите спираль <em>Expression pick whip</em> на&nbsp;Rotation слоя LEAD. After Effects сформирует ссылку:</p>
-      <pre><code class="language-javascript" data-example="link">thisComp.layer("LEAD").transform.rotation;</code></pre>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="link">thisComp.layer("LEAD").transform.rotation;</code></pre>
       <p>Вторая фигура повторит угол первой. Если перед ссылкой поставить минус, она станет вращаться в&nbsp;противоположную сторону:</p>
-      <pre><code class="language-javascript" data-example="opposite">-thisComp.layer("LEAD").transform.rotation;</code></pre>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="opposite">-thisComp.layer("LEAD").transform.rotation;</code></pre>
       <p>Здесь <code>thisComp</code> означает текущую композицию, <code>layer("LEAD")</code> находит слой по&nbsp;имени, а&nbsp;<code>transform.rotation</code> обращается к&nbsp;его свойству. Имена чувствительны к&nbsp;написанию. У&nbsp;слоя с&nbsp;выражением сохраняются собственные Position и&nbsp;Scale: мы связали только угол.</p>
       <h2 id="nulls">Нулевой объект как центр управления</h2>
       <p><strong>Нулевой объект</strong> (Null Object) не&nbsp;виден в&nbsp;итоговом рендере, но&nbsp;имеет трансформации и&nbsp;может хранить управляющие эффекты. Создайте его через <em>Layer → New → Null Object</em> и&nbsp;назовите <code>CTRL</code>.</p>
@@ -64,31 +64,31 @@
       <figure class="expr-diagram"><p><strong>Родительская связь</strong><br>CTRL → трансформации группы фигур</p><p><strong>Связь через выражения</strong><br>CTRL / Size → Scale выбранных слоёв</p><figcaption>В&nbsp;первом случае наследуются трансформации, во&nbsp;втором свойства получают выбранное управляющее значение.</figcaption></figure>
       <h3>Контроллеры: менять нужные параметры</h3>
       <p>Выделите CTRL и&nbsp;добавьте <em>Effect → Expression Controls → Slider Control</em>. Переименуйте сам эффект в&nbsp;<code>Size</code> и&nbsp;поставьте значение 100. На&nbsp;<strong>Scale двумерной фигуры</strong> запишите:</p>
-      <pre><code class="language-javascript" data-example="slider">var s = thisComp.layer("CTRL").effect("Size")(1);
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="slider">var s = thisComp.layer("CTRL").effect("Size")(1);
       [s, s];</code></pre>
       <p>Ползунок теперь управляет масштабом. Тот же эффект можно связать с&nbsp;несколькими слоями. Для&nbsp;3D Scale потребовался бы результат <code>[s, s, s]</code>. Цифра <code>(1)</code> обращается к&nbsp;первому параметру эффекта и&nbsp;помогает не&nbsp;зависеть от&nbsp;перевода слова Slider в&nbsp;интерфейсе.</p>
       <p><em>Slider Control</em> удобен для&nbsp;чисел, <em>Angle Control</em> для&nbsp;угла, <em>Color Control</em> для&nbsp;цвета, <em>Checkbox Control</em> для&nbsp;переключения. Давайте контроллерам понятные имена. В&nbsp;следующих примерах на&nbsp;CTRL будут появляться разные эффекты: каждый добавляйте и&nbsp;переименовывайте перед использованием соответствующего кода. <a href="https://helpx.adobe.com/ru/after-effects/desktop/work-with-expressions/expression-controls/expression-controls.html" target="_blank" rel="noopener noreferrer">Элементы управления выражениями в&nbsp;справке Adobe</a>.</p>
       <h2 id="motion">Движение по&nbsp;правилу: время, случайность и&nbsp;повторение</h2>
       <h3>Wiggle: небольшое непредсказуемое движение</h3>
       <p>На&nbsp;<strong>Position двумерной фигуры</strong> попробуйте:</p>
-      <pre><code class="language-javascript" data-example="wiggle">wiggle(2, 20);</code></pre>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="wiggle">wiggle(2, 20);</code></pre>
       <p>Первое число задаёт частоту колебаний в&nbsp;секунду, второе амплитуду в&nbsp;единицах свойства. На&nbsp;Position это пиксели, на&nbsp;Rotation градусы. Это плавное случайное отклонение вокруг исходного значения, а&nbsp;не регулярная синусоида с&nbsp;точными вершинами.</p>
       <p>Чтобы оставить движение только по&nbsp;вертикали, возьмите Y из&nbsp;результата wiggle, а&nbsp;X сохраните исходным:</p>
-      <pre><code class="language-javascript" data-example="wiggleY">var p = wiggle(2, 20);
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="wiggleY">var p = wiggle(2, 20);
       [value[0], p[1]];</code></pre>
       <p>Вынесем настройки на&nbsp;CTRL. Добавьте два Slider Control с&nbsp;именами <code>Frequency</code> и&nbsp;<code>Amplitude</code>, задайте им значения 2 и&nbsp;20. Выражение для&nbsp;Position:</p>
-      <pre><code class="language-javascript" data-example="wiggleControl">var ctrl = thisComp.layer("CTRL");
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="wiggleControl">var ctrl = thisComp.layer("CTRL");
       var freq = Math.max(0, ctrl.effect("Frequency")(1));
       var amp = Math.max(0, ctrl.effect("Amplitude")(1));
       wiggle(freq, amp);</code></pre>
       <p>Для&nbsp;начала меняйте Frequency как постоянную настройку. Анимировать частоту во&nbsp;времени сложнее, чем просто плавно менять число: это отдельная задача накопления фазы. Зато Amplitude удобно анимировать от&nbsp;нуля до&nbsp;нужной силы, включая и&nbsp;выключая дрожание.</p>
       <h3>LoopOut: повторить уже сделанную анимацию</h3>
       <p>Создайте на&nbsp;Rotation два ключа, например −15° и&nbsp;15°. Затем добавьте:</p>
-      <pre><code class="language-javascript" data-example="loop">loopOut("pingpong");</code></pre>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="loop">loopOut("pingpong");</code></pre>
       <p><code>pingpong</code> проигрывает участок вперёд и&nbsp;назад. Вариант <code>cycle</code> повторяет его с&nbsp;начала. По&nbsp;умолчанию используется участок от&nbsp;первого до&nbsp;последнего ключа; для&nbsp;этого примера нужны минимум два ключа. Следите за&nbsp;стыком: разные начальное и&nbsp;конечное состояния в&nbsp;cycle могут дать скачок. <a href="https://ae-expressions.docsforadobe.dev/objects/property/" target="_blank" rel="noopener noreferrer">Справочник свойств: wiggle, loopOut и&nbsp;valueAtTime</a>.</p>
       <h3>Random: разное значение для&nbsp;каждой копии</h3>
       <p>На&nbsp;Rotation нескольких дубликатов можно поставить:</p>
-      <pre><code class="language-javascript" data-example="random">seedRandom(index, true);
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="random">seedRandom(index, true);
       value + random(-20, 20);</code></pre>
       <p><code>seedRandom(index, true)</code> делает результат воспроизводимым для&nbsp;каждого слоя и&nbsp;независимым от&nbsp;времени. Так можно получить разные постоянные наклоны, сохранив общее направление композиции. <code>index</code> это номер слоя в&nbsp;Timeline. Если переставить слои, значения могут измениться.</p>
       <p>У&nbsp;Plainly есть короткий туториал 2025 года с&nbsp;практическими случаями автоматизации: появлением и&nbsp;исчезновением, связью со&nbsp;скоростью и&nbsp;запуском по&nbsp;маркерам. Он показывает, как небольшое правило заменяет повторяющиеся действия.</p>
@@ -97,13 +97,13 @@
       <h2 id="logic">Управление, условия и&nbsp;задержки</h2>
       <h3>Один ползунок для&nbsp;целого действия</h3>
       <p>Добавьте на&nbsp;CTRL Slider Control с&nbsp;именем <code>Progress</code>. Пусть его диапазон 0–100 управляет ростом фигуры от&nbsp;40% до&nbsp;100%. Выражение на&nbsp;<strong>Scale двумерного слоя</strong>:</p>
-      <pre><code class="language-javascript" data-example="progress">var p = thisComp.layer("CTRL").effect("Progress")(1);
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="progress">var p = thisComp.layer("CTRL").effect("Progress")(1);
       var s = ease(p, 0, 100, 40, 100);
       [s, s];</code></pre>
       <p><code>ease</code> переводит один диапазон в&nbsp;другой и&nbsp;даёт плавное начало и&nbsp;завершение. Анимируйте Progress двумя ключами. Если вместо <code>ease</code> использовать <code>linear</code>, связь внутри диапазона будет линейной. Так один управляющий параметр может раскрывать текст, увеличивать подложку и&nbsp;перемещать знак. <a href="https://ae-expressions.docsforadobe.dev/general/interpolation/" target="_blank" rel="noopener noreferrer">Справочник функций интерполяции</a>.</p>
       <h3>Условие: показать или скрыть</h3>
       <p>Добавьте на&nbsp;CTRL <em>Checkbox Control</em>, переименуйте его в&nbsp;<code>Visible</code>. На&nbsp;Opacity другого слоя:</p>
-      <pre><code class="language-javascript" data-example="checkbox">var on = thisComp.layer("CTRL").effect("Visible")(1);
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="checkbox">var on = thisComp.layer("CTRL").effect("Visible")(1);
       if (on &gt; 0) {
         100;
       } else {
@@ -112,7 +112,7 @@
       <p>Выражение читает переключатель: при&nbsp;включённом флажке возвращает 100, при&nbsp;выключенном 0. Фигурные скобки отделяют ветви условия. Такие связи полезны для&nbsp;версий титра, дополнительной строки или разных состояний шаблона.</p>
       <h3>ValueAtTime: повторить движение с&nbsp;опозданием</h3>
       <p>Анимируйте Position слоя <code>LEAD</code>. Расположите несколько его копий сразу под&nbsp;ним, без&nbsp;других слоёв между ними. Для&nbsp;этого примера все слои должны быть <strong>2D, без&nbsp;родителей, с&nbsp;неразделённым Position</strong>. На&nbsp;Position копий:</p>
-      <pre><code class="language-javascript" data-example="delay">var lead = thisComp.layer("LEAD");
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="delay">var lead = thisComp.layer("LEAD");
       var order = index - lead.index;
       var delay = order * 0.08;
       var p = lead.transform.position.valueAtTime(time - delay);
@@ -128,20 +128,20 @@
       <p>Можно разделить задачи между несколькими нулями. Например, нуль общего перемещения управляет нулём поворота, а&nbsp;тот камерой. Такой риг проще читать, когда каждому уровню назначена одна понятная задача. <a href="https://helpx.adobe.com/ru/after-effects/desktop/work-with-layers/layer-properties/layer-properties.html" target="_blank" rel="noopener noreferrer">Нулевые объекты и&nbsp;родительские связи в&nbsp;справке Adobe</a>.</p>
       <h3>Камера смотрит на&nbsp;цель</h3>
       <p>Теперь сделайте <strong>отдельный пример с&nbsp;Two-Node Camera без&nbsp;родителя</strong>. У&nbsp;неё есть свойство <em>Point of Interest</em>, которое задаёт точку направления взгляда. Создайте 3D-нуль <code>TARGET</code> и&nbsp;поставьте на&nbsp;Point of Interest камеры:</p>
-      <pre><code class="language-javascript" data-example="aim">var target = thisComp.layer("TARGET");
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="aim">var target = thisComp.layer("TARGET");
       target.toWorld(target.anchorPoint);</code></pre>
       <p><code>toWorld</code> переводит точку из&nbsp;локального пространства слоя в&nbsp;мировое. Поэтому камера получает положение цели, даже если сам TARGET связан с&nbsp;другим родителем. Анимируйте TARGET: камера будет менять направление взгляда. Положение камеры при&nbsp;этом задаётся отдельно.</p>
       <p>Не&nbsp;добавляйте этот пример автоматически поверх предыдущего рига: там One-Node Camera и&nbsp;управление поворотом через родителя. Сначала проверьте два подхода по&nbsp;отдельности, затем решайте, какое управление нужно сцене.</p>
       <h3>Подпись следует за&nbsp;объектом в&nbsp;кадре</h3>
       <p>Создайте <strong>2D-текст без&nbsp;родителя</strong>. Он должен указывать на&nbsp;3D-нуль TARGET, оставаясь плоским элементом поверх сцены. На&nbsp;Position текста:</p>
-      <pre><code class="language-javascript" data-example="screenFollow">var target = thisComp.layer("TARGET");
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="screenFollow">var target = thisComp.layer("TARGET");
       var p = target.toComp(target.anchorPoint);
       [p[0] + 60, p[1] - 40];</code></pre>
       <p><code>toComp</code> переводит точку в&nbsp;координаты композиции с&nbsp;учётом активной камеры. Подпись следует за&nbsp;экранным положением объекта, а&nbsp;смещение 60 и&nbsp;−40 оставляет место рядом с&nbsp;ним. Пример рассчитан на&nbsp;цель перед камерой; поведение за&nbsp;её спиной и&nbsp;за&nbsp;краями кадра настраивают отдельно.</p>
       <p>Мировое положение и&nbsp;положение на&nbsp;экране различаются. Для&nbsp;направления камеры выше понадобился <code>toWorld</code>, для&nbsp;подписи на&nbsp;экране нужен <code>toComp</code>. <a href="https://ae-expressions.docsforadobe.dev/layer/layer-space-transforms/" target="_blank" rel="noopener noreferrer">Преобразования пространств в&nbsp;справочнике</a>.</p>
       <h3>Фокус по&nbsp;нулевому объекту</h3>
       <p>На&nbsp;камере включите <em>Depth of Field</em> и&nbsp;подберите Aperture так, чтобы различие резкости было заметно. Создайте 3D-нуль <code>FOCUS</code> в&nbsp;точке, которая должна оставаться резкой. Выражение ставится на&nbsp;<strong>Camera Options → Focus Distance</strong>:</p>
-      <pre><code class="language-javascript" data-example="focus">var target = thisComp.layer("FOCUS");
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="focus">var target = thisComp.layer("FOCUS");
       var cameraPoint = toWorld([0, 0, 0]);
       var focusPoint = target.toWorld(target.anchorPoint);
       var forward = normalize(toWorldVec([0, 0, 1]));
@@ -154,7 +154,7 @@
       <p>Длинное выражение проще читать блоками: сначала ссылки и&nbsp;настройки, затем вычисления, в&nbsp;конце результат. Ниже два учебных примера, в&nbsp;которых соединяются уже знакомые элементы. Их можно собирать по&nbsp;частям, проверяя каждое изменение.</p>
       <h3>Автоматическое появление и&nbsp;исчезновение</h3>
       <p>На&nbsp;CTRL добавьте три Slider Control: <code>Fade In</code> со&nbsp;значением 0.5, <code>Fade Out</code> со&nbsp;значением 0.5 и&nbsp;<code>Max Opacity</code> со&nbsp;значением 100. Выражение ниже ставится на&nbsp;<strong>Opacity</strong> нужных слоёв. Продолжительность появления и&nbsp;исчезновения задаётся в&nbsp;секундах.</p>
-      <pre><code class="language-javascript" data-example="fade">var ctrl = thisComp.layer("CTRL");
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="fade">var ctrl = thisComp.layer("CTRL");
       var wantedIn = Math.max(0, ctrl.effect("Fade In")(1));
       var wantedOut = Math.max(0, ctrl.effect("Fade Out")(1));
       var maximum = clamp(ctrl.effect("Max Opacity")(1), 0, 100);
@@ -183,7 +183,7 @@
       <h3>Сетка с&nbsp;последовательным появлением</h3>
       <p>Создайте новый пример. Поставьте <strong>2D-нуль CTRL без&nbsp;родителя</strong> сразу над&nbsp;группой одинаковых 2D-карточек. Слои карточек идут подряд, не&nbsp;имеют родителей, их Position не&nbsp;разделён. На&nbsp;CTRL добавьте Slider Control с&nbsp;именами и&nbsp;начальными значениями: <code>Columns = 3</code>, <code>Step X = 160</code>, <code>Step Y = 160</code>, <code>Delay = 0.08</code>, <code>Duration = 0.6</code>. Поставьте CTRL в&nbsp;точку начала сетки, например [400, 300].</p>
       <p>Выражение на&nbsp;<strong>Position каждой карточки</strong>:</p>
-      <pre><code class="language-javascript" data-example="grid">var ctrl = thisComp.layer("CTRL");
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="grid">var ctrl = thisComp.layer("CTRL");
       var columns = Math.max(1, Math.round(ctrl.effect("Columns")(1)));
       var stepX = ctrl.effect("Step X")(1);
       var stepY = ctrl.effect("Step Y")(1);
@@ -237,6 +237,6 @@
 <script src="../topics.js?v=50"></script>
 <script src="../lecture.js?v=26"></script>
 <script src="../site-settings.js?v=20"></script>
-<script src="../course-design.js?v=21"></script>
+<script src="../course-design.js?v=22"></script>
 </body>
 </html>

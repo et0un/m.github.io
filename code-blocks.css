@@ -1,0 +1,30 @@
+/* Code block colors are independent of each course's brand accent. */
+.course-code-block{margin:24px 0;border:1px solid #45484f;border-radius:10px;background:#202126;color:#eceef3;overflow:hidden;max-width:100%;text-align:left}
+.course-code-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;background:#292b31;border-bottom:1px solid #45484f;font:13px/1.5 system-ui,sans-serif}
+.course-code-language{color:#d0d3dc}.course-code-actions{display:flex;flex-wrap:wrap;gap:8px}
+.course-code-toolbar button,.code-input-tools button{position:static;margin:0;padding:5px 10px;min-height:30px;border:1px solid #646975;border-radius:5px;background:#34373f;color:#f2f3f7;font:13px/1.4 system-ui,sans-serif;cursor:pointer}
+.course-code-toolbar button:hover,.code-input-tools button:hover{background:#454a55}.course-code-toolbar button:focus-visible,.code-input-tools button:focus-visible,.course-code-block:focus-visible{outline:2px solid #b1ceff;outline-offset:2px}
+body .lecture-article .course-code-block pre.course-code,body .resource-article .course-code-block pre.course-code,body .course-code-block pre.course-code{position:static;display:block;margin:0;padding:20px 22px;max-width:100%;overflow:auto;border:0;border-radius:0;background:#202126;color:#eceef3;font:15px/1.7 Consolas,"Liberation Mono",Menlo,monospace;tab-size:2;white-space:pre;text-align:left;text-shadow:none;box-shadow:none}
+body .course-code-block pre.course-code:before{display:none}
+body .lecture-article .course-code-block pre.course-code code,body .course-code-block pre.course-code code{display:block;padding:0;background:none;border:0;border-radius:0;color:inherit;font:inherit;white-space:pre;overflow-wrap:normal;word-break:normal;text-shadow:none}
+.course-code-block code::selection,.course-code-block code *::selection{background:#526383;color:#fff}
+.course-code-block .token.comment,.course-code-block .token.prolog,.code-input-preview .token.comment{color:#a7afbd;font-style:italic}
+.course-code-block .token.keyword,.course-code-block .token.atrule,.code-input-preview .token.keyword,.code-input-preview .token.atrule{color:#cbb7ff}
+.course-code-block .token.string,.course-code-block .token.attr-value,.code-input-preview .token.string,.code-input-preview .token.attr-value{color:#c1dc9a}
+.course-code-block .token.number,.course-code-block .token.boolean,.course-code-block .token.constant,.code-input-preview .token.number,.code-input-preview .token.boolean,.code-input-preview .token.constant{color:#ffc58f}
+.course-code-block .token.function,.code-input-preview .token.function{color:#9ccfff}
+.course-code-block .token.class-name,.course-code-block .token.builtin,.course-code-block .token.tag,.code-input-preview .token.class-name,.code-input-preview .token.builtin,.code-input-preview .token.tag{color:#84d8db}
+.course-code-block .token.operator,.course-code-block .token.punctuation,.code-input-preview .token.operator,.code-input-preview .token.punctuation{color:#d7dce7}
+.course-code-block .token.property,.course-code-block .token.attr-name,.code-input-preview .token.property,.code-input-preview .token.attr-name{color:#f5afbd}
+.code-input-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 8px;font:13px/1.5 system-ui,sans-serif;color:#b9bec9}
+.code-input-editor{position:relative;overflow:hidden;border:1px solid #636975;border-radius:8px;background:#202126}
+.code-input-editor:focus-within{outline:2px solid #b1ceff;outline-offset:2px}
+body .code-input-editor textarea.code-input,body .code-input-editor pre.code-input-preview{box-sizing:border-box;width:100%;margin:0;padding:18px;border:0;border-radius:0;font:15px/1.7 Consolas,"Liberation Mono",Menlo,monospace;letter-spacing:normal;tab-size:2;text-align:left;white-space:pre;overflow-wrap:normal;word-break:normal;text-shadow:none}
+body .code-input-editor pre.code-input-preview{display:none;position:absolute;inset:0;height:100%;min-height:0;overflow:hidden;background:#202126;color:#eceef3;pointer-events:none}
+body .code-input-editor pre.code-input-preview code{background:none;padding:0;font:inherit;color:inherit;white-space:pre}
+body .code-input-editor textarea.code-input{position:relative;display:block;min-height:320px;resize:vertical;overflow:auto;background:#202126;color:#eceef3;outline:none;caret-color:#fff}
+body .code-input-editor.is-highlighted pre.code-input-preview{display:block}
+body .code-input-editor.is-highlighted textarea.code-input{background:transparent;color:transparent;-webkit-text-fill-color:transparent}
+body .code-input-editor textarea.code-input::selection{background:#526383;color:transparent}
+.code-input-hint{font-size:13px;color:#b9bec9;line-height:1.5;margin:8px 0 16px}
+@media(max-width:600px){.course-code-toolbar{padding:10px 12px}.course-code-toolbar button{font-size:12px;padding:5px 8px}body .lecture-article .course-code-block pre.course-code,body .course-code-block pre.course-code{padding:16px;font-size:13px}body .code-input-editor textarea.code-input,body .code-input-editor pre.code-input-preview{padding:12px;font-size:13px}}

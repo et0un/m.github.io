@@ -94,6 +94,7 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
       }
     }
     window.CourseDesign.loadInlineFonts(root);
+    window.CourseCode?.enhance(root);
   }
   function saveRange(root) {
     const sel = getSelection();
@@ -253,13 +254,33 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
     });
   }
   function editCode(root, existing = null) {
+    if (!existing) {
+      const range = restoreRange(root);
+      const node = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement;
+      const current = node.closest('pre'); if (current && root.contains(current)) existing = current;
+    }
     editingCode = existing;
-    showDialog(root, existing ? 'Изменить код' : 'Фрагмент кода', field('Язык или название', `<input name="language" value="${esc(existing?.dataset.language || '')}" placeholder="JavaScript / выражение After Effects">`) + field('Код', `<textarea name="code" class="code-input" rows="10" required spellcheck="false">${esc(existing?.querySelector('code')?.textContent || '')}</textarea>`), data => {
-      const language = data.get('language').trim();
-      if (editingCode && root.contains(editingCode)) {
-        editingCode.dataset.language = language; editingCode.querySelector('code').textContent = data.get('code'); changed(root);
-      } else insertBlock(root, `<pre class="course-code" data-language="${esc(language)}"><code>${esc(data.get('code'))}</code></pre>`);
-    });
+    const languages = { javascript:'JavaScript / After Effects', python:'Python', csharp:'C#', markup:'HTML / XML', css:'CSS', json:'JSON', glsl:'GLSL', bash:'Bash', plain:'Без подсветки' };
+    const oldLanguage = existing?.dataset.language || 'javascript';
+    const selectedLanguage = window.CourseCode?.language(oldLanguage) || oldLanguage;
+    const options = Object.entries(languages).map(([value,label]) => `<option value="${value}"${value === selectedLanguage ? ' selected' : ''}>${label}</option>`).join('');
+    showDialog(root, existing ? 'Изменить код' : 'Фрагмент кода',
+      field('Язык подсветки', `<select name="language">${options}</select>`) +
+      '<div class="code-input-tools"><span>Код</span><button type="button" data-code-input-copy>Копировать</button></div>' +
+      `<div class="code-input-editor"><pre class="code-input-preview" aria-hidden="true"><code></code></pre><textarea name="code" class="code-input" aria-label="Код" rows="12" required spellcheck="false" wrap="off" autocapitalize="off" autocomplete="off" autocorrect="off">${esc(existing?.querySelector('code')?.textContent || existing?.textContent || '')}</textarea></div>` +
+      '<p class="code-input-hint">Tab: два пробела. Ctrl+Enter: применить. Код сохраняется как текст и не выполняется.</p>', data => {
+        const language = data.get('language');
+        if (editingCode && root.contains(editingCode)) {
+          editingCode.dataset.language = language;
+          let code = editingCode.querySelector('code');
+          if (!code) { code = document.createElement('code'); editingCode.replaceChildren(code); }
+          code.textContent = data.get('code'); window.CourseCode?.enhance(root); changed(root);
+        } else {
+          insertBlock(root, `<pre class="course-code" data-language="${esc(language)}"><code>${esc(data.get('code'))}</code></pre>`);
+          window.CourseCode?.enhance(root);
+        }
+      });
+    window.CourseCode?.attachInput(dialog.querySelector('.code-input-editor'));
   }
   function mediaDialog(root, kind) {
     const local = kind === 'local';
@@ -393,6 +414,7 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
       const figure = event.target.closest('figure.embedded-media');
       if (figure) selectMedia(figure);
     });
+    root.addEventListener('course-code-edit', event => { if (root.contains(event.detail?.block)) editCode(root, event.detail.block); });
     root.addEventListener('dblclick', event => {
       const code = event.target.closest('pre.course-code'); if (code) editCode(root, code);
     });
@@ -581,6 +603,16 @@ window.createCourseEditor = function ({ roots, controls, getMode, setStatus, cou
 
   function exportContent(root, { draft = false } = {}) {
     const clone = root.cloneNode(true); normalize(clone);
+    // UI and syntax colors are reconstructed in the reader, never saved into code.
+    clone.querySelectorAll('.course-code-block').forEach(wrapper => {
+      const pre = wrapper.querySelector('pre'); if (pre) wrapper.replaceWith(pre); else wrapper.remove();
+    });
+    clone.querySelectorAll('pre').forEach(pre => {
+      pre.querySelectorAll('button,.course-code-toolbar').forEach(node => node.remove());
+      const code = pre.querySelector('code'); if (code) code.textContent = code.textContent;
+      pre.removeAttribute('tabindex');
+    });
+
     clone.querySelectorAll('[data-export-src]').forEach(node => {
       node.setAttribute('src', node.dataset.exportSrc);
       if (!draft) { node.removeAttribute('data-export-src'); node.removeAttribute('data-studio-asset'); }

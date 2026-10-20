@@ -32,17 +32,6 @@
   }
   loadInlineFonts(document);
   window.CourseDesign.loadInlineFonts = loadInlineFonts;
-  if (!document.body.classList.contains('editor-page')) {
-    document.querySelectorAll('pre.course-code').forEach(block => {
-      const button = document.createElement('button'); button.type = 'button'; button.className = 'code-copy'; button.textContent = 'Копировать';
-      button.addEventListener('click', async () => {
-        try { await navigator.clipboard.writeText(block.querySelector('code')?.textContent || ''); button.textContent = 'Скопировано'; }
-        catch (_) { button.textContent = 'Выделите код для копирования'; }
-        setTimeout(() => { button.textContent = 'Копировать'; }, 2500);
-      });
-      block.append(button);
-    });
-  }
 })();
 
 /* Keep short Russian prepositions with the following word. */
@@ -103,4 +92,22 @@
   }
   applyTypography(); observe();
   document.addEventListener('focusout', schedule);
+})();
+
+/* Shared code blocks, loaded locally for lectures, resources and Studio. */
+(() => {
+  if (document.querySelector('script[data-course-code-loader]')) return;
+  const source = document.currentScript?.src || document.querySelector('script[src*="course-design.js"]')?.src;
+  if (!source) return;
+  const base = new URL('.', source);
+  const css = document.createElement('link'); css.rel = 'stylesheet';
+  css.href = new URL('code-blocks.css?v=1', base).href; document.head.append(css);
+  const loadRuntime = () => {
+    const script = document.createElement('script'); script.dataset.courseCodeLoader = 'runtime';
+    script.src = new URL('code-blocks.js?v=1', base).href; document.head.append(script);
+  };
+  window.Prism = window.Prism || {}; window.Prism.manual = true; window.Prism.disableWorkerMessageHandler = true;
+  const script = document.createElement('script'); script.dataset.courseCodeLoader = 'prism';
+  script.src = new URL('assets/vendor/prism.js?v=1', base).href;
+  script.onload = loadRuntime; script.onerror = loadRuntime; document.head.append(script);
 })();
