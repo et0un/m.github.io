@@ -46,7 +46,6 @@ window.COURSE_TOPICS = [
     "slug": "06-homework",
     "title": "Домашнее задание",
     "tags": [
-      "Актуально",
       "Практика",
       "Домашнее задание",
       "Софт"
@@ -75,7 +74,6 @@ window.COURSE_TOPICS = [
     "slug": "09-render-export",
     "title": "Рендер и экспорт из After Effects",
     "tags": [
-      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -85,7 +83,6 @@ window.COURSE_TOPICS = [
     "slug": "10-dramaturgy",
     "title": "Основы драматургии",
     "tags": [
-      "Актуально",
       "Теория",
       "Практика"
     ],
@@ -95,7 +92,6 @@ window.COURSE_TOPICS = [
     "slug": "11-composition-editing",
     "title": "Композиция и монтаж",
     "tags": [
-      "Актуально",
       "Теория",
       "Практика"
     ],
@@ -105,6 +101,7 @@ window.COURSE_TOPICS = [
     "slug": "12-textures-effects",
     "title": "Текстуры и эффекты: как сделать изображение выразительнее",
     "tags": [
+      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -114,6 +111,7 @@ window.COURSE_TOPICS = [
     "slug": "13-motion-identity",
     "title": "Моушн-айдентика",
     "tags": [
+      "Актуально",
       "Теория"
     ],
     "thumbnail": "assets/images/topic-identity-sculpted.svg"
@@ -122,6 +120,7 @@ window.COURSE_TOPICS = [
     "slug": "14-expressions",
     "title": "Экспрешены",
     "tags": [
+      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -131,6 +130,7 @@ window.COURSE_TOPICS = [
     "slug": "15-procedural-animation",
     "title": "Процедурная анимация: движение по правилам",
     "tags": [
+      "Актуально",
       "Практика",
       "Софт"
     ],
