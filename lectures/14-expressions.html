@@ -36,10 +36,29 @@
       <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="constant">100</code></pre>
       <p>Теперь Opacity получает значение 100. Замените его на&nbsp;30: слой станет полупрозрачным. Последнее вычисленное значение выражения становится результатом свойства. Чтобы временно сравнить результат с&nbsp;обычной анимацией, отключите выражение кнопкой <em>=</em> рядом с&nbsp;его строкой.</p>
       <p>Для&nbsp;примеров используйте современный движок <em>JavaScript</em>: <em>File → Project Settings → Expressions</em>. Пишем обычные прямые кавычки, а&nbsp;в&nbsp;дробных числах ставим точку: <code>0.5</code>. <a href="https://helpx.adobe.com/ru/after-effects/desktop/work-with-expressions/expression-basics/expression-basics.html" target="_blank" rel="noopener noreferrer">Основы выражений в&nbsp;справке Adobe</a>.</p>
-      <h3>Число, координаты и&nbsp;исходное значение</h3>
+      <h3>Вращение: time * 30</h3>
+<p>Начнём с&nbsp;одного свойства и&nbsp;одной строки. На&nbsp;<strong>Rotation двумерного слоя</strong> включите выражение и&nbsp;вставьте:</p>
+<pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="rotation">time * 30;</code></pre>
+<p><code>time</code> это время композиции в&nbsp;секундах. Умножаем его на&nbsp;30 и&nbsp;получаем угол: через секунду 30°, через две 60°. На&nbsp;нулевой секунде результат равен нулю. Нажмите пробел или передвиньте курсор времени, чтобы увидеть движение.</p>
+<p>Замените 30 на&nbsp;90, чтобы ускорить вращение. Число <code>-30</code> изменит направление. Для&nbsp;одного полного оборота в&nbsp;секунду используйте <code>time * 360</code>. Вращение происходит вокруг Anchor Point: если фигура описывает круг вместо поворота на&nbsp;месте, проверьте положение её точки опоры.</p>
+<h3>Координаты: поставить слой в&nbsp;точку</h3>
+<p>На&nbsp;<strong>Position двумерного слоя без&nbsp;родителя</strong> попробуйте:</p>
+<pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="basicPosition">[480, 270];</code></pre>
+<p>Первое число задаёт X, второе Y. Это постоянное положение, поэтому движения не&nbsp;будет. Меняя числа, вы перемещаете слой. Пример использует целое свойство Position с&nbsp;выключенным Separate Dimensions.</p>
+<h3>Wiggle: добавить нерегулярное движение</h3>
+<p>На&nbsp;<strong>Position двумерного слоя</strong> вставьте:</p>
+<pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="basicWiggle">wiggle(2, 20);</code></pre>
+<p>Первое число задаёт частоту, второе силу отклонения. Для&nbsp;Position амплитуда измеряется в&nbsp;пикселях. Попробуйте сначала изменить только 20 на&nbsp;60, затем только 2 на&nbsp;5: так легче отличить силу движения от&nbsp;его частоты. На&nbsp;Rotation такая же запись меняет угол, а&nbsp;амплитуда измеряется в&nbsp;градусах. Ниже разберём ограничение движения одной осью и&nbsp;управление через ползунки.</p>
+<h3>LoopOut: повторить движение по&nbsp;ключам</h3>
+<p>На&nbsp;<strong>Rotation</strong> поставьте ключ 0° на&nbsp;нулевой секунде и&nbsp;360° на&nbsp;второй. После этого добавьте выражение:</p>
+<pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="basicCycle">loopOut("cycle");</code></pre>
+<p>После последнего ключа участок начнёт повторяться. В&nbsp;этом примере полный оборот занимает две секунды. Без&nbsp;ключей выражению нечего повторять. Для&nbsp;равномерного вращения оставьте ключи линейными; для&nbsp;другого характера движения меняйте их интерполяцию. Позже сравним cycle с&nbsp;pingpong, который проигрывает участок вперёд и&nbsp;назад.</p>
+<p>Проверяйте эти примеры по&nbsp;одному на&nbsp;отдельных слоях. Когда понятно, что делает каждая строка, можно соединять правила и&nbsp;добавлять управление.</p>
+<h3>Следующий шаг: сохранить исходное значение и&nbsp;учесть начало слоя</h3>
+
       <p>Свойству нужно вернуть данные подходящего типа. <em>Rotation</em> и&nbsp;<em>Opacity</em> принимают число. <em>Position</em> двумерного слоя принимает пару <code>[x, y]</code>, трёхмерного слоя принимает тройку <code>[x, y, z]</code>. У&nbsp;цвета четыре компонента: красный, зелёный, синий и&nbsp;альфа.</p>
-      <p><code>value</code> означает значение свойства до&nbsp;вычисления выражения, с&nbsp;учётом его ключей. Поэтому можно сохранить исходную анимацию и&nbsp;добавить к&nbsp;ней новое поведение. На&nbsp;<strong>Rotation двумерного слоя</strong> попробуйте:</p>
-      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="rotation">value + (time - inPoint) * 30;</code></pre>
+      <p>Простое <code>time * 30</code> задаёт угол напрямую и&nbsp;отсчитывает время от&nbsp;начала композиции. Если нужно сохранить исходный угол и&nbsp;начать вращение с&nbsp;начала самого слоя, расширим запись.</p><p><code>value</code> означает значение свойства до&nbsp;вычисления выражения, с&nbsp;учётом его ключей. Поэтому можно сохранить исходную анимацию и&nbsp;добавить к&nbsp;ней новое поведение. На&nbsp;<strong>Rotation двумерного слоя</strong> попробуйте:</p>
+      <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="rotationExtended">value + (time - inPoint) * 30;</code></pre>
       <p><code>time</code> обозначает время композиции в&nbsp;секундах, <code>inPoint</code> начало слоя. Разность между ними позволяет отсчитывать движение от&nbsp;начала слоя. Число 30 задаёт скорость в&nbsp;градусах в&nbsp;секунду. Если у&nbsp;Rotation есть ключи, вращение добавится к&nbsp;ним.</p>
       <p>Для&nbsp;<strong>Position двумерного слоя</strong> можно записать смещение на&nbsp;100 пикселей вправо:</p>
       <pre class="course-code" data-language="javascript"><code class="language-javascript" data-example="offset">[value[0] + 100, value[1]];</code></pre>
