@@ -135,5 +135,14 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-procedural-sculpted.svg"
+  },
+  {
+    "slug": "3D",
+    "title": "Методы работы с 3D",
+    "tags": [
+      "Актуально",
+      "Теория",
+      "Практика"
+    ]
   }
 ];
