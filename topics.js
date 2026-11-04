@@ -101,7 +101,6 @@ window.COURSE_TOPICS = [
     "slug": "12-textures-effects",
     "title": "Текстуры и эффекты: как сделать изображение выразительнее",
     "tags": [
-      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -111,7 +110,6 @@ window.COURSE_TOPICS = [
     "slug": "13-motion-identity",
     "title": "Моушн-айдентика",
     "tags": [
-      "Актуально",
       "Теория"
     ],
     "thumbnail": "assets/images/topic-identity-sculpted.svg"
@@ -120,7 +118,6 @@ window.COURSE_TOPICS = [
     "slug": "14-expressions",
     "title": "Экспрешены",
     "tags": [
-      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -130,7 +127,6 @@ window.COURSE_TOPICS = [
     "slug": "15-procedural-animation",
     "title": "Процедурная анимация: движение по правилам",
     "tags": [
-      "Актуально",
       "Практика",
       "Софт"
     ],
