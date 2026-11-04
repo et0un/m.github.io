@@ -6,6 +6,51 @@
   <meta name="description" content="Лекция курса «Моушн-дизайн»">
   <title>Анимация в веб-дизайне — Моушн-дизайн</title>
   <link rel="stylesheet" href="../styles.css?v=45">
+  <style>
+    .lecture-article .web-motion-table {
+      max-width: 100%;
+      margin: 1.25rem 0 1.75rem;
+      overflow-x: auto;
+      border: 1px solid #383838;
+      border-radius: 10px;
+      background: #141414;
+    }
+    .lecture-article .web-motion-table:focus-visible {
+      outline: 2px solid #ddd;
+      outline-offset: 3px;
+    }
+    .lecture-article .web-motion-table table {
+      width: 100%;
+      min-width: 40rem;
+      margin: 0;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+    .lecture-article .web-motion-table th,
+    .lecture-article .web-motion-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #383838;
+      text-align: left;
+      vertical-align: top;
+    }
+    .lecture-article .web-motion-table thead th {
+      background: #252525;
+      color: #f1f1f1;
+      font-weight: 650;
+    }
+    .lecture-article .web-motion-table tbody td:first-child {
+      width: 22%;
+      color: #f1f1f1;
+      font-weight: 600;
+    }
+    .lecture-article .web-motion-table tbody tr:nth-child(even) {
+      background: #1b1b1b;
+    }
+    .lecture-article .web-motion-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+  </style>
 </head>
 <body class="lecture-page" data-topic="animation-web">
 <header class="lecture-topbar">
@@ -45,7 +90,7 @@
 
 <h2 id="functions">Функции движения в вебе</h2>
 <p>В ролике последовательность задана монтажом. В интерфейсе её собирают действия человека и события системы. Один и тот же переход нужно рассмотреть при первом посещении, при возвращении, при быстром повторе и на разных экранах. Выразительность важна, но анимация должна поддерживать чтение и управление страницей.</p>
-<div class="table-wrap"><table><thead><tr><th>Функция</th><th>Как это видно</th><th>Что проверять</th></tr></thead><tbody>
+<div class="table-wrap web-motion-table" role="region" aria-label="Функции движения в вебе" tabindex="0"><table><thead><tr><th>Функция</th><th>Как это видно</th><th>Что проверять</th></tr></thead><tbody>
 <tr><td>Подтвердить действие</td><td>После добавления товара кнопка меняет подпись, а счётчик корзины обновляется.</td><td>Можно ли понять результат по тексту, если движение пропущено?</td></tr>
 <tr><td>Объяснить переход</td><td>Боковая панель выходит из области, где находится кнопка её открытия.</td><td>Понятно ли, откуда появилась панель и как вернуться?</td></tr>
 <tr><td>Показать состояние</td><td>Список фильтруется, выбранный пункт выделяется, загрузка сменяется результатом.</td><td>Видны ли ожидание, пустой результат и ошибка?</td></tr>
@@ -54,9 +99,14 @@
 <tr><td>Передать характер бренда</td><td>Заставка, переходы и обратная связь используют родственные кривые, расстояния и паузы.</td><td>Уместен ли характер движения при покупке, чтении и обработке ошибки?</td></tr>
 </tbody></table></div>
 
+<figure class="embedded-media"><a href="https://dribbble.com/shots/9704839-Add-to-cart"><img src="https://cdn.dribbble.com/userupload/42513339/file/original-cc3dfdbb5f098f819539db2dcb59d367.gif" alt="Анимация кнопки добавления в корзину" loading="lazy" decoding="async"></a><figcaption>Paint Purple · Add to cart. Проследите, как кнопка подтверждает действие. Какой сигнал останется понятным, если остановить анимацию на последнем кадре? <a href="https://dribbble.com/shots/9704839-Add-to-cart">Работа на Dribbble</a>.</figcaption></figure>
+<figure class="embedded-media"><a href="https://dribbble.com/shots/6125651-Card-to-List-View-Toggle-Animation"><img src="https://cdn.dribbble.com/userupload/24387098/file/original-1f7b21f3b7954d5af87321dee6c641bd.gif" alt="Переход от карточки рецепта к представлению списком" loading="lazy" decoding="async"></a><figcaption>Amy Chang · Card to List View Toggle Animation. Смена раскладки показывает новый режим просмотра. Проследите, какие элементы помогают сохранить контекст. <a href="https://dribbble.com/shots/6125651-Card-to-List-View-Toggle-Animation">Работа на Dribbble</a>.</figcaption></figure>
+
 <h3>Навигация и пространственная связь</h3>
 <p>Переход помогает связать два состояния. Карточка и подробный экран могут сохранять общее изображение, чтобы взгляд продолжал следить за ним. Короткое появление подсказки рядом с полем показывает, к чему относится сообщение. При переходе назад направление движения часто стоит обратить, если это поддерживает понятную модель пространства.</p>
 <p>Сравните разворот карточки на весь экран с открытием отдельной вкладки. В первом случае общий визуальный элемент помогает проследить связь. Во втором пользователю важнее увидеть заголовок, сохранённую позицию при возвращении и понятную навигацию. Подберите объём движения под изменение, которое нужно объяснить.</p>
+
+<figure class="embedded-media"><a href="https://dribbble.com/shots/4412688-Card-expansion-into-horizontal-scroll-view"><img src="https://cdn.dribbble.com/userupload/41980614/file/original-75d436776c75ed0b8aed1dbcbd11669b.gif" alt="Раскрытие карточки путеводителя в горизонтально прокручиваемый экран" loading="lazy" decoding="async"></a><figcaption>Marco Fabrega · Card expansion into horizontal scroll view. Следите за изображением выбранной карточки. При раскрытии оно связывает компактный вид с экраном, где можно рассмотреть больше деталей. <a href="https://dribbble.com/shots/4412688-Card-expansion-into-horizontal-scroll-view">Работа на Dribbble</a>.</figcaption></figure>
 
 <h3>Прокрутка как часть рассказа</h3>
 <p>Есть разница между <strong>запуском при входе в область просмотра</strong> и <strong>управлением прогрессом прокруткой</strong>. В первом случае блок появился и запускает короткую анимацию со своей длительностью. Во втором движение останавливается, когда человек перестаёт прокручивать страницу, и может идти обратно. Второй подход годится для последовательного раскрытия формы, если у зрителя есть контроль над темпом.</p>
@@ -67,12 +117,14 @@
 <p>Моушн-айдентика сайта может проявляться в том, как открываются карточки, появляется графика и меняется масштаб. Для магазина с частыми покупками обычно нужен быстрый отклик. Для выставки допустимо больше времени на вступление, если вход в экспозицию остаётся доступен. Такой характер лучше задать несколькими правилами, которые повторяются в разных местах, а затем проверить в контексте каждого сценария.</p>
 <p>В портфолио Bruno Simon само перемещение по 3D-миру становится способом познакомиться с работами. Такой подход подходит для исследования и игры. Для быстрого поиска ссылки полезно сравнить его с текстовой версией того же портфолио. <a href="https://bruno-simon.com/">Интерактивное портфолио</a> · <a href="https://bruno-simon.com/html/">Текстовая версия</a>.</p>
 
+<figure class="embedded-media"><div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/O8LUJicF7v4" title="Bruno Simon · Cookies &amp; Eggs" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><figcaption>Bruno Simon · Cookies &amp; Eggs. Автор показывает раннюю версию портфолио с мини-игрой. Обратите внимание, как управление машиной и поиск предметов задают игровой характер знакомству с сайтом. <a href="https://www.youtube.com/watch?v=O8LUJicF7v4">Открыть на YouTube</a>.</figcaption></figure>
+
 <h2 id="micro">Микроанимация и состояния интерфейса</h2>
 <p><strong>Микровзаимодействие</strong> решает одну небольшую задачу, например включение настройки. <strong>Микроанимация</strong> может быть частью его обратной связи. В переключателе действие меняет состояние, бегунок показывает переход, а подпись и положение показывают итог. Успешность можно оценить по тому, понимает ли человек результат и следующий шаг.</p>
 <p>Удобно описывать такое взаимодействие четырьмя вопросами. Что его запускает? Какое правило применяется? Что интерфейс сообщает в ответ? Что происходит при следующем действии или спустя время? Например, повторное нажатие переключателя должно вернуть прежнее значение, а сообщение о сохранении может исчезнуть, когда значение уже доступно в самом интерфейсе.</p>
 <figure class="embedded-media"><a href="https://dribbble.com/shots/2603107-toggle-switch-micro-interaction"><img src="https://cdn.dribbble.com/users/1020708/screenshots/2603107/media/b4bc8de02532c73915dc7e8f42c87af8.gif" alt="Robin · Toggle Switch Micro Interaction" loading="lazy" decoding="async"></a><figcaption>Robin · Toggle Switch Micro Interaction. Следите за положением бегунка. Оно различает состояния даже при статичном просмотре. Для сайта понадобится ещё доступное название настройки. <a href="https://dribbble.com/shots/2603107-toggle-switch-micro-interaction">Работа на Dribbble</a>.</figcaption></figure>
 <h3>Сценарий кнопки добавления в корзину</h3>
-<div class="table-wrap"><table><thead><tr><th>Состояние</th><th>Что видит пользователь</th><th>Переход</th></tr></thead><tbody>
+<div class="table-wrap web-motion-table" role="region" aria-label="Сценарий кнопки добавления в корзину" tabindex="0"><table><thead><tr><th>Состояние</th><th>Что видит пользователь</th><th>Переход</th></tr></thead><tbody>
 <tr><td>Готово к действию</td><td>Название действия и доступная кнопка. Наведение может менять тон, фокус с клавиатуры имеет видимый контур.</td><td>Нажатие отправляет запрос.</td></tr>
 <tr><td>Обработка</td><td>Подпись «Добавляем…» и индикатор ожидания. Ширина кнопки не прыгает.</td><td>Пока запрос выполняется, повторный запуск блокируется по логике приложения.</td></tr>
 <tr><td>Успех</td><td>«Добавлено» и обновлённый счётчик.</td><td>Значение изменяется после подтверждения результата или по согласованной оптимистической схеме с откатом.</td></tr>
@@ -100,7 +152,7 @@
 
 <h2 id="prototype">Первый прототип в Figma Design</h2>
 <p>Возьмём карточку события и экран подробностей. В <em>Design</em> разместите оба экрана в отдельных верхнеуровневых <em>Frames</em>. Затем выберите кнопку карточки, откройте вкладку <em>Prototype</em> и протяните связь к экрану события. У любой связи есть несколько частей.</p>
-<div class="table-wrap"><table><thead><tr><th>Настройка</th><th>Что означает</th><th>Пример</th></tr></thead><tbody>
+<div class="table-wrap web-motion-table" role="region" aria-label="Настройки прототипа" tabindex="0"><table><thead><tr><th>Настройка</th><th>Что означает</th><th>Пример</th></tr></thead><tbody>
 <tr><td>Trigger</td><td>Событие, которое запускает действие.</td><td>On click или On tap.</td></tr>
 <tr><td>Action</td><td>Что должно произойти.</td><td>Navigate to, Change to, Open overlay, Back, Scroll to.</td></tr>
 <tr><td>Destination</td><td>Куда ведёт действие, если у него есть цель.</td><td>Экран события или вариант компонента.</td></tr>
@@ -172,7 +224,7 @@
 
 <h2 id="handoff">Что передать в разработку</h2>
 <p>Ссылку на прототип полезно дополнить спецификацией движения. Прототип показывает ощущение и порядок действий, а спецификация объясняет, как система выбирает следующее состояние. Запишите событие, свойства, тайминг, кривую, правила отмены и особенности мобильной версии. Для сложной графики приложите исходник и короткую запись с отметками времени.</p>
-<div class="table-wrap"><table><thead><tr><th>Что проектируем</th><th>Что передаём</th><th>Типичная реализация</th></tr></thead><tbody>
+<div class="table-wrap web-motion-table" role="region" aria-label="Передача анимации в разработку" tabindex="0"><table><thead><tr><th>Что проектируем</th><th>Что передаём</th><th>Типичная реализация</th></tr></thead><tbody>
 <tr><td>Цвет, прозрачность и небольшой сдвиг кнопки</td><td>Варианты, время перехода и условия фокуса или нажатия.</td><td>CSS transitions и состояния интерфейса.</td></tr>
 <tr><td>Панель и сложный переход между состояниями</td><td>Начальный и финальный вид, момент появления контента, закрытие и повтор.</td><td>CSS или JS с управлением состояниями. Для последовательностей можно использовать Web Animations API или библиотеку.</td></tr>
 <tr><td>Векторная иллюстрация</td><td>Исходник и проверенный формат экспорта с указанием размеров и запуска.</td><td>SVG, Lottie для подходящей анимации или Rive, если ресурсу нужна своя логика состояний.</td></tr>
