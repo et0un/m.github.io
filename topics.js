@@ -146,8 +146,8 @@ window.COURSE_TOPICS = [
     "title": "Анимация в веб-дизайне",
     "tags": [
       "Актуально",
-      "Теория"
-    ],
-    "thumbnail": "assets/images/topic-web-motion-sculpted.svg"
+      "Теория",
+      "Практика"
+    ]
   }
 ];
