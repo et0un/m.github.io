@@ -143,7 +143,8 @@ window.COURSE_TOPICS = [
       "Актуально",
       "Теория",
       "Практика"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-3d-sculpted.svg"
   },
   {
     "slug": "animation-web",
@@ -151,6 +152,7 @@ window.COURSE_TOPICS = [
     "tags": [
       "Актуально",
       "Теория"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-web-motion-sculpted.svg"
   }
 ];
