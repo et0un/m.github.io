@@ -156,9 +156,7 @@ window.COURSE_TOPICS = [
     "slug": "18-ai-tools",
     "title": "Нейросетевые инструменты в работе моушн-дизайнера",
     "tags": [
-      "Теория",
-      "Практика",
-      "Софт"
+      "Теория"
     ],
     "thumbnail": "assets/images/topic-ai-tools.svg"
   }
