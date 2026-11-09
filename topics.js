@@ -151,5 +151,15 @@ window.COURSE_TOPICS = [
       "Практика"
     ],
     "thumbnail": "assets/images/topic-web-motion-sculpted.svg"
+  },
+  {
+    "slug": "18-ai-tools",
+    "title": "Нейросетевые инструменты в работе моушн-дизайнера",
+    "tags": [
+      "Теория",
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-ai-tools.svg"
   }
 ];
