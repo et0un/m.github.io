@@ -159,5 +159,14 @@ window.COURSE_TOPICS = [
       "Теория"
     ],
     "thumbnail": "assets/images/topic-ai-tools.svg"
+  },
+  {
+    "slug": "19-character-animation",
+    "title": "Персонажная анимация",
+    "tags": [
+      "Теория",
+      "Практика"
+    ],
+    "thumbnail": "assets/images/topic-character-animation.svg"
   }
 ];
