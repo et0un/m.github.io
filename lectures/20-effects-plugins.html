@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Лекция курса «Моушн-дизайн»">
+  <title>Эффекты и плагины в After Effects</title>
+  <link rel="stylesheet" href="../styles.css?v=21">
+</head>
+<body class="lecture-page" data-topic="20-effects-plugins">
+<header class="lecture-topbar">
+  <nav aria-label="Главная навигация">
+    <a href="../index.html">Главная</a>
+    <a href="../index.html#about">О курсе</a>
+    <a href="../index.html#links">Ссылки</a>
+    <a class="active" href="../index.html#topics">Темы</a>
+  </nav>
+</header>
+
+<button class="topics-toggle" type="button" aria-expanded="false">
+  <strong>Темы курса</strong><span>Темы · открыть</span>
+</button>
+
+<div class="lecture-shell">
+  <aside class="lecture-sidebar" aria-label="Темы курса">
+    <div class="sidebar-head">
+      <span>ТЕМЫ КУРСА</span>
+      <button class="sidebar-close" type="button" aria-label="Закрыть список тем">×</button>
+    </div>
+    <div id="lectureTopics" class="lecture-topic-list"></div>
+  </aside>
+
+  <main class="lecture-main">
+    <article class="lecture-article">
+      <!-- Номер, название и теги ниже автоматически заменит lecture.js -->
+      <div class="lecture-kicker">ТЕМА</div>
+      <h1>Эффекты и плагины в After Effects</h1>
+      <div class="tags"><span class="tag practice">Практика</span><span class="tag soft">Софт</span></div>
+
+<style>
+.effects-table{overflow-x:auto;margin:24px 0;border:1px solid #444;border-radius:9px}
+.effects-table table{width:100%;min-width:560px;border-collapse:collapse}
+.effects-table :is(th,td){padding:12px 16px;text-align:left;vertical-align:top;border-bottom:1px solid #444}
+.effects-table thead,.effects-table tbody tr:nth-child(even){background:#8882}
+.effect-demo iframe{display:block;width:100%;height:auto;aspect-ratio:16/9;border:0;border-radius:8px}
+</style>
+<p class="lead">Один и тот же знак может выглядеть как неоновая вывеска, рельеф на стекле или облако частиц. За этими результатами стоят разные операции. В этой лекции разберём, какие данные нужны эффекту на входе, что он меняет и как выбрать инструмент под сцену.</p>
+<nav aria-label="Содержание лекции"><ol><li><a href="#base">Порядок эффектов и границы слоя</a></li><li><a href="#light">Свечение, блики и световые линии</a></li><li><a href="#warp">Искажение, волны и управляемый глитч</a></li><li><a href="#texture">Фактура, контур и цвет</a></li><li><a href="#time">Скорость, размытие и след</a></li><li><a href="#particles">Частицы, рассыпание и повторение</a></li><li><a href="#composite">Маски, кеинг и интеграция графики</a></li><li><a href="#space">Псевдообъём, переходы и расширения</a></li><li><a href="#review">Как проверить эффект в готовой сцене</a></li></ol></nav>
+<div class="effects-table"><table><thead><tr><th>Задача</th><th>Средства After Effects</th><th>Что сравнить из отдельных плагинов</th></tr></thead><tbody><tr><th scope="row">Неон</th><td>Glow, Trim Paths</td><td>Saber, Deep Glow</td></tr><tr><th scope="row">Рябь и преломление</th><td>Displacement Map, Wave Warp</td><td>Sapphire для готовых стилизаций</td></tr><tr><th scope="row">След и замедление</th><td>Echo, Timewarp</td><td>RSMB, Twixtor</td></tr><tr><th scope="row">Искры и рассыпание</th><td>CC Particle World, Shatter</td><td>Trapcode Particular</td></tr><tr><th scope="row">Замена экрана</th><td>Mocha AE, Corner Pin</td><td>Mocha Pro, Supercomp</td></tr><tr><th scope="row">Рельеф и объём</th><td>CC Glass, импорт 3D</td><td>Element 3D</td></tr><tr><th scope="row">Переходы</th><td>Linear Wipe, Directional Blur</td><td>Motion Bro</td></tr></tbody></table></div>
+<h2 id="base">Порядок эффектов и границы слоя</h2>
+<p>Откройте Effects & Presets и найдите эффект по английскому названию. Effect Controls показывает цепочку обработки слоя. Перетащите эффект выше или ниже и сравните результат. Например, Roughen Edges перед Glow даёт свечение по неровному краю, а при обратном порядке деформируется уже ореол. Переключатель fx у эффекта быстро возвращает исходник для сравнения.</p>
+<p>На корректирующем слое эффект обрабатывает композицию слоёв под ним. На обычном слое входом служит изображение самого слоя с учётом операций, которые выполнены раньше. Если нужно обработать группу как единое изображение, соберите её в прекомпозицию. Оставьте запас по краям, если свечение, размытие или смещение упираются в границу.</p>
+<p>Эффект меняет изображение или генерирует его на слое. Пресет сохраняет сочетание настроек и может включать ключи. Расширение или скрипт может собирать слои, создавать контроллеры или переносить графику. Mocha AE и эффекты с префиксом CC поставляются вместе с After Effects, хотя имеют сторонних разработчиков.</p>
+<p><a href="https://helpx.adobe.com/ee/after-effects/desktop/apply-effects-and-animation-presets/effects-and-animation-presets/effect-list.html">Полный список эффектов Adobe</a></p>
+<h2 id="light">Свечение, блики и световые линии</h2>
+<p>Glow выделяет светлые области или работает по альфа-каналу. Threshold меняет порог, Radius задаёт ширину ореола, Intensity регулирует его силу. Для вывески попробуйте сначала короткий яркий ореол у контура, затем широкий слабый слой света. Сравните на тёмном и светлом фоне. Если буквы сливаются, уменьшите радиус или верните чёткое ядро поверх.</p>
+<p>CC Light Sweep подходит для блика, который проходит по букве или предмету. Анимируйте Center и согласуйте направление с формой. Для контура, который рисуется по пути, начните с Trim Paths на шейпе и добавьте Glow. Saber от Video Copilot удобен для световой линии с отдельным контролем ядра и ореола. Deep Glow стоит сравнить со штатным Glow на одном кадре, если важны мягкий спад и яркое ядро. Optical Flares пригодится для бликов, связанных с источником света или объективом.</p>
+<p><a href="https://www.plugineverything.com/deep-glow">Deep Glow</a> · <a href="https://www.videocopilot.net/tutorials/saber_plug-in/">Saber</a></p>
+<figure class="embedded-media effect-demo"><iframe src="https://www.youtube-nocookie.com/embed/reSXGxkyr0k" title="Video Copilot · Saber" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>Video Copilot · Saber. Проследите, как меняются форма ядра, ширина свечения и читаемость контура. <a href="https://www.youtube.com/watch?v=reSXGxkyr0k">Открыть видео</a>.</figcaption></figure>
+<h2 id="warp">Искажение, волны и управляемый глитч</h2>
+<p>Turbulent Displace создаёт деформацию с помощью шума. Amount отвечает за силу, Size за масштаб неровностей, Evolution меняет рисунок во времени. Для бумажной кромки попробуйте малый Size и слабое смещение. Для теплового марева сделайте области крупнее и ограничьте действие маской.</p>
+<p>Displacement Map берёт значения из другого слоя. При карте яркости средний серый примерно нейтрален, светлые и тёмные участки сдвигают пиксели в разные стороны. Для ряби соберите карту из Fractal Noise или градиентных полос и настройте горизонтальное и вертикальное смещение отдельно. Если карта строится эффектами, укажите источник с эффектами там, где это доступно, либо подайте прекомпозицию готовой карты.</p>
+<p>Wave Warp подходит для периодической волны, Mesh Warp и Bezier Warp помогают вручную менять крупную форму. Для короткого цифрового сбоя можно сочетать полосатую карту смещения, раздельный сдвиг цветовых каналов и несколько кадров Posterize Time. Sapphire и Universe дают готовые варианты стилизации и переходов. Оцените, можно ли изменить длительность сбоя и оставить текст читаемым.</p>
+<p><a href="https://helpx.adobe.com/vn_vi/after-effects/desktop/apply-effects-and-animation-presets/list-of-effects/distort-effects.html">Эффекты искажения Adobe</a></p>
+<figure class="embedded-media effect-demo"><iframe src="https://www.youtube-nocookie.com/embed/J-goz3c5qvE" title="Displacement Map Tricks" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>Displacement Map Tricks. Сравните карты смещения и посмотрите, как одна и та же техника даёт рябь или преломление. <a href="https://www.youtube.com/watch?v=J-goz3c5qvE">Открыть видео</a>.</figcaption></figure>
+<h2 id="texture">Фактура, контур и цвет</h2>
+<p>Fractal Noise и Turbulent Noise подходят для дымки, шероховатости и карт движения. Сначала настройте масштаб и контраст, затем решите, будет ли фактура двигаться вместе с объектом или с кадром. Roughen Edges меняет границу альфа-канала. Add Grain и Match Grain пригодятся, если элементы должны выглядеть частью одной съёмки.</p>
+<p>Curves управляет тональным диапазоном, Lumetri помогает согласовать кадры и выстроить общий цвет, Tint и Tritone быстро ограничивают палитру. Find Edges, Threshold и Mosaic полезны для графической стилизации. Поставьте коррекцию до Threshold, если хотите управлять тем, какие области превращаются в пятна.</p>
+<p>Magic Bullet Looks даёт готовую среду для сборки цветового образа. Boris FX Sapphire и Continuum полезно изучать по отдельным эффектам, которые нужны проекту. Сравнивайте обработку на нескольких планах: фактура или цвет, удачные на общем кадре, могут стать слишком заметными на крупном.</p>
+<h3>Как собрать бумажную фактуру для движущегося титра</h3>
+<ol><li>На отдельном слое сделайте широкие пятна через Fractal Noise. Соберите на втором слое мелкие детали.</li><li>Соберите фактуру в прекомпозицию. Используйте альфа-матт из текста, если она должна быть видна только внутри букв.</li><li>Привяжите фактуру к движению титра или оставьте её на месте. Сравните, где бумага ощущается свойством букв, а где они как будто вырезаны из неподвижного листа.</li><li>Проверьте мелкий текст после экспорта. Если зерно заполняет просветы и портит читаемость, уменьшите контраст фактуры.</li></ol>
+<h2 id="time">Скорость, размытие и след</h2>
+<p>Time Remapping выбирает, какой момент исходника показывать сейчас. Для ускорения сблизьте ключи исходного времени, для остановки удержите одно значение. Posterize Time меняет частоту обновления изображения в месте применения. Проверьте, где нужно сохранить ступенчатую пластику, а где движение камеры должно оставаться плавным.</p>
+<p>Motion Blur слоя подходит для движения его трансформаций. Когда движение уже находится внутри видео или создаётся эффектами, попробуйте Pixel Motion Blur или CC Force Motion Blur в подходящей цепочке. Echo смешивает несколько отсчётов времени. Для следа за объектом держите объект на прозрачном слое и настройте затухание, чтобы след не перекрывал текущую позу.</p>
+<p>Timewarp и Twixtor помогают замедлять снятое движение с синтезом промежуточных кадров. ReelSmart Motion Blur добавляет размытие на основе оценённого движения. Смотрите на пальцы, волосы, пересечения объектов и края. На резких склейках и перекрытиях проверяйте обработку по планам.</p>
+<p><a href="https://revisionfx.com/products/twixtor/">Twixtor</a> · <a href="https://revisionfx.com/products/rsmb/">ReelSmart Motion Blur</a></p>
+<h2 id="particles">Частицы, рассыпание и повторение</h2>
+<p>Для искр начните с CC Particle World. Выберите область рождения, направление, скорость, гравитацию и срок жизни. Малое число частиц с ясной траекторией помогает увидеть, что делает каждый параметр. CC Particle Systems II тоже подходит для быстрых проб. CC Pixel Polly и Shatter полезны для разрушения изображения на фрагменты.</p>
+<p>Для повторяющихся объектов с предсказуемыми интервалами удобен Repeater у шейпа. Если нужен поток со случайной вариацией, меняющейся силой, собственными спрайтами и более сложными эмиттерами, посмотрите Trapcode Particular. Для соединения точек и линий можно рассмотреть Plexus. Выбирайте по устройству сцены: нужно ли повторять форму, выпускать частицы или показывать связи между точками.</p>
+<p><a href="https://helpx.adobe.com/il_en/after-effects/desktop/apply-effects-and-animation-presets/list-of-effects/simulation-effects.html">Эффекты симуляции Adobe</a></p>
+<figure class="embedded-media effect-demo"><iframe src="https://www.youtube-nocookie.com/embed/s6-q5x_oFA4" title="Creative COW · CC Particle World" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>Creative COW · CC Particle World. Разберите фазы фейерверка: рождение, разлёт и затухание. <a href="https://www.youtube.com/watch?v=s6-q5x_oFA4">Открыть видео</a>.</figcaption></figure>
+<figure class="embedded-media effect-demo"><iframe src="https://www.youtube-nocookie.com/embed/el_ROcahyEs" title="Maxon · Magic Energy" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>Maxon · Magic Energy. Проследите, какие свойства эмиттера задают движение и где внешний вид частицы влияет на ощущение энергии. <a href="https://www.youtube.com/watch?v=el_ROcahyEs">Открыть видео</a>.</figcaption></figure>
+<h3>Как выбрать систему частиц</h3>
+<p>Для атмосферной пыли нужны редкие частицы с долгой жизнью, небольшим разбросом скорости и мягким входом в кадр. Для взрыва важны короткое рождение, разные скорости и заметное затухание. Для рассыпания букв важно, чтобы частицы появлялись в конкретных местах исходного изображения. Параметры, которые стоит проверить первыми, меняются вместе с задачей.</p>
+<p>Сначала соберите движение на простых точках. После этого добавьте вариации размера, цвета и прозрачности. Размытые дальние точки помогут дать глубину, но равномерный крупный слой свечения может скрыть разницу между планами. Для чистого композитинга проверьте, можно ли вывести частицы с альфа-каналом отдельно от фона.</p>
+<h2 id="composite">Маски, кеинг и интеграция графики</h2>
+<p>Для зелёного фона начните с Keylight. Сначала оцените маску в режиме Screen Matte. Сохраните полупрозрачные края и уберите остаточный оттенок фона. Roto Brush помогает выделять человека без однотонного фона. Проверяйте перекрытия, края волос и кадры, где объект выходит из поля зрения. Simple Choker и Refine Hard Matte полезны для отдельных задач с краем.</p>
+<p>Для вставки на экран используйте Mocha AE. Обведите область с общей плоскостью движения, проверьте сеткой, затем передайте данные в Corner Pin. Спрячьте вставку за рукой с помощью маски. Для согласования добавьте отражения, расфокусировку, зерно и подстройте контраст. Mocha Pro имеет дополнительные модули, а Maxon Supercomp полезен для согласования слоёв, светового обтекания и других задач композитинга.</p>
+<p><a href="https://borisfx.com/products/mocha-ae-cc-mocha-for-after-effects/">Mocha AE</a></p>
+<figure class="embedded-media effect-demo"><iframe src="https://www.youtube-nocookie.com/embed/TF3XVBy6sD4" title="Boris FX · Mocha AE" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>Boris FX · Mocha AE. Обратите внимание, как отдельно выбирают область для трекинга и поверхность, к которой привязывается вставка. <a href="https://www.youtube.com/watch?v=TF3XVBy6sD4">Открыть видео</a>.</figcaption></figure>
+<figure class="embedded-media effect-demo"><iframe src="https://www.youtube-nocookie.com/embed/iO9uP0Amy_c" title="Maxon · Supercomp" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>Maxon · Supercomp. Посмотрите, как автор согласует края и свет между отдельно снятыми элементами. <a href="https://www.youtube.com/watch?v=iO9uP0Amy_c">Открыть видео</a>.</figcaption></figure>
+<h3>Что делать, если вставка выглядит наклейкой</h3>
+<p>Проверьте четыре причины. При ошибке перспективы границы графики расходятся с углами поверхности. При ошибке маски графика перекрывает предметы, которые в кадре находятся ближе. При ошибке света вставка слишком чистая или контрастная для окружения. При ошибке резкости и зерна она отличается от соседних деталей на той же глубине. Исправляйте в таком порядке, чтобы коррекция цвета не скрывала ошибку трекинга.</p>
+<h2 id="space">Псевдообъём, переходы и расширения</h2>
+<p>CC Glass использует карту рельефа, чтобы сформировать блики и тени на плоском изображении. Bevel Alpha добавляет ощущение грани по альфа-каналу. Для настоящего объёма сравните импорт 3D-модели в поддерживаемом режиме After Effects, рендер из Blender и Element 3D от Video Copilot. В каждом случае проверьте, какие материалы, камеры и свет можно менять внутри проекта.</p>
+<p>Linear Wipe и Gradient Wipe дают управляемое раскрытие. Для перехода по движению можно связать Position, Directional Blur и Motion Tile с запасом по краям. Motion Bro помогает применять пакеты пресетов. Откройте один переход послойно и выясните, какие свойства меняются, сколько кадров требуется на вход и выход и где возникает склейка.</p>
+<p>Overlord помогает переносить поддерживаемую векторную графику в AE. Duik и Rubberhose относятся к инструментам риггинга. При выборе расширения проверьте, нужно ли оно для открытия и рендера готового проекта. Если панель создала обычные ключи, результат может работать без неё. Если композиция использует сторонний эффект, команде понадобится совместимая версия или заранее просчитанный слой.</p>
+<p><a href="https://www.videocopilot.net/products/element2/">Element 3D</a> · <a href="https://motionbro.com/plugin/">Motion Bro</a></p>
+<h3>Три цепочки для разбора на занятии</h3>
+<div class="effects-table"><table><thead><tr><th>Что хотим увидеть</th><th>Как собрать</th><th>Что сравнить</th></tr></thead><tbody>
+<tr><th scope="row">Стекло над типографикой</th><td>Прекомпозиция с узором или фото → копия для преломления → Displacement Map по карте с мягкими границами → альфа-матт по форме стекла. Сверху добавьте тонкий блик на отдельном слое.</td><td>Временно уберите блик и посмотрите, читается ли стекло по смещению рисунка. Включите блик и проверьте, сохранился ли контраст букв.</td></tr>
+<tr><th scope="row">Световой след за знаком</th><td>Знак движется в прекомпозиции с достаточным запасом по краям → Echo создаёт след → Glow смягчает его. Исходный знак оставьте поверх на отдельном слое.</td><td>При 25 fps шаг Echo Time в −0,04 с соответствует одному кадру. Измените число отсчётов, затем затухание, чтобы увидеть, какой параметр задаёт длину следа, а какой его плотность.</td></tr>
+<tr><th scope="row">Графика внутри снятого кадра</th><td>Mocha AE отслеживает плоскость → Corner Pin ставит графику в перспективу → маска возвращает перекрывающий объект → Curves, размытие и зерно согласуют изображение.</td><td>Сначала проверьте точность крепления без стилизации. Затем включите финальную обработку и посмотрите кадр в движении, особенно в местах, где предмет закрывает экран.</td></tr>
+</tbody></table></div>
+<p><strong>Порядок проверки.</strong> Сначала добейтесь читаемого результата одним эффектом. Затем добавляйте этапы по одному, называйте слои по функции, например «карта смещения» или «маска руки», и сохраняйте версию до замены эффекта плагином. Так проще вернуть проект в рабочее состояние и объяснить, зачем нужен каждый слой.</p>
+<h2 id="review">Как проверить эффект в готовой сцене</h2>
+<p>Возьмите короткий фрагмент с логотипом. Соберите базовую версию, где читаются форма и движение. В первой вариации подчеркните проявление знаком светом, во второй покажите изменение материала через карту смещения, в третьей добавьте частицы, которые продолжают направление движения. Смотрите ролики в нормальной скорости и сравнивайте по одному изменению за раз.</p>
+<p>Чтобы понять стоимость эффекта, проверьте один и тот же участок в полном разрешении и с тем же цветовым режимом. Оцените рендер, читаемость после сжатия, наличие прозрачности и совместимость проекта на другой машине. GPU-ускорение, поддержка Multi-Frame Rendering и глубин цвета зависят от эффекта. 32 bpc полезен для световых композиций, если выбранная цепочка его поддерживает. Для тяжёлого стабильного фрагмента сохраните исходник и сделайте промежуточный рендер.</p>
+<p>Для проверки перед сдачей откройте экспорт. Посмотрите края изображения на сильном смещении, отдельные стоп-кадры после замедления и участки, где свечение пересекает текст. Если изменение трудно заметить, сформулируйте его назначение и сравните версии на одном экране.</p>
+
+<nav class="lecture-pagination" aria-label="Навигация по лекциям">
+        <a id="prevLecture" href="#">← <span>Предыдущая тема</span></a>
+        <a id="nextLecture" href="#"><span>Следующая тема</span> →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+
+<div class="sidebar-backdrop" aria-hidden="true"></div>
+<script src="../topics.js?v=58"></script>
+<script src="../lecture.js?v=18"></script>
+<script src="../site-settings.js?v=20"></script>
+<script src="../course-design.js?v=22"></script>
+</body>
+</html>

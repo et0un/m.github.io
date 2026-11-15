@@ -168,5 +168,13 @@ window.COURSE_TOPICS = [
       "Практика"
     ],
     "thumbnail": "assets/images/topic-character-animation.svg"
+  },
+  {
+    "slug": "20-effects-plugins",
+    "title": "Эффекты и плагины в After Effects",
+    "tags": [
+      "Практика",
+      "Софт"
+    ]
   }
 ];
