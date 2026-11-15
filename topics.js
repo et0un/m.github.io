@@ -176,5 +176,13 @@ window.COURSE_TOPICS = [
       "Практика",
       "Софт"
     ]
+  },
+  {
+    "slug": "21-tracking-compositing",
+    "title": "Трекинг и композитинг",
+    "tags": [
+      "Практика",
+      "Софт"
+    ]
   }
 ];
