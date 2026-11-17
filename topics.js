@@ -175,7 +175,8 @@ window.COURSE_TOPICS = [
     "tags": [
       "Практика",
       "Софт"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-lesson-effects.svg"
   },
   {
     "slug": "21-tracking-compositing",
@@ -183,7 +184,8 @@ window.COURSE_TOPICS = [
     "tags": [
       "Практика",
       "Софт"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-lesson-tracking.svg"
   },
   {
     "slug": "22-sound-in-motion",
@@ -191,6 +193,7 @@ window.COURSE_TOPICS = [
     "tags": [
       "Теория",
       "Софт"
-    ]
+    ],
+    "thumbnail": "assets/images/topic-lesson-sound.svg"
   }
 ];
