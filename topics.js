@@ -136,7 +136,6 @@ window.COURSE_TOPICS = [
     "slug": "3D",
     "title": "Методы работы с 3D",
     "tags": [
-      "Актуально",
       "Теория",
       "Практика"
     ],
@@ -146,7 +145,6 @@ window.COURSE_TOPICS = [
     "slug": "animation-web",
     "title": "Анимация в веб-дизайне",
     "tags": [
-      "Актуально",
       "Теория",
       "Практика"
     ],
