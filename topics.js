@@ -136,7 +136,6 @@ window.COURSE_TOPICS = [
     "slug": "3D",
     "title": "Методы работы с 3D",
     "tags": [
-      "Актуально",
       "Теория",
       "Практика"
     ],
@@ -146,7 +145,6 @@ window.COURSE_TOPICS = [
     "slug": "animation-web",
     "title": "Анимация в веб-дизайне",
     "tags": [
-      "Актуально",
       "Теория",
       "Практика"
     ],
@@ -173,6 +171,7 @@ window.COURSE_TOPICS = [
     "slug": "20-effects-plugins",
     "title": "Эффекты и плагины в After Effects",
     "tags": [
+      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -182,6 +181,7 @@ window.COURSE_TOPICS = [
     "slug": "21-tracking-compositing",
     "title": "Трекинг и композитинг",
     "tags": [
+      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -191,6 +191,7 @@ window.COURSE_TOPICS = [
     "slug": "22-sound-in-motion",
     "title": "Звук в моушн-дизайне",
     "tags": [
+      "Актуально",
       "Теория",
       "Софт"
     ],
