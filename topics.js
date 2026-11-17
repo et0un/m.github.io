@@ -189,7 +189,7 @@ window.COURSE_TOPICS = [
     "slug": "22-sound-in-motion",
     "title": "Звук в моушн-дизайне",
     "tags": [
-      "Практика",
+      "Теория",
       "Софт"
     ]
   }
