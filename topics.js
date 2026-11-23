@@ -196,5 +196,15 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-lesson-sound.svg"
+  },
+  {
+    "slug": "23-ready-made-templates",
+    "title": "Работа с готовыми шаблонами в After Effects",
+    "tags": [
+      "Теория",
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-layers-sculpted.svg"
   }
 ];
