@@ -216,5 +216,15 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-3d-sculpted.svg"
+  },
+  {
+    "slug": "25-infographics",
+    "title": "Инфографика в моушн-дизайне",
+    "tags": [
+      "Теория",
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-infographics.svg"
   }
 ];

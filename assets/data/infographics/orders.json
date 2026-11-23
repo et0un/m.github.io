@@ -1,0 +1,28 @@
+{
+  "title": "Заказы по каналам",
+  "unit": "заказы",
+  "source": "Условные учебные данные",
+  "axisMax": 100,
+  "categories": [
+    {
+      "id": "online",
+      "label": "Онлайн",
+      "orders": 48
+    },
+    {
+      "id": "store",
+      "label": "Магазин",
+      "orders": 72
+    },
+    {
+      "id": "partners",
+      "label": "Партнёры",
+      "orders": 60
+    },
+    {
+      "id": "events",
+      "label": "События",
+      "orders": 90
+    }
+  ]
+}
