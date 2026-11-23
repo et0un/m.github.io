@@ -206,5 +206,15 @@ window.COURSE_TOPICS = [
       "Софт"
     ],
     "thumbnail": "assets/images/topic-layers-sculpted.svg"
+  },
+  {
+    "slug": "24-product-motion",
+    "title": "Продуктовый моушн: рекламный ролик вокруг одного объекта",
+    "tags": [
+      "Теория",
+      "Практика",
+      "Софт"
+    ],
+    "thumbnail": "assets/images/topic-3d-sculpted.svg"
   }
 ];
