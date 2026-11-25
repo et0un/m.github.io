@@ -202,7 +202,6 @@ window.COURSE_TOPICS = [
     "title": "Работа с готовыми шаблонами в After Effects",
     "tags": [
       "Теория",
-      "Практика",
       "Софт"
     ],
     "thumbnail": "assets/images/topic-layers-sculpted.svg"
