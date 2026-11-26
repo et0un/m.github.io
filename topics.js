@@ -171,7 +171,6 @@ window.COURSE_TOPICS = [
     "slug": "20-effects-plugins",
     "title": "Эффекты и плагины в After Effects",
     "tags": [
-      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -181,7 +180,6 @@ window.COURSE_TOPICS = [
     "slug": "21-tracking-compositing",
     "title": "Трекинг и композитинг",
     "tags": [
-      "Актуально",
       "Практика",
       "Софт"
     ],
@@ -191,7 +189,6 @@ window.COURSE_TOPICS = [
     "slug": "22-sound-in-motion",
     "title": "Звук в моушн-дизайне",
     "tags": [
-      "Актуально",
       "Теория",
       "Софт"
     ],
@@ -201,6 +198,7 @@ window.COURSE_TOPICS = [
     "slug": "23-ready-made-templates",
     "title": "Работа с готовыми шаблонами в After Effects",
     "tags": [
+      "Актуально",
       "Теория",
       "Софт"
     ],
@@ -210,6 +208,7 @@ window.COURSE_TOPICS = [
     "slug": "24-product-motion",
     "title": "Продуктовый моушн: рекламный ролик вокруг одного объекта",
     "tags": [
+      "Актуально",
       "Теория",
       "Практика",
       "Софт"
@@ -220,6 +219,7 @@ window.COURSE_TOPICS = [
     "slug": "25-infographics",
     "title": "Инфографика в моушн-дизайне",
     "tags": [
+      "Актуально",
       "Теория",
       "Практика",
       "Софт"
